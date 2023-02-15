@@ -11,23 +11,19 @@ const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 export default function SearchMap(props: any) {
   const [image, setImage] = useState([]);
   const [query, setQuery] = useState("");
-  useEffect(() => {
-    if (query.length > 0) {
-      ImageSearchHttpHandler(query, true); // 컴포넌트 마운트 후에, 함수를 호출한다.
-    }
-  }, [query]);
 
-  // book search 핸들러
+  // image search 핸들러
   const ImageSearchHttpHandler = async (query: any, reset: any) => {
     // Parameter 설정
     const params = {
       query: query,
       sort: "accuracy", // accuracy | recency 정확도 or 최신
       page: 1, // 페이지번호
-      size: 10, // 한 페이지에 보여 질 문서의 개수
+      size: 1, // 한 페이지에 보여 질 문서의 개수
     };
 
     const { data } = await imageSearch(params); // api 호출
+
     if (reset) {
       setImage(data.documents);
     } else {
@@ -38,6 +34,23 @@ export default function SearchMap(props: any) {
   const searchImage = (text: any) => {
     setQuery(text);
   };
+
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(true);
+
+  const onchangeSearch = (event: any) => {
+    setSearch(event?.target.value);
+  };
+
+  const onClickSearchBarOpen = () => {
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    if (query.length > 0) {
+      ImageSearchHttpHandler(query, true); // 컴포넌트 마운트 후에, 함수를 호출한다.
+    }
+  }, [query]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -213,24 +226,26 @@ export default function SearchMap(props: any) {
               (index + 1) +
               '"></span>' +
               '<div class="info">' +
-              "   <h5>" +
+              "<h5>" +
               places.place_name +
               "</h5>";
 
           if (places.road_address_name) {
             itemStr +=
-              "    <span>" +
+              "<span>" +
               places.road_address_name +
               "</span>" +
-              '   <span class="jibun gray">' +
+              '<span class="jibun gray">' +
               places.address_name +
               "</span>";
           } else {
-            itemStr += "    <span>" + places.address_name + "</span>";
+            itemStr += "<span>" + places.address_name + "</span>";
           }
 
-          itemStr +=
-            '  <span class="tel">' + places.phone + "</span>" + "</div>";
+          itemStr += '<span class="tel">' + places.phone + "</span>" + "</div>";
+          itemStr += "<span>" + places.address_name + "</span>";
+          setQuery(places);
+          console.log(image);
 
           el.innerHTML = itemStr;
           el.className = "item";
@@ -324,17 +339,6 @@ export default function SearchMap(props: any) {
     };
   }, []);
 
-  const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(true);
-
-  const onchangeSearch = (event: any) => {
-    setSearch(event?.target.value);
-  };
-
-  const onClickSearchBarOpen = () => {
-    setIsOpen(!isOpen);
-  };
-
   return (
     <MapSection className="map_wrap" isOpen={isOpen}>
       <div id="map"></div>
@@ -354,6 +358,7 @@ export default function SearchMap(props: any) {
                   id="keyword"
                   onChange={onchangeSearch}
                 />
+
                 <button id="submit_btn" type="submit">
                   <SearchIcon />
                 </button>
