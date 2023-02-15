@@ -19,13 +19,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-    // "src/components/select.jsx",
-    // "src/components/select.jsx",
-    // "src/pages/posts/new.jsx"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/login.tsx"],
   "exclude": ["node_modules"]
 }

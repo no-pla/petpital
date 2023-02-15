@@ -60,8 +60,8 @@ const ReviewTagWrap = styled.div`
 `;
 
 const ReviewTag = styled.div`
-  width: 100px;
-  height: 20px;
+  width: 130px;
+  height: 22px;
   border: 1px solid black;
   background-color: gray;
   color: white;
