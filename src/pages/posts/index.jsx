@@ -97,7 +97,7 @@ const CreatePostBtn = styled.button`
   }
 `;
 
-function posts() {
+function Posts() {
   const { query } = useRouter();
   const id = typeof query.id === "string" ? query.id : "";
   const router = useRouter();
@@ -161,4 +161,4 @@ function posts() {
   );
 }
 
-export default posts;
+export default Posts;
