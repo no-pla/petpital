@@ -1,12 +1,44 @@
 import { useEffect, useState } from "react";
+import { imageSearch } from "../share/api";
 
 declare const window: typeof globalThis & {
   kakao: any;
 };
 
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
+// https://dapi.kakao.com/v2/search/image
 
 export default function SearchMap(props: any) {
+  const [image, setImage] = useState([]);
+  const [query, setQuery] = useState("");
+  useEffect(() => {
+    if (query.length > 0) {
+      ImageSearchHttpHandler(query, true); // 컴포넌트 마운트 후에, 함수를 호출한다.
+    }
+  }, [query]);
+
+  // book search 핸들러
+  const ImageSearchHttpHandler = async (query: any, reset: any) => {
+    // Parameter 설정
+    const params = {
+      query: query,
+      sort: "accuracy", // accuracy | recency 정확도 or 최신
+      page: 1, // 페이지번호
+      size: 10, // 한 페이지에 보여 질 문서의 개수
+    };
+
+    const { data } = await imageSearch(params); // api 호출
+    if (reset) {
+      setImage(data.documents);
+    } else {
+      setImage(image.concat(data.documents));
+    }
+  };
+
+  const searchImage = (text: any) => {
+    setQuery(text);
+  };
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
@@ -375,7 +407,7 @@ interface ISearchBarOpen {
 export const MapSection = styled.div`
   display: flex;
   #map {
-    width: 1920px;
+    width: 1200px;
     height: 1080px;
     position: absolute;
     overflow: hidden;
