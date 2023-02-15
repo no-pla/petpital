@@ -16,6 +16,7 @@ import {
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const Join = () => {
   const [email, setEmail] = useState("");
@@ -27,6 +28,7 @@ const Join = () => {
   const [joinFail, setJoinFail] = useState(false);
   const [joinComplete, setJoinComplete] = useState(false);
   const [joinAready, setJoinAready] = useState(false);
+  const router = useRouter();
 
   const onSubmitJoin = async (event: any) => {
     event.preventDefault();
@@ -152,11 +154,17 @@ const Join = () => {
 
           <ButtonWrap>
             <CustomButton bgColor="#33a264" height={12} type="submit">
-              <Link href="/">완료</Link>
+              완료
             </CustomButton>
 
-            <CustomButton bgColor="#000" height={12}>
-              <Link href="/">취소</Link>
+            <CustomButton
+              bgColor="#000"
+              height={12}
+              onClick={() => {
+                router.push("/");
+              }}
+            >
+              취소
             </CustomButton>
           </ButtonWrap>
         </FormWrap>
@@ -193,8 +201,15 @@ const Join = () => {
         <AuthModal>
           <AuthTitle>가입성공</AuthTitle>
           <p>회원가입이 완료되었습니다.</p>
-          <CustomButton bgColor="#33a264" height={8} width={16}>
-            <Link href="/"> 확인</Link>
+          <CustomButton
+            bgColor="#33a264"
+            height={8}
+            width={16}
+            onClick={() => {
+              router.push("/");
+            }}
+          >
+            확인
           </CustomButton>
         </AuthModal>
       )}

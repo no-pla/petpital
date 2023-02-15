@@ -99,8 +99,14 @@ const Login = () => {
             <CustomButton type="submit" bgColor="#33a264" height={12}>
               로그인
             </CustomButton>
-            <CustomButton height={12} bgColor="#000">
-              <Link href="/">취소</Link>
+            <CustomButton
+              height={12}
+              bgColor="#000"
+              onClick={() => {
+                router.push("/");
+              }}
+            >
+              취소
             </CustomButton>
           </ButtonWrap>
         </FormWrap>
@@ -114,8 +120,12 @@ const Login = () => {
           </span>
         </ButtonWrap>
         {/* 회원가입 */}
-        <Singup>
-          <Link href="signup">회원가입</Link>
+        <Singup
+          onClick={() => {
+            router.push("signup");
+          }}
+        >
+          회원가입
         </Singup>
         {signUp && <Join />}
       </ModalWrap>
