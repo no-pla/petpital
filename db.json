@@ -14,9 +14,7 @@
       "contents": "re",
       "totalCost": "e",
       "rating": 2,
-      "selectedColors": [
-        "시설이좋아요"
-      ],
+      "selectedColors": ["시설이좋아요"],
       "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431639957?alt=media&token=87e3f00f-2bf1-4849-bb0b-ead7948875e9",
       "id": 27
     },
@@ -25,9 +23,7 @@
       "contents": "re",
       "totalCost": "e",
       "rating": 2,
-      "selectedColors": [
-        "시설이좋아요"
-      ],
+      "selectedColors": ["시설이좋아요"],
       "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431640546?alt=media&token=8d2526ab-dc2c-4cc9-b2b5-f2bc0852ad1d",
       "id": 28
     },
@@ -36,10 +32,7 @@
       "contents": "rer",
       "totalCost": "ereer",
       "rating": 4,
-      "selectedColors": [
-        "깨끗해요",
-        "꼼꼼해요"
-      ],
+      "selectedColors": ["깨끗해요", "꼼꼼해요"],
       "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676439558211?alt=media&token=fa29e5f2-044a-44e3-8d4d-0935ce0d5ac6",
       "id": 29
     },
@@ -57,11 +50,7 @@
       "contents": "내용입니당ㅇㅇㅇㅇㅇㅇㅇ",
       "totalCost": "200000만원",
       "rating": 2,
-      "selectedColors": [
-        "깨끗해요",
-        "친절해요",
-        "저렴해요"
-      ],
+      "selectedColors": ["깨끗해요", "친절해요", "저렴해요"],
       "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676453367533?alt=media&token=6d9ac62c-8bfd-44c2-a374-de7a8aeea4ee",
       "id": 31
     },
@@ -70,9 +59,7 @@
       "contents": "contents",
       "totalCost": "TotalCost",
       "rating": 3,
-      "selectedColors": [
-        "시설이좋아요"
-      ],
+      "selectedColors": ["시설이좋아요"],
       "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676454644038?alt=media&token=c3d154c3-e151-4e56-8e79-6fa5dc74a5ed",
       "id": 32
     },
@@ -81,114 +68,9 @@
       "contents": "도그내용",
       "totalCost": "진료비",
       "rating": 1,
-      "selectedColors": [
-        "꼼꼼해요"
-      ],
+      "selectedColors": ["꼼꼼해요"],
       "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676457216030?alt=media&token=c46eef0b-92f1-419d-89a7-01979df1ad60",
       "id": 33
-    }
-  ],
-  "comments": [
-    {
-      "postId": 3,
-      "text": "eee",
-      "id": 31
-    },
-    {
-      "postId": 3,
-      "text": "2",
-      "id": 32
-    },
-    {
-      "postId": 4,
-      "text": "rrr",
-      "id": 33
-    },
-    {
-      "postId": 4,
-      "text": "ww",
-      "id": 34
-    },
-    {
-      "postId": 3,
-      "text": "ㄴㅇㄴㅇ",
-      "id": 35
-    },
-    {
-      "postId": 4,
-      "text": "ㄴㅇ",
-      "id": 36
-    },
-    {
-      "postId": 5,
-      "text": "ㅇ",
-      "id": 37
-    },
-    {
-      "postId": 3,
-      "text": "ㅇ",
-      "id": 38
-    },
-    {
-      "postId": 3,
-      "text": "eee",
-      "id": 39
-    },
-    {
-      "postId": 3,
-      "text": "sdsdsd",
-      "id": 40
-    },
-    {
-      "postId": 3,
-      "text": "qq",
-      "id": 41
-    },
-    {
-      "postId": 6,
-      "text": "ㅇㄹㅇㄹㅇㅇㄹㅇㄹㅇㄹ",
-      "id": 42
-    },
-    {
-      "postId": 6,
-      "text": "rrr",
-      "id": 43
-    },
-    {
-      "postId": 6,
-      "text": "eee",
-      "id": 44
-    },
-    {
-      "postId": 4,
-      "text": "tttt",
-      "id": 45
-    },
-    {
-      "postId": 3,
-      "text": "ㅈㄷㅈㄷㅈㄷㅈㄷ",
-      "id": 46
-    },
-    {
-      "postId": 3,
-      "text": "ffff",
-      "id": 47
-    },
-    {
-      "postId": 4,
-      "text": "tt",
-      "id": 48
-    },
-    {
-      "postId": 5,
-      "text": "d",
-      "id": 49
-    }
-  ],
-  "imgaes": [
-    {
-      "id": 1,
-      "url": "123"
     }
   ],
   "ratings": [
