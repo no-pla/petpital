@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import styled from "@emotion/styled";
+import {
+  SearchOutlined,
+  CaretLeftFilled,
+  CaretRightFilled,
+} from "@ant-design/icons";
+import { useRouter } from "next/router";
 import { imageSearch } from "../share/api";
 
 declare const window: typeof globalThis & {
@@ -6,37 +13,11 @@ declare const window: typeof globalThis & {
 };
 
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
-// https://dapi.kakao.com/v2/search/image
 
 export default function SearchMap(props: any) {
-  const [image, setImage] = useState([]);
-  const [query, setQuery] = useState("");
-
-  // image search 핸들러
-  const ImageSearchHttpHandler = async (query: any, reset: any) => {
-    // Parameter 설정
-    const params = {
-      query: query,
-      sort: "accuracy", // accuracy | recency 정확도 or 최신
-      page: 1, // 페이지번호
-      size: 1, // 한 페이지에 보여 질 문서의 개수
-    };
-
-    const { data } = await imageSearch(params); // api 호출
-
-    if (reset) {
-      setImage(data.documents);
-    } else {
-      setImage(image.concat(data.documents));
-    }
-  };
-
-  const searchImage = (text: any) => {
-    setQuery(text);
-  };
-
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(true);
+  const router = useRouter();
 
   const onchangeSearch = (event: any) => {
     setSearch(event?.target.value);
@@ -45,12 +26,6 @@ export default function SearchMap(props: any) {
   const onClickSearchBarOpen = () => {
     setIsOpen(!isOpen);
   };
-
-  useEffect(() => {
-    if (query.length > 0) {
-      ImageSearchHttpHandler(query, true); // 컴포넌트 마운트 후에, 함수를 호출한다.
-    }
-  }, [query]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -147,6 +122,7 @@ export default function SearchMap(props: any) {
 
           // 마커에 클릭이벤트를 등록합니다
           window.kakao.maps.event.addListener(marker, "click", function () {
+            router.push(place.place_url);
             // 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
             infowindow.setContent(
               '<div style="padding:5px;font-size:12px;">' +
@@ -242,11 +218,9 @@ export default function SearchMap(props: any) {
             itemStr += "<span>" + places.address_name + "</span>";
           }
 
-          itemStr += '<span class="tel">' + places.phone + "</span>" + "</div>";
-          itemStr += "<span>" + places.address_name + "</span>";
-          setQuery(places);
-          console.log(image);
-
+          itemStr += '<span class="tel">' + places.phone + "</span>";
+          itemStr +=
+            "<a href=" + places.place_url + ">병원 정보 보기</a>" + "</div>";
           el.innerHTML = itemStr;
           el.className = "item";
 
@@ -322,8 +296,7 @@ export default function SearchMap(props: any) {
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
         function displayInfowindow(marker: any, title: any) {
-          const content =
-            '<div style="padding:5px;z-index:1;">' + title + "</div>";
+          const content = `<div style="padding:10px;min-width:200px">${title}</div>`;
 
           infowindow.setContent(content);
           infowindow.open(map, marker);
@@ -398,13 +371,6 @@ export default function SearchMap(props: any) {
   );
 }
 
-import styled from "@emotion/styled";
-import {
-  SearchOutlined,
-  CaretLeftFilled,
-  CaretRightFilled,
-} from "@ant-design/icons";
-
 interface ISearchBarOpen {
   isOpen: boolean;
 }
@@ -428,7 +394,7 @@ export const MapSection = styled.div`
   #menu_wrap {
     position: relative;
     width: 400px;
-    height: 600px;
+    height: 100vh;
     border-radius: 20px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
@@ -493,7 +459,6 @@ export const MapSection = styled.div`
   #btnDiv {
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
 
   #pagination {
