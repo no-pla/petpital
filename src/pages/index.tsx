@@ -1,6 +1,10 @@
+import { useGetReviews } from "@/Hooks/useGetReviews";
 import styled from "@emotion/styled";
+import axios from "axios";
+import { useQuery } from "react-query";
 
 export default function Home() {
+  const { recentlyReview, isLoading } = useGetReviews();
   return (
     <>
       <Slider>
@@ -20,6 +24,8 @@ export default function Home() {
       <SectionSubTitle>
         육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
       </SectionSubTitle>
+      <button>⬅</button>
+      <button>➡</button>
       <BestPetpitalContainer>
         <BestPetpital>
           <BestPetpitalImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
@@ -38,31 +44,25 @@ export default function Home() {
       </WriteAReviewSection>
       <SectionTitle>내가 한번 가봤다냥</SectionTitle>
       <ReviewList>
-        <Review>
-          <ReviewImg
-            src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg"
-            alt=""
-          />
-          <ReviewInfo>
-            <ReviewTitle>
-              정말로 친절했던 갓병원 강추입니다. 여러분!
-            </ReviewTitle>
-            <PetpitalInfo>
-              <PetpitalAddressName>파인떙큐</PetpitalAddressName>
-              <PetpitalAddress>경기도 용인시 기흥구</PetpitalAddress>
-            </PetpitalInfo>
-            <ReviewDesc>
-              정말로 친절했던 갓병원 강추입니다. 여러분!정말로 친절했던 갓병원
-              강추입니다. 여러분!정말로 친절했던 갓병원 강추입니다.
-              여러분!정말로 친절했던 갓병원 강추입니다. 여러분!정말로 친절했던
-              갓병원 강추입니다. 여러분!
-            </ReviewDesc>
-            <PetpitalPrice>
-              <PetpitalLowPrice>25,000</PetpitalLowPrice>
-              <PetpitalHighPrice>25,000</PetpitalHighPrice>
-            </PetpitalPrice>
-          </ReviewInfo>
-        </Review>
+        {!isLoading &&
+          recentlyReview?.data.map((review) => {
+            return (
+              <Review key={review.id}>
+                <ReviewImg src={review.downloadUrl} alt="" />
+                <ReviewInfo>
+                  <ReviewTitle>{review.title}</ReviewTitle>
+                  <PetpitalInfo>
+                    <PetpitalAddressName>파인떙큐</PetpitalAddressName>
+                    <PetpitalAddress>경기도 용인시 기흥구</PetpitalAddress>
+                  </PetpitalInfo>
+                  <ReviewDesc>{review.contents}</ReviewDesc>
+                  <PetpitalPrice>
+                    <PetpitalHighPrice>25,000</PetpitalHighPrice>
+                  </PetpitalPrice>
+                </ReviewInfo>
+              </Review>
+            );
+          })}
       </ReviewList>
       <SectionTitle>고민 있음 털어놔보개!</SectionTitle>
       <CounselList>
@@ -124,6 +124,7 @@ const Review = styled.div`
   display: flex;
   width: 100%;
   height: 200px;
+  position: relative;
 `;
 
 const ReviewImg = styled.img`
@@ -186,6 +187,8 @@ const ReviewInfo = styled.div`
 
 const PetpitalPrice = styled.div`
   margin-top: 8px;
+  position: absolute;
+  bottom: 18px;
 `;
 
 const PetpitalLowPrice = styled.span`
@@ -212,13 +215,13 @@ const PetpitalHighPrice = styled.span`
 `;
 
 // 고민 상담 스타일
-const CounselList = styled.div`
+export const CounselList = styled.div`
   margin-bottom: 180px;
   display: flex;
   gap: 12px;
 `;
 
-const CounselTitle = styled.h3`
+export const CounselTitle = styled.h3`
   margin-bottom: 50px;
   display: flex;
   font-size: 14px;
@@ -230,7 +233,7 @@ const CounselTitle = styled.h3`
   }
 `;
 
-const Counsel = styled.div`
+export const Counsel = styled.div`
   background-color: #fafafa;
   width: 350px;
   height: 150px;
@@ -241,7 +244,7 @@ const Counsel = styled.div`
   box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
 `;
 
-const CounselButton = styled.button`
+export const CounselButton = styled.button`
   background: #65d8df;
   padding: 12px 8px;
   gap: 8px;
