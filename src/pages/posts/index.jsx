@@ -36,12 +36,13 @@ const InformationBox = styled.div`
 
 const PostHeader = styled.div`
   height: 50px;
-  width: 200px;
+  width: 400px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 30px;
   /* background-color: purple; */
+  border-top: 1px solid gray;
 `;
 
 const RatingBox = styled.div`
@@ -61,7 +62,7 @@ const ReviewTagWrap = styled.div`
 
 const ReviewTag = styled.div`
   width: 130px;
-  height: 22px;
+  height: 28px;
   border: 1px solid black;
   background-color: gray;
   color: white;
@@ -98,10 +99,13 @@ const CreatePostBtn = styled.button`
 `;
 
 function Posts() {
+  const [totalRating, setTotalRating] = useState(0);
+  const [numRatings, setNumRatings] = useState(0);
+
   const { query } = useRouter();
   const id = typeof query.id === "string" ? query.id : "";
   const router = useRouter();
-  console.log("router", id);
+
   const {
     data: post,
     isLoading: postLoading,
@@ -110,7 +114,7 @@ function Posts() {
     const response = await axios.get(`http://localhost:5000/posts/${id}`);
     return response.data.reverse();
   });
-  console.log("post", post);
+
   if (postLoading || !post) {
     return <div>Loading...</div>;
   }
@@ -128,7 +132,8 @@ function Posts() {
   const goCreatePost = () => {
     router.push(`/posts/createPost`);
   };
-  console.log("posts", post[3].selectedColors);
+  // console.log("post", post[0].rating);
+
   return (
     <Container>
       <InformationBox>병원정보</InformationBox>
@@ -151,6 +156,7 @@ function Posts() {
                 <ReviewTag key={color}>{color}</ReviewTag>
               ))}
             </ReviewTagWrap>
+            <div>{p.date}</div>
           </PostBox>
         </div>
       ))}
