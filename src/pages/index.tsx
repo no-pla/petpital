@@ -1,10 +1,18 @@
-import { useGetReviews } from "@/Hooks/useGetReviews";
+import { useGetPetConsult, useGetReviews } from "@/Hooks/useGetReviews";
+import {
+  CounselList,
+  Counsel,
+  CounselTitle,
+  CounselButton,
+} from "./petconsult";
 import styled from "@emotion/styled";
-import axios from "axios";
-import { useQuery } from "react-query";
 
 export default function Home() {
   const { recentlyReview, isLoading } = useGetReviews();
+  const { isLoadingPetConsult, petConsult } = useGetPetConsult({
+    id: "",
+  });
+
   return (
     <>
       <Slider>
@@ -66,10 +74,13 @@ export default function Home() {
       </ReviewList>
       <SectionTitle>고민 있음 털어놔보개!</SectionTitle>
       <CounselList>
-        <Counsel>
-          <CounselTitle>강아지 털관리 다들 어떻게 하시나요?</CounselTitle>
-          <CounselButton>답변하러가기</CounselButton>
-        </Counsel>
+        {!isLoadingPetConsult &&
+          petConsult?.data.map((counsel) => (
+            <Counsel key={counsel.id}>
+              <CounselTitle>{counsel.content}</CounselTitle>
+              <CounselButton>답변하러가기</CounselButton>
+            </Counsel>
+          ))}
       </CounselList>
     </>
   );
@@ -79,13 +90,13 @@ export default function Home() {
 const PetpitalTitle = styled.h1`
   color: #ffffff;
   font-weight: 700;
-  font-size: 28px;
+  font-size: 2rem;
   line-height: 34px;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
 const PetpitalSubTitle = styled.h2`
   font-weight: 400;
-  font-size: 20px;
+  font-size: 1.2rem;
   line-height: 24px;
   color: #ffffff;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -105,7 +116,7 @@ const WriteAReviewSection = styled.div`
   margin: 150px 0 50px 0;
   padding: 50px 70px;
   font-weight: 700;
-  font-size: 34px;
+  font-size: 1.8rem;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -152,9 +163,8 @@ const ReviewTitle = styled.h3`
   white-space: nowrap;
   text-overflow: ellipsis;
   margin-bottom: 17px;
-  font-style: normal;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 1.4rem;
   line-height: 19px;
   word-break: break-all;
 `;
@@ -167,13 +177,13 @@ const PetpitalInfo = styled.div`
 
 const PetpitalAddress = styled.div`
   font-weight: 600;
-  font-size: 10px;
+  font-size: 0.8rem;
   line-height: 19px;
 `;
 
 const PetpitalAddressName = styled.div`
   font-weight: 600;
-  font-size: 16px;
+  font-size: 1.2rem;
   line-height: 19px;
 `;
 
@@ -214,45 +224,6 @@ const PetpitalHighPrice = styled.span`
   }
 `;
 
-// 고민 상담 스타일
-export const CounselList = styled.div`
-  margin-bottom: 180px;
-  display: flex;
-  gap: 12px;
-`;
-
-export const CounselTitle = styled.h3`
-  margin-bottom: 50px;
-  display: flex;
-  font-size: 14px;
-  &::before {
-    content: "Q";
-    color: #c5c5c5;
-    font-size: 47px;
-    margin: 0 10px 0 30px;
-  }
-`;
-
-export const Counsel = styled.div`
-  background-color: #fafafa;
-  width: 350px;
-  height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-radius: 4px 4px 0px 0px;
-  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
-`;
-
-export const CounselButton = styled.button`
-  background: #65d8df;
-  padding: 12px 8px;
-  gap: 8px;
-  color: white;
-  border: none;
-  border-radius: 0px 0px 4px 4px;
-`;
-
 // 리뷰 많은 병원
 
 const BestPetpitalContainer = styled.div`
@@ -285,6 +256,7 @@ const BestPetpitalPrice = styled.span`
   border-radius: 4px;
   background-color: #65d8df;
   margin: 16px auto;
+  font-size: 1rem;
 
   &::before {
     content: "진료비 ";
@@ -300,14 +272,14 @@ const BestPetpitalInfo = styled.div`
 `;
 
 const BestPetpitalAddress = styled.div`
-  font-weight: 600;
-  font-size: 10px;
+  font-weight: 400;
+  font-size: 0.8rem;
   line-height: 19px;
 `;
 
 const BestPetpitalAddressName = styled.div`
   font-weight: 600;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 19px;
 `;
 
@@ -330,4 +302,5 @@ const SectionTitle = styled.h3`
 
 const SectionSubTitle = styled.div`
   margin-bottom: 24px;
+  color: #c5c5c5;
 `;
