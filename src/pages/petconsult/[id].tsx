@@ -56,14 +56,6 @@ const PetconsultDetail = () => {
 
   const onOpenInput = (targetId: string) => {
     router.push(`/petconsult/edit/${targetId}`);
-
-    // const newCounsels: any[] = [];
-    // counsel.data.map((item: any) =>
-    //   item.id === targetId
-    //     ? newCounsels.push({ ...item, onEdit: true })
-    //     : newCounsels.push(item),
-    // );
-    // setCounsel(newCounsels);
   };
 
   function Components(this: any, { counselData }: any) {
