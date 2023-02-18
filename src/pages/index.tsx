@@ -1,4 +1,4 @@
-import { useGetPetConsult, useGetReviews } from "@/Hooks/useGetReviews";
+import { useGetReviews } from "@/Hooks/useGetReviews";
 import {
   CounselList,
   Counsel,
@@ -6,11 +6,12 @@ import {
   CounselButton,
 } from "./petconsult";
 import styled from "@emotion/styled";
+import { useGetPetConsult } from "@/Hooks/usePetsult";
 
 export default function Home() {
   const { recentlyReview, isLoading } = useGetReviews();
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
-    id: "",
+    limit: "&_limit=3",
   });
 
   return (
