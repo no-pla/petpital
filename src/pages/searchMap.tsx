@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import { imageSearch } from "../share/api";
+import { Roadview } from "react-kakao-maps-sdk";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -302,31 +303,35 @@ export default function SearchMap(props: any) {
         // 인포윈도우에 장소명을 표시합니다
         function displayInfowindow(marker: any, title: any, places: any) {
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
-          const roadviewContainer = document.getElementById("roadview"); //로드뷰를 표시할 div
-          const roadview = new window.kakao.maps.Roadview(roadviewContainer); //로드뷰 객체
-          const roadviewClient = new window.kakao.maps.RoadviewClient(); //좌표로부터 로드뷰 파노ID를 가져올 로드뷰 helper객체
-
-          const position = new window.kakao.maps.LatLng(places.y, places.x);
-
-          // 특정 위치의 좌표와 가까운 로드뷰의 panoId를 추출하여 로드뷰를 띄운다.
-          roadviewClient.getNearestPanoId(position, 50, function (panoId: any) {
-            roadview.setPanoId(panoId, position); //panoId와 중심좌표를 통해 로드뷰 실행
-          });
-
-          const content = `         
+          const content = `                  
           <div class="item">
-          <div id="roadview"></div>
-            <h5>${title}</h5>
+            <h2>${title}</h2>
             <div class="info">
-              <span class="gray">${places.road_address_name}</span>
-              <span>${places.address_name}</span>
-              <span class="tel">${places.phone}</span>
-              <a href="${places.place_url}" target="_blank">상세보기</a>
+              <p class="gray">${places.road_address_name}</p>
+              <p>${places.address_name}</p>
+              <p class="tel">${places.phone}</p>
+              <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
+              <div class="test"><div> 
+              <Road
             </div>
           </div>
         `;
+
           const menuWrap = document.getElementById("menu_wrap1");
           if (menuWrap) menuWrap.innerHTML = content;
+
+          const content2 = (
+            <Roadview // 로드뷰를 표시할 Component
+              position={{
+                // 지도의 중심좌표
+                lat: 33.450701,
+                lng: 126.570667,
+                radius: 50,
+              }}
+              // 지도의 크기
+              style={{ width: "380px", height: "300px", position: "absolute" }}
+            />
+          );
 
           setIsOpen1(!isOpen1);
           console.log(places);
@@ -417,6 +422,16 @@ export default function SearchMap(props: any) {
           ) : (
             <></>
           )}
+          <Roadview // 로드뷰를 표시할 Component
+            position={{
+              // 지도의 중심좌표
+              lat: 33.450701,
+              lng: 126.570667,
+              radius: 50,
+            }}
+            // 지도의 크기
+            style={{ width: "380px", height: "300px" }}
+          />
         </div>
       </div>
     </MapSection>
@@ -435,6 +450,12 @@ export const MapSection = styled.div`
     height: 1080px;
     position: absolute;
     overflow: hidden;
+    border-radius: 20px;
+  }
+  .test {
+    width: 90%;
+    height: 200px;
+    background-color: #aaa;
     border-radius: 20px;
   }
 
@@ -470,10 +491,6 @@ export const MapSection = styled.div`
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
     display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")};
-  }
-  #roadview {
-    width: 200px;
-    height: 200px;
   }
 
   #map_title {
