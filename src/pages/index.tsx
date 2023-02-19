@@ -1,10 +1,29 @@
 import { useGetReviews } from "@/Hooks/useGetReviews";
 import styled from "@emotion/styled";
+<<<<<<< Updated upstream
 import axios from "axios";
 import { useQuery } from "react-query";
+=======
+import { useGetPetConsult } from "@/Hooks/usePetsult";
+import { useRouter } from "next/router";
+import { useGetMainHospital } from "@/components/api/getMainHosiptal";
+import { useState } from "react";
+>>>>>>> Stashed changes
 
 export default function Home() {
+  const router = useRouter();
   const { recentlyReview, isLoading } = useGetReviews();
+<<<<<<< Updated upstream
+=======
+  const { isLoadingPetConsult, petConsult } = useGetPetConsult({
+    limit: "&_limit=3",
+  });
+
+  const [page, setPage] = useState(1);
+
+  const { data: mainPetpial } = useGetMainHospital(page);
+
+>>>>>>> Stashed changes
   return (
     <>
       <Slider>
@@ -24,17 +43,32 @@ export default function Home() {
       <SectionSubTitle>
         육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
       </SectionSubTitle>
-      <button>⬅</button>
-      <button>➡</button>
+      <button disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
+        ⬅
+      </button>
+      <button
+        disabled={mainPetpial?.data.meta.is_end === true}
+        onClick={() => setPage((prev) => prev + 1)}
+      >
+        ➡
+      </button>
       <BestPetpitalContainer>
-        <BestPetpital>
-          <BestPetpitalImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
-          <BestPetpitalPrice>15,000~55,000</BestPetpitalPrice>
-          <BestPetpitalInfo>
-            <BestPetpitalAddressName>파인떙큐</BestPetpitalAddressName>
-            <BestPetpitalAddress>경기도 용인시 기흥구</BestPetpitalAddress>
-          </BestPetpitalInfo>
-        </BestPetpital>
+        {mainPetpial?.data?.documents.map((petpial: any) => {
+          return (
+            <BestPetpital key={petpial.id}>
+              <BestPetpitalImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
+              <BestPetpitalPrice>{petpial.phone}</BestPetpitalPrice>
+              <BestPetpitalInfo>
+                <BestPetpitalAddressName>
+                  {petpial.place_name}
+                </BestPetpitalAddressName>
+                <BestPetpitalAddress>
+                  {petpial.road_address_name}
+                </BestPetpitalAddress>
+              </BestPetpitalInfo>
+            </BestPetpital>
+          );
+        })}
       </BestPetpitalContainer>
       <WriteAReviewSection>
         회원님의 후기로
@@ -66,10 +100,24 @@ export default function Home() {
       </ReviewList>
       <SectionTitle>고민 있음 털어놔보개!</SectionTitle>
       <CounselList>
+<<<<<<< Updated upstream
         <Counsel>
           <CounselTitle>강아지 털관리 다들 어떻게 하시나요?</CounselTitle>
           <CounselButton>답변하러가기</CounselButton>
         </Counsel>
+=======
+        {!isLoadingPetConsult &&
+          petConsult?.data.map((counsel) => (
+            <Counsel key={counsel.id}>
+              <CounselTitle>{counsel.content}</CounselTitle>
+              <CounselButton
+                onClick={() => router.push(`petconsult/${counsel.id}`)}
+              >
+                답변하러가기
+              </CounselButton>
+            </Counsel>
+          ))}
+>>>>>>> Stashed changes
       </CounselList>
     </>
   );
