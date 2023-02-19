@@ -1,7 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
-import { authService } from "@/firebase/firebase";
-import { v4 as uuidv4 } from "uuid";
+import { useAddCounsel } from "@/Hooks/usePetsult";
+const short = require("short-uuid");
 
 export interface INewPetsult {
   id: string;
@@ -9,36 +8,37 @@ export interface INewPetsult {
   nickname: any;
   profileImg: any;
   createdAt: number;
+  onEdit: boolean;
 }
 
 const NewPetsult = () => {
   const [newPetsult, setNewPetsult] = useState<INewPetsult>({
-    id: uuidv4(),
+    id: short.generate(),
     content: "",
     nickname: "",
     profileImg: "",
     createdAt: Date.now(),
+    onEdit: false,
   });
 
   const nickname = "임시닉네임"; // 임시값
   const profileImg =
     "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431476796?alt=media&token=2a8e780a-d89b-4274-bfe4-2a4e375fa23a"; // 임시값
 
-  //   const nickname = authService.currentUser?.displayName; // 이후 교체 예정
-  //   const profileImg = authService.currentUser?.displayName; // 이후 교체 예정
-
+  const { mutate: addCounsel } = useAddCounsel();
   const addPetsult = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newPetsult.content) {
       return;
     } else {
-      await axios.post("http://localhost:3001/qna", newPetsult);
+      addCounsel(newPetsult);
       setNewPetsult({
-        id: uuidv4(),
+        id: short.generate(),
         content: "",
         nickname: "",
         profileImg: "",
         createdAt: Date.now(),
+        onEdit: false,
       });
     }
   };
@@ -49,11 +49,12 @@ const NewPetsult = () => {
     } = event;
 
     setNewPetsult({
-      id: uuidv4(),
+      id: short.generate(),
       content,
       nickname,
       profileImg,
       createdAt: Date.now(),
+      onEdit: false,
     });
   };
 

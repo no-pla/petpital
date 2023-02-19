@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { useGetPetConsult } from "@/Hooks/useGetReviews";
 import { useRouter } from "next/router";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
@@ -35,7 +36,7 @@ export const Counsel = styled.div`
   justify-content: space-between;
   border-radius: 4px;
   width: 40vw;
-  /* box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25); */
+  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
 `;
 
 export const CounselButton = styled.button`
@@ -51,23 +52,50 @@ export const CounselButton = styled.button`
 
 function Petconsult() {
   const router = useRouter();
-  const { isLoadingPetConsult, petConsult } = useGetPetConsult({
-    id: "",
-  });
+
+  const [page, setPage] = useState(1);
+  const { data: petConsult, isLoading } = useQuery(
+    ["pagnationCounsel", page],
+    () => {
+      return axios.get(
+        `http://localhost:3001/qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
+      );
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
+
+  const onClick = (id: string) => {
+    router.push(`petconsult/${id}`);
+  };
 
   return (
     <CounselContainer>
-      {!isLoadingPetConsult &&
-        petConsult?.data.map((counsel) => (
-          <Counsel key={counsel.id}>
-            <CounselTitle>{counsel.content}</CounselTitle>
-            <CounselButton
-              onClick={() => router.push(`petconsult/${counsel.id}`)}
-            >
-              답변하러가기
-            </CounselButton>
-          </Counsel>
-        ))}
+      {isLoading
+        ? "로딩중"
+        : petConsult?.data.map((counsel: any) => (
+            <Counsel key={counsel.id}>
+              <CounselTitle>{counsel.content}</CounselTitle>
+              <CounselButton onClick={() => onClick(counsel.id)}>
+                답변하러가기
+              </CounselButton>
+            </Counsel>
+          ))}
+      <div>
+        <button
+          disabled={page === 1 && true}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
+          이전
+        </button>
+        <button
+          disabled={petConsult?.data.length !== 10 && true}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          다음
+        </button>
+      </div>
     </CounselContainer>
   );
 }
