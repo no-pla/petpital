@@ -19,6 +19,13 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/login.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/pages/login.tsx",
+    "src/pages/posts/ModalAddPost.jsx",
+    "src/hooks/usePost.jsx"
+  ],
   "exclude": ["node_modules"]
 }
