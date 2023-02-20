@@ -9,6 +9,7 @@ interface IReview {
     rating: number;
     selectedColors: string[];
     downloadUrl: string;
+    hospitalId: string;
     id: number;
   }[];
 }
