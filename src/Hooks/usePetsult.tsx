@@ -141,7 +141,7 @@ export const useDeletCounsel = () => {
   return useMutation({
     // useMutation은 쿼리키, api호출함수, 옵션 3개의 인자를 답는다.
     mutationFn: deleteCounsel,
-
+    mutationKey: ["getCounsel"],
     onMutate: async (newCounsel) => {
       // mutation 취소
       await queryClient.cancelQueries({ queryKey: ["getCounsel"] });

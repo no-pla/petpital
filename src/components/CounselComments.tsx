@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
+import CustomModal, { ModalButton } from "./custom/CustomModal";
 
 const short = require("short-uuid");
 
@@ -8,7 +9,9 @@ const CounselComments = ({ target }: any) => {
   const [enteredComment, setEnteredComment] = useState("");
   const [newComment, setNewComent] = useState("");
   const [isOpen, setIsOpen] = useState<boolean[]>([]);
-  const [page, setPage] = useState(1);
+  const [openModal, setOpenModal] = useState(false);
+  const [targetId, setTargetId] = useState("");
+  const [emptyComment, setEmptyComment] = useState(false);
 
   const { data: commentList } = useQuery(["getComments"], () => {
     return axios.get(
@@ -28,22 +31,33 @@ const CounselComments = ({ target }: any) => {
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newComment = {
-      counselId: target,
-      id: short.generate(),
-      content: enteredComment,
-      nickname: "임시닉네임",
-      profileImg:
-        "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431476796?alt=media&token=2a8e780a-d89b-4274-bfe4-2a4e375fa23a",
-      createdAt: Date.now(),
-      onEdit: false,
-    };
-    axios.post(`http://localhost:3001/qnaReview`, newComment);
-    setEnteredComment("");
+    if (enteredComment === "") {
+      setEmptyComment((prev) => !prev);
+      return;
+    } else {
+      const newComment = {
+        counselId: target,
+        id: short.generate(),
+        content: enteredComment,
+        nickname: "임시닉네임",
+        profileImg:
+          "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431476796?alt=media&token=2a8e780a-d89b-4274-bfe4-2a4e375fa23a",
+        createdAt: Date.now(),
+        onEdit: false,
+      };
+      axios.post(`http://localhost:3001/qnaReview`, newComment);
+      setEnteredComment("");
+    }
   };
 
   const onDelete = (id: string) => {
-    return axios.delete(`http://localhost:3001/qnaReview/${id}`);
+    setOpenModal((prev) => !prev);
+    setTargetId(id);
+  };
+
+  const deleteReview = () => {
+    setOpenModal((prev) => !prev);
+    return axios.delete(`http://localhost:3001/qnaReview/${targetId}`);
   };
 
   const onSumbitNewComment = (
@@ -53,7 +67,7 @@ const CounselComments = ({ target }: any) => {
   ) => {
     event.preventDefault();
     if (newComment === "") {
-      alert("빈탄");
+      setEmptyComment((prev) => !prev);
     } else {
       const newArray = [...isOpen];
       newArray[index] = false;
@@ -86,12 +100,17 @@ const CounselComments = ({ target }: any) => {
             setEnteredComment(event.target.value);
           }}
         />
+        <button>댓글 등록하기</button>
       </form>
       <ul>
         {commentList?.data.map((comment: any, index: any) => {
           return (
             comment.counselId === target && (
               <li key={comment.id}>
+                <div>
+                  작성 시간:
+                  {new Date(comment.createdAt).toLocaleDateString("ko-Kr")}
+                </div>
                 {!isOpen[index] ? (
                   <div>{comment.content}</div>
                 ) : (
@@ -119,6 +138,27 @@ const CounselComments = ({ target }: any) => {
           );
         })}
       </ul>
+      {openModal && (
+        <CustomModal
+          modalText1={"입력하신 댓글을"}
+          modalText2={"삭제 하시겠습니까?"}
+        >
+          <ModalButton onClick={() => setOpenModal((prev) => !prev)}>
+            취소
+          </ModalButton>
+          <ModalButton onClick={deleteReview}>삭제</ModalButton>
+        </CustomModal>
+      )}
+      {emptyComment && (
+        <CustomModal
+          modalText1={"내용이 비어있습니다."}
+          modalText2={"댓글은 최소 1글자 이상 채워주세요."}
+        >
+          <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
     </>
   );
 };
