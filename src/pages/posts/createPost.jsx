@@ -39,6 +39,7 @@ const ImageBox = styled.label`
 `;
 
 const PostImage = styled.img`
+  border: 0.1px solid lightgray;
   border-radius: 100%;
   object-fit: cover;
 `;
@@ -121,6 +122,17 @@ const NewPost = () => {
     </div>
   );
 
+  const createdAt = Date.now();
+  const timestamp = new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(createdAt);
+  const newDate = timestamp.toString().slice(0, 25);
+  console.log(timestamp);
+
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
     // event.preventDefault();
@@ -132,6 +144,7 @@ const NewPost = () => {
         rating: starRating,
         selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
         downloadUrl,
+        date: timestamp,
       });
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");
@@ -192,7 +205,7 @@ const NewPost = () => {
           <ImageBox htmlFor="file">
             <PostImage
               id="preview-photo"
-              src="https://media.istockphoto.com/id/1357365823/vector/default-image-icon-vector-missing-picture-page-for-website-design-or-mobile-app-no-photo.jpg?s=612x612&w=0&k=20&c=PM_optEhHBTZkuJQLlCjLz-v3zzxp-1mpNQZsdjrbns="
+              src="https://media.istockphoto.com/id/1248723171/vector/camera-photo-upload-icon-on-isolated-white-background-eps-10-vector.jpg?s=612x612&w=0&k=20&c=e-OBJ2jbB-W_vfEwNCip4PW4DqhHGXYMtC3K_mzOac0="
               alt="게시글사진"
             />
           </ImageBox>
