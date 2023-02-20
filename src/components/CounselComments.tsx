@@ -1,3 +1,4 @@
+import { authService } from "@/firebase/firebase";
 import {
   useAddCounselComment,
   useDeletCounselComment,
@@ -5,7 +6,6 @@ import {
   useGetPetConsultComment,
 } from "@/Hooks/usePetsultReview";
 import styled from "@emotion/styled";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomModal, { ModalButton } from "./custom/CustomModal";
 
@@ -40,12 +40,14 @@ const CounselComments = ({ target }: any) => {
       return;
     } else {
       const newComment = {
+        uid: authService.currentUser?.uid,
         counselId: target,
         id: short.generate(),
         content: enteredComment,
-        nickname: "임시닉네임",
+        nickname: authService.currentUser?.displayName,
         profileImg:
-          "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431476796?alt=media&token=2a8e780a-d89b-4274-bfe4-2a4e375fa23a",
+          authService.currentUser?.photoURL ||
+          "https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg",
         createdAt: Date.now(),
         onEdit: false,
       };
@@ -95,14 +97,24 @@ const CounselComments = ({ target }: any) => {
   return (
     <CounselCommentContainer>
       <CounselCommentForm onSubmit={onSubmit}>
-        <UserProfileImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
+        <UserProfileImg
+          src={
+            "https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg"
+          }
+        />
         <CounselInput
-          placeholder="답변 추가"
+          placeholder={
+            authService.currentUser === null
+              ? "로그인 후 이용해 주세요"
+              : "답변 추가"
+          }
           value={enteredComment}
           onChange={(event) => {
             setEnteredComment(event.target.value);
           }}
+          disabled={authService.currentUser === null}
         />
+
         {/* <button>댓글 등록하기</button> */}
       </CounselCommentForm>
       <CounselLists>
@@ -145,14 +157,18 @@ const CounselComments = ({ target }: any) => {
                     </div>
                   </UserInfo>
                 </CounselInfo>
-                <div>
-                  {!isOpen[index] && (
-                    <>
-                      <button onClick={() => onDelete(comment.id)}>삭제</button>
-                      <button onClick={() => openIpt(index)}>수정</button>
-                    </>
-                  )}
-                </div>
+                {comment.uid === authService.currentUser?.uid && (
+                  <div>
+                    {!isOpen[index] && (
+                      <>
+                        <button onClick={() => onDelete(comment.id)}>
+                          삭제
+                        </button>
+                        <button onClick={() => openIpt(index)}>수정</button>
+                      </>
+                    )}
+                  </div>
+                )}
               </CounselItem>
             )
           );
@@ -245,6 +261,7 @@ const UserProfileImg = styled.img`
   width: 60px;
   height: 60px;
   border-radius: 50px;
+  margin-right: 10px;
 `;
 
 const CounselEditInput = styled.input`

@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useAddCounsel } from "@/Hooks/usePetsult";
 import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import { useRouter } from "next/router";
+import { authService } from "@/firebase/firebase";
 const short = require("short-uuid");
 
 export interface INewPetsult {
+  uid: any;
   id: string;
   content: string;
   nickname: any;
@@ -17,16 +19,13 @@ const NewPetsult = () => {
   const [backPage, setBackPage] = useState(false);
   const [emptyComment, setEmptyComment] = useState(false);
   const [newPetsult, setNewPetsult] = useState<INewPetsult>({
+    uid: authService.currentUser?.uid,
     id: short.generate(),
     content: "",
-    nickname: "",
-    profileImg: "",
+    nickname: authService.currentUser?.displayName,
+    profileImg: authService.currentUser?.photoURL,
     createdAt: Date.now(),
   });
-
-  const nickname = "임시닉네임"; // 임시값
-  const profileImg =
-    "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1676431476796?alt=media&token=2a8e780a-d89b-4274-bfe4-2a4e375fa23a"; // 임시값
 
   const { mutate: addCounsel } = useAddCounsel();
   const addPetsult = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -37,10 +36,11 @@ const NewPetsult = () => {
     } else {
       addCounsel(newPetsult);
       setNewPetsult({
+        uid: authService.currentUser?.uid,
         id: short.generate(),
         content: "",
-        nickname: "",
-        profileImg: "",
+        nickname: authService.currentUser?.displayName,
+        profileImg: authService.currentUser?.photoURL,
         createdAt: Date.now(),
       });
     }
@@ -52,10 +52,11 @@ const NewPetsult = () => {
     } = event;
 
     setNewPetsult({
+      uid: authService.currentUser?.uid,
       id: short.generate(),
       content,
-      nickname,
-      profileImg,
+      nickname: authService.currentUser?.displayName,
+      profileImg: authService.currentUser?.photoURL,
       createdAt: Date.now(),
     });
   };

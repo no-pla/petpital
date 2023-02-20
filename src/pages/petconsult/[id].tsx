@@ -15,6 +15,8 @@ import {
   CustomHeader,
   HeaderButton,
 } from "@/components/custom/CustomHeader";
+import { authService } from "../../firebase/firebase";
+
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
   data: {
@@ -87,10 +89,12 @@ const PetconsultDetail = () => {
               </div>
             </UserInfo>
           </CounselInfo>
-          <div>
-            <button onClick={() => onDelete(counselData.id)}>삭제</button>
-            <button onClick={() => onOpenInput(counselData.id)}>수정</button>
-          </div>
+          {counselData.uid === authService.currentUser?.uid && (
+            <div>
+              <button onClick={() => onDelete(counselData.id)}>삭제</button>
+              <button onClick={() => onOpenInput(counselData.id)}>수정</button>
+            </div>
+          )}
         </CounselHeader>
         <CounselText>{String(counselData.content)}</CounselText>
         <CounselComments target={counselData.id} />
