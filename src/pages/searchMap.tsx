@@ -36,7 +36,6 @@ export default function SearchMap(props: any) {
   } = router;
 
   const initialPlace = useRecoilValue(hospitalData);
-  console.log("initialPlace", initialPlace);
   const placesData = useSetRecoilState(hospitalData);
 
   const onchangeSearch = (event: any) => {
@@ -327,11 +326,12 @@ export default function SearchMap(props: any) {
 
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
-        function displayInfowindow(marker: any, title: any, places: any) {
+        async function displayInfowindow(marker: any, title: any, places: any) {
           placesData(places);
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
           <div class="item">
+          <div id="roadview"></div>    
             <h2>${title}</h2>
             <div class="info">
               <p class="gray">${places.road_address_name}</p>
@@ -340,8 +340,7 @@ export default function SearchMap(props: any) {
               <p>
               <a href="${places.place_url}" target="_blank"
               style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
-              </p>
-              <div id="roadview"></div>          
+              </p>  
               <p>
               <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기</a>
               </p>
@@ -371,33 +370,40 @@ export default function SearchMap(props: any) {
 
           const reviewList = document.getElementById("reviewList");
 
-          ReactDOM.render(
-            <ReviewList>
-              {!isLoading &&
-                recentlyReview?.data.map((review) => {
-                  return (
-                    <Review key={review.id}>
-                      <ReviewImg src={review.downloadUrl} alt="" />
-                      <ReviewInfo>
-                        <ReviewTitle>{review.title}</ReviewTitle>
-                        <PetpitalInfo>
-                          <PetpitalAddressName>파인떙큐</PetpitalAddressName>
-                          <PetpitalAddress>
-                            경기도 용인시 기흥구
-                          </PetpitalAddress>
-                        </PetpitalInfo>
-                        <ReviewDesc>{review.contents}</ReviewDesc>
-                        <PetpitalPrice>
-                          <PetpitalHighPrice>25,000</PetpitalHighPrice>
-                        </PetpitalPrice>
-                      </ReviewInfo>
-                    </Review>
-                  );
-                })}
-            </ReviewList>,
-            reviewList,
-          );
-          console.log(recentlyReview);
+          if (recentlyReview) {
+            ReactDOM.render(
+              <ReviewList>
+                {!isLoading &&
+                  recentlyReview?.data.map((review) => {
+                    if (places.id == review.hospitalId) {
+                      return (
+                        <Review key={review.id}>
+                          <ReviewImg src={review.downloadUrl} alt="" />
+                          <ReviewInfo>
+                            <ReviewTitle>{review.title}</ReviewTitle>
+                            <PetpitalInfo>
+                              <PetpitalAddressName>
+                                파인떙큐
+                              </PetpitalAddressName>
+                              <PetpitalAddress>
+                                경기도 용인시 기흥구
+                              </PetpitalAddress>
+                            </PetpitalInfo>
+                            {review.hospitalId}
+                            <ReviewDesc>{review.contents}</ReviewDesc>
+                            <PetpitalPrice>
+                              <PetpitalHighPrice>25,000</PetpitalHighPrice>
+                            </PetpitalPrice>
+                          </ReviewInfo>
+                        </Review>
+                      );
+                    }
+                  })}
+              </ReviewList>,
+              reviewList,
+            );
+          }
+          console.log(places.id);
 
           setIsOpen1(!isOpen1);
           infowindow.setContent(content1);
@@ -412,7 +418,7 @@ export default function SearchMap(props: any) {
         }
       });
     };
-  }, []);
+  }, [recentlyReview]);
 
   return (
     <MapSection className="map_wrap" isOpen={isOpen} isOpen1={isOpen1}>
@@ -649,7 +655,7 @@ const Review = styled.div`
   background-color: #fafafa;
   border-radius: 5px;
   display: flex;
-  width: 100%;
+  width: 90%;
   height: 200px;
   position: relative;
 `;
