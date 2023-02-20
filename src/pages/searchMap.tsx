@@ -13,8 +13,8 @@ import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import ReactDOM from "react-dom";
 import Link from "next/link";
-import { mainPetpitalList } from "@/share/atom";
-import { useGetReviews } from "@/Hooks/useGetReviews";
+import { mainPetpitalList } from "../share/atom";
+import { useGetReviews } from "../Hooks/useGetReviews";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -120,7 +120,6 @@ export default function SearchMap(props: any) {
             // 정상적으로 검색이 완료됐으면
             // 검색 목록과 마커를 표출합니다
             displayPlaces(data);
-            console.log("data", data);
 
             // 페이지 번호를 표출합니다
             displayPagination(pagination);
@@ -344,7 +343,7 @@ export default function SearchMap(props: any) {
               </p>
               <div id="roadview"></div>          
               <p>
-              <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기<a>
+              <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기</a>
               </p>
               <div id="reviewList"></div>          
         </div>
@@ -398,6 +397,7 @@ export default function SearchMap(props: any) {
             </ReviewList>,
             reviewList,
           );
+          console.log(recentlyReview);
 
           setIsOpen1(!isOpen1);
           infowindow.setContent(content1);
