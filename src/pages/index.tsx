@@ -112,6 +112,8 @@ export default function Home() {
             );
           })}
       </ReviewList>
+      {console.log(recentlyReview)}
+
       <SectionTitle>고민 있음 털어놔보개!</SectionTitle>
       <CounselList>
         {!isLoadingPetConsult &&
