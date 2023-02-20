@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { hospitalData } from "@/share/atom";
+import { useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import {
   SearchOutlined,
@@ -10,6 +12,7 @@ import { imageSearch } from "../share/api";
 import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import ReactDOM from "react-dom";
+import Link from "next/link";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -22,6 +25,10 @@ export default function SearchMap(props: any) {
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
   const router = useRouter();
+
+  const initialPlace = useRecoilValue(hospitalData);
+  console.log("initialPlace", initialPlace);
+  const placesData = useSetRecoilState(hospitalData);
 
   const onchangeSearch = (event: any) => {
     setSearch(event?.target.value);
@@ -96,6 +103,7 @@ export default function SearchMap(props: any) {
             // 정상적으로 검색이 완료됐으면
             // 검색 목록과 마커를 표출합니다
             displayPlaces(data);
+            console.log("data", data);
 
             // 페이지 번호를 표출합니다
             displayPagination(pagination);
@@ -231,10 +239,10 @@ export default function SearchMap(props: any) {
             "<a href=" + places.place_url + ">병원 정보 보기</a>" + "</div>";
           el.innerHTML = itemStr;
           el.className = "item";
-
+          // placesData(places);
           return el;
         }
-
+        // localStorage.setItem("places", JSON.stringify(places));
         // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
         function addMarker(position: any, idx: any) {
           const imageSrc =
@@ -304,16 +312,24 @@ export default function SearchMap(props: any) {
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
         function displayInfowindow(marker: any, title: any, places: any) {
+          placesData(places);
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
           <div class="item">
             <h2>${title}</h2>
             <div class="info">
-              <p class="gray">${places.road_address_name}</p>
-              <p>${places.address_name}</p>
-              <p class="tel">${places.phone}</p>
-              <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
-              <div id="roadview"></div>          
+            <p class="gray">${places.road_address_name}</p>
+            <p>${places.address_name}</p>
+            <p class="tel">${places.phone}</p>
+            <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
+            <p>
+            <a href="${places.place_url}" target="_blank"
+            style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
+            </p>
+            <div id="roadview"></div>          
+            <p>
+            <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기<a>
+            </p>          
         </div>
       </div>
     `;
@@ -358,7 +374,6 @@ export default function SearchMap(props: any) {
     <MapSection className="map_wrap" isOpen={isOpen} isOpen1={isOpen1}>
       <Script
         src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`}
-        strategy="beforeInteractive"
       ></Script>
       <div id="map"></div>
 
