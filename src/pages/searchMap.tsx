@@ -170,7 +170,7 @@ export default function SearchMap(props: any) {
             return false;
           }
           setNewSearch(keyword);
-          ps.keywordSearch(keyword, placesSearchCB);
+          ps.keywordSearch(keyword + " 근처의 동물병원", placesSearchCB);
         }
 
         if (target) {
@@ -502,6 +502,7 @@ export default function SearchMap(props: any) {
                   type="text"
                   value={search}
                   id="keyword"
+                  placeholder="찾으실 동물병원의 (시)도 + 구 + 읍(면,동)을 입력하세요"
                   onChange={onchangeSearch}
                 />
 
