@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { hospitalData } from "@/share/atom";
+import { useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import {
   SearchOutlined,
@@ -11,7 +13,6 @@ import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import ReactDOM from "react-dom";
 import Link from "next/link";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import { mainPetpitalList } from "@/share/atom";
 
 declare const window: typeof globalThis & {
@@ -30,6 +31,10 @@ export default function SearchMap(props: any) {
   const {
     query: { target },
   } = router;
+
+  const initialPlace = useRecoilValue(hospitalData);
+  console.log("initialPlace", initialPlace);
+  const placesData = useSetRecoilState(hospitalData);
 
   const onchangeSearch = (event: any) => {
     setSearch(event?.target.value);
@@ -112,6 +117,7 @@ export default function SearchMap(props: any) {
             // 정상적으로 검색이 완료됐으면
             // 검색 목록과 마커를 표출합니다
             displayPlaces(data);
+            console.log("data", data);
 
             // 페이지 번호를 표출합니다
             displayPagination(pagination);
@@ -247,10 +253,10 @@ export default function SearchMap(props: any) {
             "<a href=" + places.place_url + ">병원 정보 보기</a>" + "</div>";
           el.innerHTML = itemStr;
           el.className = "item";
-
+          // placesData(places);
           return el;
         }
-
+        // localStorage.setItem("places", JSON.stringify(places));
         // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
         function addMarker(position: any, idx: any) {
           const imageSrc =
@@ -320,6 +326,7 @@ export default function SearchMap(props: any) {
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
         function displayInfowindow(marker: any, title: any, places: any) {
+          placesData(places);
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
           <div class="item">

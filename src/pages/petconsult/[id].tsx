@@ -10,7 +10,6 @@ import CounselComments from "@/components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { toggleModal } from "@/share/atom";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -36,12 +35,11 @@ export function getServerSideProps({ query }: any) {
 const PetconsultDetail = () => {
   const router = useRouter();
   const id = router.query.id;
-  const defaultModal = useRecoilValue(toggleModal);
   const { mutate: deleteCounsel } = useDeletCounsel();
   const { data: targetTime } = useGetCounselTarget(id);
   const { data: infinite } = useGetCounselList(targetTime);
   const [counsel, setCounsel] = useState<any>();
-  const [openModal, setOpenModal] = useState(defaultModal);
+  const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
 
   const fetchInfiniteComment = async (targetTime: any) => {
@@ -55,7 +53,7 @@ const PetconsultDetail = () => {
   );
 
   const onDelete = (id: any) => {
-    setOpenModal((prev) => !prev);
+    setOpenModal((prev: any) => !prev);
     setTargetId(id);
   };
 
@@ -64,7 +62,7 @@ const PetconsultDetail = () => {
     if (id === targetId) {
       router.push(`/petconsult`);
     }
-    setOpenModal((prev) => !prev);
+    setOpenModal((prev: any) => !prev);
   };
 
   const onOpenInput = (targetId: string) => {
@@ -103,7 +101,7 @@ const PetconsultDetail = () => {
           modalText1={"입력하신 게시글을"}
           modalText2={"삭제 하시겠습니까?"}
         >
-          <ModalButton onClick={() => setOpenModal((prev) => !prev)}>
+          <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
             취소
           </ModalButton>
           <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>

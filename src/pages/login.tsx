@@ -15,6 +15,8 @@ import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
 import Join from "./signup";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { currentUserUid, hospitalData } from "@/share/atom";
+import { useSetRecoilState } from "recoil";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -25,6 +27,9 @@ const Login = () => {
   const router = useRouter();
   const matchCheckEmail = email.match(emailRegex);
 
+  const setUidState = useSetRecoilState(currentUserUid);
+  const setHospitalState = useSetRecoilState(hospitalData);
+
   const onSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -32,6 +37,9 @@ const Login = () => {
       .then(() => {
         setEmail("");
         setPassword("");
+        // -- useruid 전역상태관리 --
+        setUidState(authService.currentUser?.uid);
+
         router.push("/");
       })
       .catch((err) => {
@@ -47,13 +55,17 @@ const Login = () => {
   const onFacebookSignIn = async () => {
     let provider = new FacebookAuthProvider();
     await signInWithPopup(authService, provider);
+    setUidState(authService.currentUser?.uid);
     router.push("/");
   };
   const onGoogleSignIn = async () => {
     let provider = new GoogleAuthProvider();
     await signInWithPopup(authService, provider);
+    setUidState(authService.currentUser?.uid);
     router.push("/");
   };
+
+  // 로그아웃할때 setUidState(null); 와 setHospitalState(null) 추가해야됨
 
   return (
     <ModalBackground>
