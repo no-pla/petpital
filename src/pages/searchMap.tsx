@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import {
   SearchOutlined,
@@ -8,6 +8,8 @@ import {
 import { useRouter } from "next/router";
 import { imageSearch } from "../share/api";
 import { Roadview } from "react-kakao-maps-sdk";
+import Script from "next/script";
+import ReactDOM from "react-dom";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -311,30 +313,33 @@ export default function SearchMap(props: any) {
               <p>${places.address_name}</p>
               <p class="tel">${places.phone}</p>
               <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
-              <div class="test"><div> 
-              <Road
-            </div>
-          </div>
-        `;
+              <div id="roadview"></div>          
+        </div>
+      </div>
+    `;
 
           const menuWrap = document.getElementById("menu_wrap1");
           if (menuWrap) menuWrap.innerHTML = content;
 
-          const content2 = (
-            <Roadview // 로드뷰를 표시할 Component
-              position={{
-                // 지도의 중심좌표
-                lat: 33.450701,
-                lng: 126.570667,
-                radius: 50,
-              }}
-              // 지도의 크기
-              style={{ width: "380px", height: "300px", position: "absolute" }}
-            />
-          );
+          const { x, y } = places;
+
+          const roadview = document.getElementById("roadview"); // 로드뷰를 표시할 HTML 요소
+
+          if (roadview) {
+            ReactDOM.render(
+              <Roadview
+                position={{
+                  lat: y,
+                  lng: x,
+                  radius: 50,
+                }}
+                style={{ width: "90%", height: "200px" }}
+              />,
+              roadview,
+            );
+          }
 
           setIsOpen1(!isOpen1);
-          console.log(places);
           infowindow.setContent(content1);
           infowindow.open(map, marker);
         }
@@ -351,6 +356,10 @@ export default function SearchMap(props: any) {
 
   return (
     <MapSection className="map_wrap" isOpen={isOpen} isOpen1={isOpen1}>
+      <Script
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`}
+        strategy="beforeInteractive"
+      ></Script>
       <div id="map"></div>
 
       <div id="menuDiv">
@@ -422,16 +431,6 @@ export default function SearchMap(props: any) {
           ) : (
             <></>
           )}
-          <Roadview // 로드뷰를 표시할 Component
-            position={{
-              // 지도의 중심좌표
-              lat: 33.450701,
-              lng: 126.570667,
-              radius: 50,
-            }}
-            // 지도의 크기
-            style={{ width: "380px", height: "300px" }}
-          />
         </div>
       </div>
     </MapSection>
@@ -450,12 +449,6 @@ export const MapSection = styled.div`
     height: 1080px;
     position: absolute;
     overflow: hidden;
-    border-radius: 20px;
-  }
-  .test {
-    width: 90%;
-    height: 200px;
-    background-color: #aaa;
     border-radius: 20px;
   }
 
