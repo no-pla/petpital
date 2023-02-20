@@ -10,6 +10,7 @@ import { imageSearch } from "../share/api";
 import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import ReactDOM from "react-dom";
+import Link from "next/link";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -21,6 +22,7 @@ export default function SearchMap(props: any) {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
+
   const router = useRouter();
 
   const onchangeSearch = (event: any) => {
@@ -312,8 +314,14 @@ export default function SearchMap(props: any) {
               <p class="gray">${places.road_address_name}</p>
               <p>${places.address_name}</p>
               <p class="tel">${places.phone}</p>
-              <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
+              <p>
+              <a href="${places.place_url}" target="_blank"
+              style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
+              </p>
               <div id="roadview"></div>          
+              <p>
+              <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기<a>
+              </p>
         </div>
       </div>
     `;
@@ -358,7 +366,6 @@ export default function SearchMap(props: any) {
     <MapSection className="map_wrap" isOpen={isOpen} isOpen1={isOpen1}>
       <Script
         src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`}
-        strategy="beforeInteractive"
       ></Script>
       <div id="map"></div>
 
