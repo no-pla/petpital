@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { hospitalData } from "@/share/atom";
+import { useSetRecoilState, useRecoilValue } from "recoil";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -7,6 +9,10 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
+  const initialPlace = useRecoilValue(hospitalData);
+  console.log("initialPlace", initialPlace);
+  const placesData = useSetRecoilState(hospitalData);
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
@@ -202,10 +208,10 @@ export default function SearchMap(props: any) {
 
           el.innerHTML = itemStr;
           el.className = "item";
-
+          placesData(places);
           return el;
         }
-
+        // localStorage.setItem("places", JSON.stringify(places));
         // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
         function addMarker(position: any, idx: any) {
           const imageSrc =

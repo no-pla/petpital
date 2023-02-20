@@ -12,6 +12,8 @@ import {
 } from "firebase/storage";
 import { auth } from "firebase/auth";
 import { authService, storageService } from "../../firebase/firebase";
+import { useRecoilValue } from "recoil";
+import { hospitalData } from "../../share/atom";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
@@ -108,6 +110,9 @@ const NewPost = () => {
 
   const router = useRouter();
 
+  const placesData = useRecoilValue(hospitalData);
+  console.log(placesData);
+
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
 
@@ -130,8 +135,8 @@ const NewPost = () => {
     hour: "2-digit",
     minute: "2-digit",
   }).format(createdAt);
-  const newDate = timestamp.toString().slice(0, 25);
-  console.log(timestamp);
+  // const newDate = timestamp.toString().slice(0, 25);
+  console.log("uid", authService.currentUser?.uid);
 
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
@@ -145,6 +150,11 @@ const NewPost = () => {
         selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
         downloadUrl,
         date: timestamp,
+        displayName: authService.currentUser?.displayName,
+        userId: authService.currentUser?.uid,
+        profileImage: authService.currentUser?.photoURL,
+        id: createdAt,
+        isEdit: false,
       });
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");

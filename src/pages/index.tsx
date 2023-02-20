@@ -1,4 +1,7 @@
+import { authService } from "@/firebase/firebase";
 import styled from "@emotion/styled";
+
+console.log(authService.currentUser?.uid);
 
 export default function Home() {
   return (
