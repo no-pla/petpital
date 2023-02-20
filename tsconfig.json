@@ -24,8 +24,7 @@
     "**/*.ts",
     "**/*.tsx",
     "src/pages/login.tsx",
-    "src/pages/posts/ModalAddPost.jsx",
-    "src/hooks/usePost.jsx"
+    "src/pages/posts/index.jsx"
   ],
   "exclude": ["node_modules"]
 }

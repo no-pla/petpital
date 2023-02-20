@@ -153,8 +153,9 @@ const NewPost = () => {
         displayName: authService.currentUser?.displayName,
         userId: authService.currentUser?.uid,
         profileImage: authService.currentUser?.photoURL,
-        id: createdAt,
+        hospitalId: placesData.id,
         isEdit: false,
+        id: createdAt,
       });
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");

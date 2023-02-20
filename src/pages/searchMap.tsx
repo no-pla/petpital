@@ -1,6 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { hospitalData } from "@/share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
+import styled from "@emotion/styled";
+import {
+  SearchOutlined,
+  CaretLeftFilled,
+  CaretRightFilled,
+} from "@ant-design/icons";
+import { useRouter } from "next/router";
+import { imageSearch } from "../share/api";
+import { Roadview } from "react-kakao-maps-sdk";
+import Script from "next/script";
+import ReactDOM from "react-dom";
+import Link from "next/link";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -9,9 +21,25 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen1, setIsOpen1] = useState(false);
+  const router = useRouter();
+
   const initialPlace = useRecoilValue(hospitalData);
   console.log("initialPlace", initialPlace);
   const placesData = useSetRecoilState(hospitalData);
+
+  const onchangeSearch = (event: any) => {
+    setSearch(event?.target.value);
+  };
+
+  const onClickSearchBarOpen = () => {
+    setIsOpen(!isOpen);
+  };
+  const onClickSearchBarOpen1 = () => {
+    setIsOpen1(!isOpen1);
+  };
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -75,6 +103,7 @@ export default function SearchMap(props: any) {
             // 정상적으로 검색이 완료됐으면
             // 검색 목록과 마커를 표출합니다
             displayPlaces(data);
+            console.log("data", data);
 
             // 페이지 번호를 표출합니다
             displayPagination(pagination);
@@ -108,12 +137,14 @@ export default function SearchMap(props: any) {
 
           // 마커에 클릭이벤트를 등록합니다
           window.kakao.maps.event.addListener(marker, "click", function () {
+            router.push(place.place_url);
             // 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
             infowindow.setContent(
               '<div style="padding:5px;font-size:12px;">' +
                 place.place_name +
                 "</div>",
             );
+
             infowindow.open(map, marker);
           });
         }
@@ -149,7 +180,7 @@ export default function SearchMap(props: any) {
             // mouseout 했을 때는 인포윈도우를 닫습니다
             (function (marker, title) {
               window.kakao.maps.event.addListener(marker, "click", function () {
-                displayInfowindow(marker, title);
+                displayInfowindow(marker, title, places[i]);
               });
 
               window.kakao.maps.event.addListener(
@@ -161,7 +192,7 @@ export default function SearchMap(props: any) {
               );
 
               itemEl.onclick = function () {
-                displayInfowindow(marker, title);
+                displayInfowindow(marker, title, places[i]);
               };
 
               itemEl.onmouseout = function () {
@@ -187,28 +218,28 @@ export default function SearchMap(props: any) {
               (index + 1) +
               '"></span>' +
               '<div class="info">' +
-              "   <h5>" +
+              "<h5>" +
               places.place_name +
               "</h5>";
 
           if (places.road_address_name) {
             itemStr +=
-              "    <span>" +
+              "<span>" +
               places.road_address_name +
               "</span>" +
-              '   <span class="jibun gray">' +
+              '<span class="jibun gray">' +
               places.address_name +
               "</span>";
           } else {
-            itemStr += "    <span>" + places.address_name + "</span>";
+            itemStr += "<span>" + places.address_name + "</span>";
           }
 
+          itemStr += '<span class="tel">' + places.phone + "</span>";
           itemStr +=
-            '  <span class="tel">' + places.phone + "</span>" + "</div>";
-
+            "<a href=" + places.place_url + ">병원 정보 보기</a>" + "</div>";
           el.innerHTML = itemStr;
           el.className = "item";
-          placesData(places);
+          // placesData(places);
           return el;
         }
         // localStorage.setItem("places", JSON.stringify(places));
@@ -280,11 +311,52 @@ export default function SearchMap(props: any) {
 
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
-        function displayInfowindow(marker: any, title: any) {
-          const content =
-            '<div style="padding:5px;z-index:1;">' + title + "</div>";
+        function displayInfowindow(marker: any, title: any, places: any) {
+          placesData(places);
+          const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
+          const content = `                  
+          <div class="item">
+            <h2>${title}</h2>
+            <div class="info">
+            <p class="gray">${places.road_address_name}</p>
+            <p>${places.address_name}</p>
+            <p class="tel">${places.phone}</p>
+            <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
+            <p>
+            <a href="${places.place_url}" target="_blank"
+            style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
+            </p>
+            <div id="roadview"></div>          
+            <p>
+            <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기<a>
+            </p>          
+        </div>
+      </div>
+    `;
 
-          infowindow.setContent(content);
+          const menuWrap = document.getElementById("menu_wrap1");
+          if (menuWrap) menuWrap.innerHTML = content;
+
+          const { x, y } = places;
+
+          const roadview = document.getElementById("roadview"); // 로드뷰를 표시할 HTML 요소
+
+          if (roadview) {
+            ReactDOM.render(
+              <Roadview
+                position={{
+                  lat: y,
+                  lng: x,
+                  radius: 50,
+                }}
+                style={{ width: "90%", height: "200px" }}
+              />,
+              roadview,
+            );
+          }
+
+          setIsOpen1(!isOpen1);
+          infowindow.setContent(content1);
           infowindow.open(map, marker);
         }
 
@@ -298,19 +370,11 @@ export default function SearchMap(props: any) {
     };
   }, []);
 
-  const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(true);
-
-  const onchangeSearch = (event: any) => {
-    setSearch(event?.target.value);
-  };
-
-  const onClickSearchBarOpen = () => {
-    setIsOpen(!isOpen);
-  };
-
   return (
-    <MapSection className="map_wrap" isOpen={isOpen}>
+    <MapSection className="map_wrap" isOpen={isOpen} isOpen1={isOpen1}>
+      <Script
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`}
+      ></Script>
       <div id="map"></div>
 
       <div id="menuDiv">
@@ -328,6 +392,7 @@ export default function SearchMap(props: any) {
                   id="keyword"
                   onChange={onchangeSearch}
                 />
+
                 <button id="submit_btn" type="submit">
                   <SearchIcon />
                 </button>
@@ -337,6 +402,12 @@ export default function SearchMap(props: any) {
 
           <ul id="placesList"></ul>
           <div id="pagination"></div>
+        </div>
+
+        <div id="menu_wrap1" className="bg_white">
+          <div className="option">
+            <div></div>
+          </div>
         </div>
 
         <div id="btnDiv">
@@ -361,28 +432,44 @@ export default function SearchMap(props: any) {
               </button>
             </div>
           )}
+
+          {isOpen && isOpen1 ? (
+            <div id="btnOn">
+              <button
+                id="searchBtn"
+                onClick={onClickSearchBarOpen1}
+                type="button"
+              >
+                <LeftDisplayButton />
+              </button>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </MapSection>
   );
 }
 
-import styled from "@emotion/styled";
-import {
-  SearchOutlined,
-  CaretLeftFilled,
-  CaretRightFilled,
-} from "@ant-design/icons";
-
 interface ISearchBarOpen {
   isOpen: boolean;
+  isOpen1: boolean;
 }
 
 export const MapSection = styled.div`
   display: flex;
   #map {
-    width: 1920px;
+    width: 1200px;
     height: 1080px;
+    position: absolute;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .map1 {
+    width: 300px;
+    height: 300px;
     position: absolute;
     overflow: hidden;
     border-radius: 20px;
@@ -397,11 +484,21 @@ export const MapSection = styled.div`
   #menu_wrap {
     position: relative;
     width: 400px;
-    height: 600px;
+    height: 100vh;
     border-radius: 20px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
     display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")};
+  }
+
+  #menu_wrap1 {
+    position: relative;
+    width: 400px;
+    height: 100vh;
+    border-radius: 20px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.7);
+    display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")};
   }
 
   #map_title {
@@ -462,7 +559,6 @@ export const MapSection = styled.div`
   #btnDiv {
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
 
   #pagination {
@@ -481,6 +577,7 @@ export const MapSection = styled.div`
   }
 
   #btnOn {
+    position: absolute;
     height: 600px;
     display: flex;
     flex-direction: column;

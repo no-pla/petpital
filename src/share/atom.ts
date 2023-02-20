@@ -3,6 +3,11 @@ import { recoilPersist } from "recoil-persist";
 
 const { persistAtom } = recoilPersist();
 
+export const mainPetpitalList = atom({
+  key: "mainPetpital",
+  default: "강남 동물병원",
+});
+
 export const hospitalData = atom({
   key: "hospitalPlaces",
   default: null,
