@@ -8,8 +8,7 @@ import { authService } from "../../firebase/firebase";
 import { FaStar } from "react-icons/fa";
 import { currentUserUid } from "../../share/atom";
 import { useRecoilValue } from "recoil";
-import useUpdatePost from "../../hooks/usePost";
-import CreatePostModal from "../../components/custom/CreatePostModal";
+import ModalAddPost from "../../pages/posts/ModalAddPost";
 
 const Container = styled.div`
   width: 1200px;
@@ -285,15 +284,15 @@ function Posts() {
   }
 
   const goCreatePost = () => {
-    router.push(`/posts/createPost`);
+    // router.push(`/posts/createPost`);
     // router.push("/posts/ModalAddPost");
-    // setIsEdit(true);
+    setIsEdit(true);
   };
   console.log("post", post);
 
   return (
     <Container>
-      {isEdit ? <CreatePostModal></CreatePostModal> : "null"}
+      {isEdit ? <ModalAddPost /> : "null"}
       <InformationBox>병원정보</InformationBox>
       {post.map((p) => (
         <PostWrap key={p.id}>

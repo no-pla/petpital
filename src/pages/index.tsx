@@ -10,8 +10,6 @@ import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "@/components/api/getMainHosiptal";
 import { useState } from "react";
-import Link from "next/link";
-import Script from "next/script";
 
 export default function Home() {
   const router = useRouter();
@@ -55,20 +53,34 @@ export default function Home() {
       <BestPetpitalContainer>
         {mainPetpial?.data?.documents.map((petpial: any) => {
           return (
-            <Link href={`/${petpial.id}`} key={petpial.id}>
-              <BestPetpital>
-                <BestPetpitalImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
-                <BestPetpitalPrice>{petpial.phone}</BestPetpitalPrice>
-                <BestPetpitalInfo>
-                  <BestPetpitalAddressName>
-                    {petpial.place_name}
-                  </BestPetpitalAddressName>
-                  <BestPetpitalAddress>
-                    {petpial.road_address_name}
-                  </BestPetpitalAddress>
-                </BestPetpitalInfo>
-              </BestPetpital>
-            </Link>
+            <BestPetpital
+              key={petpial.id}
+              onClick={() =>
+                router.push({
+                  pathname: "/searchMap",
+                  query: { target: petpial.place_name },
+                })
+              }
+            >
+              <BestPetpitalImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
+              <BestPetpitalPrice>{petpial.phone}</BestPetpitalPrice>
+              <BestPetpitalInfo>
+                <BestPetpitalAddressName>
+                  {petpial.place_name.length > 6
+                    ? petpial.place_name.slice(0, 6) + "..."
+                    : petpial.place_name}
+                </BestPetpitalAddressName>
+                <BestPetpitalAddress>
+                  {petpial.road_address_name === ""
+                    ? "정보 없음"
+                    : petpial.road_address_name === undefined
+                    ? ""
+                    : petpial.road_address_name.split(" ")[0] +
+                      " " +
+                      petpial.road_address_name.split(" ")[1]}
+                </BestPetpitalAddress>
+              </BestPetpitalInfo>
+            </BestPetpital>
           );
         })}
       </BestPetpitalContainer>
@@ -259,9 +271,14 @@ const PetpitalHighPrice = styled.span`
 // 리뷰 많은 병원
 
 const BestPetpitalContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 5fr));
+  display: flex;
   gap: 20px 24px;
+  overflow-x: scroll;
+  @media screen and (max-width: 375px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const BestPetpital = styled.div`

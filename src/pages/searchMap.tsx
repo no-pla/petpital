@@ -13,6 +13,7 @@ import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import ReactDOM from "react-dom";
 import Link from "next/link";
+import { mainPetpitalList } from "@/share/atom";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -21,10 +22,15 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
+  const setNewSearch = useSetRecoilState(mainPetpitalList);
+
   const router = useRouter();
+  const {
+    query: { target },
+  } = router;
 
   const initialPlace = useRecoilValue(hospitalData);
   console.log("initialPlace", initialPlace);
@@ -46,6 +52,12 @@ export default function SearchMap(props: any) {
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
 
     document.head.appendChild(script);
+    if (router.query.target !== undefined) {
+      // 메인 화면에서 타고 들어왔을 떄
+      setSearch(target);
+      document.getElementById("form")?.focus();
+      setIsOpen1(true);
+    }
 
     script.onload = () => {
       window.kakao.maps.load(function () {
@@ -76,16 +88,15 @@ export default function SearchMap(props: any) {
         const searchForm = document.getElementById("submit_btn");
         searchForm?.addEventListener("click", function (e) {
           e.preventDefault();
-          searchPlaces();
+          searchPlaces(search);
         });
 
         const searchForm1 = document.getElementById("form");
         searchForm1?.addEventListener("enter", function (e) {
           e.preventDefault();
-          searchPlaces();
         });
 
-        function searchPlaces() {
+        function searchPlaces(target: any) {
           const keyword = (
             document.getElementById("keyword") as HTMLInputElement
           ).value;
@@ -94,10 +105,13 @@ export default function SearchMap(props: any) {
             alert("키워드를 입력해주세요!");
             return false;
           }
-
+          setNewSearch(keyword);
           ps.keywordSearch(keyword, placesSearchCB);
         }
 
+        if (target) {
+          searchPlaces(target);
+        }
         function placesSearchCB(data: any, status: any, pagination: any) {
           if (status === window.kakao.maps.services.Status.OK) {
             // 정상적으로 검색이 완료됐으면
@@ -318,18 +332,17 @@ export default function SearchMap(props: any) {
           <div class="item">
             <h2>${title}</h2>
             <div class="info">
-            <p class="gray">${places.road_address_name}</p>
-            <p>${places.address_name}</p>
-            <p class="tel">${places.phone}</p>
-            <a href="${places.place_url}" target="_blank">상세정보 및 공유, 데이터 보기</a>
-            <p>
-            <a href="${places.place_url}" target="_blank"
-            style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
-            </p>
-            <div id="roadview"></div>          
-            <p>
-            <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기<a>
-            </p>          
+              <p class="gray">${places.road_address_name}</p>
+              <p>${places.address_name}</p>
+              <p class="tel">${places.phone}</p>
+              <p>
+              <a href="${places.place_url}" target="_blank"
+              style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
+              </p>
+              <div id="roadview"></div>          
+              <p>
+              <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기<a>
+              </p>
         </div>
       </div>
     `;
