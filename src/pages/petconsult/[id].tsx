@@ -5,12 +5,16 @@ import {
 } from "@/Hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CounselComments from "@/components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import {
+  BackButton,
+  CustomHeader,
+  HeaderButton,
+} from "@/components/custom/CustomHeader";
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
   data: {
@@ -37,8 +41,6 @@ const PetconsultDetail = () => {
   const id = router.query.id;
   const { mutate: deleteCounsel } = useDeletCounsel();
   const { data: targetTime } = useGetCounselTarget(id);
-  const { data: infinite } = useGetCounselList(targetTime);
-  const [counsel, setCounsel] = useState<any>();
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
 
@@ -71,28 +73,41 @@ const PetconsultDetail = () => {
 
   function Components(this: any, { counselData }: any) {
     return (
-      <div key={counselData.id}>
-        <button onClick={() => onDelete(counselData.id)}>삭제</button>
-        <button onClick={() => onOpenInput(counselData.id)}>수정</button>
+      <Counsel key={counselData.id}>
         <CounselHeader>
-          <UserProfileImg
-            src={counselData.profileImg}
-            alt={counselData.nickname + " 유저의 프로필 사진입니다."}
-          />
-          <div>{counselData.nickname}</div>
+          <CounselInfo>
+            <UserProfileImg
+              src={counselData.profileImg}
+              alt={counselData.nickname + " 유저의 프로필 사진입니다."}
+            />
+            <UserInfo>
+              <div>{counselData.nickname}</div>
+              <div>
+                {new Date(counselData.createdAt).toLocaleDateString("ko-Kr")}
+              </div>
+            </UserInfo>
+          </CounselInfo>
           <div>
-            작성 시간:
-            {new Date(counselData.createdAt).toLocaleDateString("ko-Kr")}
+            <button onClick={() => onDelete(counselData.id)}>삭제</button>
+            <button onClick={() => onOpenInput(counselData.id)}>수정</button>
           </div>
         </CounselHeader>
         <CounselText>{String(counselData.content)}</CounselText>
         <CounselComments target={counselData.id} />
-      </div>
+      </Counsel>
     );
   }
 
   return (
-    <div>
+    <CounselContainer>
+      <CustomHeader>
+        <BackButton onClick={() => router.push("/petconsult")}>
+          &larr; 이전으로
+        </BackButton>
+        <HeaderButton onClick={() => router.push("/petconsult/new")}>
+          질문하기
+        </HeaderButton>
+      </CustomHeader>
       {data?.data?.map((counselData: any) => {
         return <Components key={counselData.id} counselData={counselData} />;
       })}
@@ -107,29 +122,72 @@ const PetconsultDetail = () => {
           <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
         </CustomModal>
       )}
-    </div>
+    </CounselContainer>
   );
 };
 
-const CounselHeader = styled.div``;
+const Counsel = styled.div`
+  min-height: 80vh;
+  height: 100%;
+  padding-top: 20px;
+  border-bottom: 1px solid #c5c5c5;
+`;
+
+const CounselHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin: 0 20px;
+`;
+
+const CounselInfo = styled.div`
+  display: flex;
+`;
+
+const CounselContainer = styled.div`
+  @media screen and (max-width: 375px) {
+    margin-bottom: 120px;
+  }
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  & div:nth-of-type(1) {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  & div:nth-of-type(2) {
+    ::before {
+      content: "게시일 • ";
+    }
+    color: #c5c5c5;
+    font-weight: 400;
+    font-size: 12px;
+  }
+`;
 
 const UserProfileImg = styled.img`
-  width: 150px;
-  height: 150px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   object-fit: cover;
+  margin-right: 10px;
 `;
 
 const CounselText = styled.div`
   width: 80%;
   height: 120px;
-  background: #65d8df;
+  background: #afe5e9;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto;
   font-size: 28px;
   color: #ffffff;
   border-radius: 4px;
+  margin: 40px auto;
 `;
 
 export default PetconsultDetail;

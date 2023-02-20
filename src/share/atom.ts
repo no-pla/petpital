@@ -6,6 +6,7 @@ const { persistAtom } = recoilPersist();
 export const mainPetpitalList = atom({
   key: "mainPetpital",
   default: "강남 동물병원",
+  effects_UNSTABLE: [persistAtom],
 });
 
 export const hospitalData = atom({
