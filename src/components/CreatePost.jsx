@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
-import { colourOptions, colourStyles } from "../../components/Select";
+import { colourOptions, colourStyles } from "./Select";
 import Select from "react-select";
 import {
   getDownloadURL,
@@ -10,16 +10,16 @@ import {
   ref,
   uploadString,
 } from "firebase/storage";
-import { authService, storageService } from "../../firebase/firebase";
+import { authService, storageService } from "../firebase/firebase";
 import { useRecoilValue } from "recoil";
-import { hospitalData } from "../../share/atom";
+import { hospitalData } from "../share/atom";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
   /* display: flex; */
   /* flex-direction: column; */
   align-items: center;
-  padding: 150px;
+  padding: 50px;
 `;
 
 const ImageBox = styled.label`
@@ -28,8 +28,8 @@ const ImageBox = styled.label`
   border-radius: 100%;
   overflow: hidden;
   cursor: pointer;
-  width: 250px;
-  height: 250px;
+  width: 150px;
+  height: 150px;
   margin: auto;
   > img {
     width: 100%;
@@ -48,8 +48,8 @@ const PostImage = styled.img`
 const InputWrap = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 60px;
-  margin-bottom: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 const TitleBox = styled.textarea`
@@ -93,14 +93,14 @@ const StarRating = styled.div`
   display: flex;
   flex-direction: row;
   cursor: pointer;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
 
 const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = () => {
+const NewPost = ({ isEdit, setIsEdit }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -158,6 +158,7 @@ const NewPost = () => {
       });
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");
+      setIsEdit(false);
       router.push(`/posts`);
     } catch (error) {
       console.error(error);

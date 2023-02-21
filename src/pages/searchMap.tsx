@@ -13,7 +13,7 @@ import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import ReactDOM from "react-dom";
 import { mainPetpitalList } from "../share/atom";
-import { useGetReviews } from "../Hooks/useGetReviews";
+import { useGetReviews } from "../hooks/useGetReviews";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -33,6 +33,10 @@ export default function SearchMap(props: any) {
   const {
     query: { target },
   } = router;
+
+  const goToNewPost = () => {
+    router.push(`/posts/`);
+  };
 
   const initialPlace = useRecoilValue(hospitalData);
   const placesData = useSetRecoilState(hospitalData);
@@ -447,6 +451,7 @@ export default function SearchMap(props: any) {
           if (recentlyReview) {
             ReactDOM.render(
               <ReviewList>
+                <button onClick={goToNewPost}>dfd</button>
                 {!isLoading &&
                   recentlyReview?.data.map((review) => {
                     if (places.id == review.hospitalId) {

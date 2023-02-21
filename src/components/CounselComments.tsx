@@ -4,7 +4,7 @@ import {
   useDeletCounselComment,
   useEditCounselComment,
   useGetPetConsultComment,
-} from "@/Hooks/usePetsultReview";
+} from "@/hooks/usePetsultReview";
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import CustomModal, { ModalButton } from "./custom/CustomModal";

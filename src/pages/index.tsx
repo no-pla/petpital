@@ -1,4 +1,4 @@
-import { useGetReviews } from "../Hooks/useGetReviews";
+import { useGetReviews } from "../hooks/useGetReviews";
 import {
   CounselList,
   Counsel,
@@ -6,7 +6,7 @@ import {
   CounselButton,
 } from "./petconsult";
 import styled from "@emotion/styled";
-import { useGetPetConsult } from "../Hooks/usePetsult";
+import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "@/components/api/getMainHosiptal";
 import { useState } from "react";

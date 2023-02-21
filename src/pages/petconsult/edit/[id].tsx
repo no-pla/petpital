@@ -6,7 +6,7 @@ import {
   useEditCounsel,
   useGetCounselList,
   useGetCounselTarget,
-} from "@/Hooks/usePetsult";
+} from "@/hooks/usePetsult";
 import { useState } from "react";
 
 const EditCounsel = () => {

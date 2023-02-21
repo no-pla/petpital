@@ -8,7 +8,10 @@ import { authService } from "../../firebase/firebase";
 import { FaStar } from "react-icons/fa";
 import { currentUserUid } from "../../share/atom";
 import { useRecoilValue } from "recoil";
-import ModalAddPost from "../../pages/posts/ModalAddPost";
+import CreateAddModal from "../../components/custom/CreateAddModal";
+//createPost
+import CreatePost from "../../components/CreatePost";
+import EditPost from "../../components/EditPost";
 
 const Container = styled.div`
   width: 1200px;
@@ -188,6 +191,7 @@ function Posts() {
   const [editTitle, setEditTitle] = useState("");
   const [editContents, setEditContents] = useState("");
   const [isEdit, setIsEdit] = useState(false);
+  const [postEdit, setPostEdit] = useState(false);
 
   // const { query } = useRouter();
 
@@ -213,7 +217,7 @@ function Posts() {
     isLoading: postLoading,
     refetch: refetchPost,
   } = useQuery("posts", async () => {
-    const response = await axios.get(`http://localhost:5000/posts`);
+    const response = await axios.get(`http://localhost:3001/posts`);
     return response.data.reverse();
   });
 
@@ -221,7 +225,7 @@ function Posts() {
   const { mutate: updateMutate } = useMutation(
     (data) =>
       axios
-        .put(`http://localhost:5000/posts/${data.id}`, data)
+        .put(`http://localhost:3001/posts/${data.id}`, data)
         .then((res) => res.data),
     {
       onSuccess: () => {
@@ -266,7 +270,7 @@ function Posts() {
   // 게시글 삭제
   const { mutate: deleteMutate } = useMutation(
     (id) =>
-      axios.delete(`http://localhost:5000/posts/${id}`).then((res) => res.data),
+      axios.delete(`http://localhost:3001/posts/${id}`).then((res) => res.data),
     {
       onSuccess: () => {
         refetchPost();
@@ -288,11 +292,34 @@ function Posts() {
     // router.push("/posts/ModalAddPost");
     setIsEdit(true);
   };
+  const CloseCreatePost = () => {
+    setIsEdit(false);
+  };
+
+  const goToEditPost = () => {
+    setPostEdit(true);
+  };
+
+  const CloseEditPost = () => {
+    setPostEdit(false);
+  };
+
   console.log("post", post);
 
   return (
     <Container>
-      {isEdit ? <ModalAddPost /> : "null"}
+      {postEdit && (
+        <CreateAddModal width="100%" height="100%">
+          <EditPost setPostEdit={setPostEdit} postEdit={postEdit} />
+          <button onClick={CloseEditPost}>close</button>
+        </CreateAddModal>
+      )}
+      {isEdit && (
+        <CreateAddModal width="100%" height="100%">
+          <CreatePost setIsEdit={setIsEdit} isEdit={isEdit} />
+          <button onClick={CloseCreatePost}>close</button>
+        </CreateAddModal>
+      )}
       <InformationBox>병원정보</InformationBox>
       {post.map((p) => (
         <PostWrap key={p.id}>
@@ -351,13 +378,16 @@ function Posts() {
             <BottomBox>
               <div>{p.date}</div>
               {userUid === p.userId ? (
-                <button
-                  onClick={() => {
-                    handleDelete(p.id);
-                  }}
-                >
-                  삭제
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      handleDelete(p.id);
+                    }}
+                  >
+                    삭제
+                  </button>
+                  <button onClick={goToEditPost}>수정</button>
+                </>
               ) : (
                 ""
               )}
