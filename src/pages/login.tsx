@@ -1,5 +1,5 @@
-import { faF, faG } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FcGoogle } from "react-icons/fc";
+import { GrFacebook } from "react-icons/gr";
 import {
   FacebookAuthProvider,
   GoogleAuthProvider,
@@ -125,10 +125,10 @@ const Login = () => {
 
         <ButtonWrap>
           <span onClick={onGoogleSignIn}>
-            <FontAwesomeIcon icon={faG} size="2x" color="#C3CAD9" />
+            <GrFacebook size={30} />
           </span>
           <span onClick={onFacebookSignIn}>
-            <FontAwesomeIcon icon={faF} size="2x" color="#C3CAD9" />
+            <FcGoogle size={30} />
           </span>
         </ButtonWrap>
         {/* 회원가입 */}
