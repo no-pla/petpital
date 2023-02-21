@@ -286,7 +286,7 @@ const BestPetpitalContainer = styled.div`
 const BestPetpital = styled.div`
   border-radius: 5px;
   display: flex;
-  width: 100%;
+  width: calc(min(16vw, 400px));
   height: 240px;
   display: flex;
   flex-direction: column;
