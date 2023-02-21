@@ -29,7 +29,7 @@ export default function SearchMap(props: any) {
   const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
-  const { recentlyReview, isLoading } = useGetReviews();
+  const { recentlyReview, isLoading } = useGetReviews("");
 
   const setNewSearch = useSetRecoilState(mainPetpitalList);
 
