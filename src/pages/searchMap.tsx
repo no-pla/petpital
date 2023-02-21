@@ -11,11 +11,11 @@ import {
 import { useRouter } from "next/router";
 import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
-import ReactDOM from "react-dom";
 import { mainPetpitalList } from "../share/atom";
 import { useGetReviews } from "../hooks/useGetReviews";
 import CreateAddModal from "../components/custom/CreateAddModal";
 import CreatePost from "../components/CreatePost";
+import { createRoot } from "react-dom/client";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -418,7 +418,7 @@ export default function SearchMap(props: any) {
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
           <div class="item">
-          <div id="roadview"></div>    
+          <div id="roadview"></div>  
             <h2>${title}</h2>
             <div class="info">
               <p class="gray">${places.road_address_name}</p>
@@ -442,7 +442,8 @@ export default function SearchMap(props: any) {
           const { x, y } = places;
           const roadview = document.getElementById("roadview"); // 로드뷰를 표시할 HTML 요소
           if (roadview) {
-            ReactDOM.render(
+            const root1 = createRoot(roadview);
+            root1.render(
               <Roadview
                 position={{
                   lat: y,
@@ -451,14 +452,14 @@ export default function SearchMap(props: any) {
                 }}
                 style={{ width: "90%", height: "200px" }}
               />,
-              roadview,
             );
           }
 
           const reviewList = document.getElementById("reviewList");
 
-          if (recentlyReview) {
-            ReactDOM.render(
+          if (reviewList) {
+            const root2 = createRoot(reviewList);
+            root2.render(
               <ReviewList>
                 {postAdd && (
                   <CreateAddModal width="100%" height="100%">
@@ -494,7 +495,6 @@ export default function SearchMap(props: any) {
                     }
                   })}
               </ReviewList>,
-              reviewList,
             );
           }
           console.log(places.id);
