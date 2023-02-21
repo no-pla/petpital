@@ -327,9 +327,9 @@ const PetpitalSubTitle = styled.h2`
 
 const CounselList = styled.div`
   margin-bottom: 180px;
-  display: flex;
+  display: grid;
   gap: 12px;
-
+  grid-template-columns: repeat(3, 1fr);
   @media screen and (max-width: 930px) {
     flex-direction: column;
     justify-content: center;

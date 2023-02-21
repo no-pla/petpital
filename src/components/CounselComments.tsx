@@ -238,6 +238,13 @@ const UserInfo = styled.div`
       font-size: 12px;
     }
   }
+
+  @media screen and (max-width: 500px) {
+    & > div {
+      flex-direction: column;
+      margin-bottom: 4px;
+    }
+  }
 `;
 
 const CounselInfo = styled.div`

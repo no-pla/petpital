@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 const HeaderContainer = styled.header`
   padding: 20px 0;
-  width: 100vw;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
