@@ -125,10 +125,10 @@ const Login = () => {
 
         <ButtonWrap>
           <span onClick={onGoogleSignIn}>
-            <GrFacebook size={30} />
+            <FcGoogle size={30} />
           </span>
           <span onClick={onFacebookSignIn}>
-            <FcGoogle size={30} />
+            <GrFacebook size={30} />
           </span>
         </ButtonWrap>
         {/* 회원가입 */}
