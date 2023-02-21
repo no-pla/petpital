@@ -6,7 +6,9 @@ import {
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import CounselComments from "@/components/CounselComments";
+import CounselComments, {
+  ManageButtonContainer,
+} from "@/components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
@@ -90,10 +92,10 @@ const PetconsultDetail = () => {
             </UserInfo>
           </CounselInfo>
           {counselData.uid === authService.currentUser?.uid && (
-            <div>
+            <ManageButtonContainer>
               <button onClick={() => onDelete(counselData.id)}>삭제</button>
               <button onClick={() => onOpenInput(counselData.id)}>수정</button>
-            </div>
+            </ManageButtonContainer>
           )}
         </CounselHeader>
         <CounselText>{String(counselData.content)}</CounselText>
@@ -133,18 +135,19 @@ const PetconsultDetail = () => {
 const Counsel = styled.div`
   min-height: 80vh;
   height: 100%;
-  padding-top: 20px;
   border-bottom: 1px solid #c5c5c5;
 `;
 
-const CounselHeader = styled.div`
+export const CounselHeader = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 0 20px;
+  padding-top: 20px;
 `;
 
-const CounselInfo = styled.div`
+export const CounselInfo = styled.div`
   display: flex;
+  margin: 0 20px;
 `;
 
 const CounselContainer = styled.div`
@@ -153,7 +156,7 @@ const CounselContainer = styled.div`
   }
 `;
 
-const UserInfo = styled.div`
+export const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -173,7 +176,7 @@ const UserInfo = styled.div`
   }
 `;
 
-const UserProfileImg = styled.img`
+export const UserProfileImg = styled.img`
   width: 64px;
   height: 64px;
   border-radius: 50%;

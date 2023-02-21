@@ -23,12 +23,6 @@ const CounselContainer = styled.div`
   }
 `;
 
-export const CounselList = styled.div`
-  margin-bottom: 180px;
-  display: flex;
-  gap: 12px;
-`;
-
 export const CounselTitle = styled.h3`
   margin-bottom: 50px;
   display: flex;
@@ -47,29 +41,25 @@ export const Counsel = styled.div`
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-  width: 100%;
   box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
   width: 90%;
-  @media screen and (max-width: 880px) {
-    width: 80vw;
-  }
 `;
 
 export const CounselButton = styled.button`
-  background: #65d8df;
+  background-color: #afe5e9;
+  color: #15b5bf;
   padding: 12px 8px;
   gap: 8px;
-  color: white;
   border: none;
   border-radius: 0px 0px 4px 4px;
   font-size: 1rem;
   cursor: pointer;
 `;
 
-const PageButtonContainer = styled.div`
+export const PageButtonContainer = styled.div`
   width: 100%;
   text-align: center;
-  margin-top: 40px;
+  margin: 20px 0;
   display: flex;
   gap: 20px;
   justify-content: center;
@@ -78,7 +68,7 @@ const PageButtonContainer = styled.div`
   }
 `;
 
-const PageButton = styled.button`
+export const PageButton = styled.button`
   font-size: 20px;
   color: #65d8df;
   padding: 4px 6px;
