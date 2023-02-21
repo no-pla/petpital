@@ -285,7 +285,7 @@ const NewPost = ({ postAdd, setPostAdd }) => {
               instanceId="selectbox"
             />
           </PostSelect>
-          <CreatePostButton onClick={SubmitPost}>리뷰남기기</CreatePostButton>
+          <CreatePostButton>리뷰남기기</CreatePostButton>
         </FormWrap>
       </Container>
     </>

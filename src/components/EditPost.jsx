@@ -142,7 +142,7 @@ const NewPost = ({ postEdit, setPostEdit }) => {
       onSuccess: () => {
         setEditTitle("");
         setEditContents("");
-        refetchPost();
+        refetch();
       },
     },
   );
@@ -166,8 +166,8 @@ const NewPost = ({ postEdit, setPostEdit }) => {
       title: editTitle,
       contents: editContents,
       downloadUrl,
-      selectedColors,
-      rating,
+      selectedColors: editSelectValue,
+      rating: editRatings,
       totalCost,
       isEdit,
       profileImage,
@@ -225,7 +225,23 @@ const NewPost = ({ postEdit, setPostEdit }) => {
   return (
     <>
       <Container>
-        <FormWrap onSubmit={ChangePhoto}>
+        <FormWrap
+          onSubmit={(e) => {
+            ChangePhoto(
+              e,
+              id,
+              downloadUrl,
+              selectedColors,
+              rating,
+              totalCost,
+              isEdit,
+              profileImage,
+              date,
+              displayName,
+              userId,
+            );
+          }}
+        >
           <ImageBox htmlFor="file">
             <PostImage
               id="preview-photo"

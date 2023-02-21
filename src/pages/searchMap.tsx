@@ -24,8 +24,8 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
-  // const [postAdd, setPostAdd] = useState(false);
-  // console.log("postAdd1", postAdd);
+  const [postAdd, setPostAdd] = useState(false);
+  console.log("postAdd1", postAdd);
   const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
@@ -53,16 +53,6 @@ export default function SearchMap(props: any) {
   };
 
   useEffect(() => {
-    // const goToNewPost = () => {
-    //   console.log("postAdd2", postAdd);
-    //   setPostAdd(true);
-    //   console.log("postAdd3", postAdd);
-    // };
-
-    // const ClosePost = () => {
-    //   setPostAdd(false);
-    // };
-
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
 
@@ -415,6 +405,14 @@ export default function SearchMap(props: any) {
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
         async function displayInfowindow(marker: any, title: any, places: any) {
+          console.log("postAdd2", postAdd);
+          const goToNewPost = () => {
+            setPostAdd(true);
+          };
+
+          const ClosePost = () => {
+            setPostAdd(false);
+          };
           placesData(places);
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
@@ -432,6 +430,7 @@ export default function SearchMap(props: any) {
               <p>
               <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기</a>
               </p>
+              <div id="addReview"></div>
               <div id="reviewList"></div>          
         </div>
       </div>
@@ -457,18 +456,27 @@ export default function SearchMap(props: any) {
           }
 
           const reviewList = document.getElementById("reviewList");
-
+          const addReview = document.getElementById("addReview");
+          console.log("postAdd3", postAdd);
           if (reviewList) {
+            if (addReview) {
+              const root3 = createRoot(addReview);
+
+              root3.render(
+                <>
+                  {postAdd && (
+                    <CreateAddModal width="100%" height="100%">
+                      <CreatePost setPostAdd={setPostAdd} postAdd={postAdd} />
+                      <button onClick={ClosePost}>close</button>
+                    </CreateAddModal>
+                  )}
+                  <button onClick={goToNewPost}>리뷰쓰러가기</button>
+                </>,
+              );
+            }
             const root2 = createRoot(reviewList);
             root2.render(
               <ReviewList>
-                {/* {postAdd && (
-                  <CreateAddModal width="100%" height="100%">
-                    <CreatePost setPostAdd={setPostAdd} postAdd={postAdd} />
-                    <button onClick={ClosePost}>close</button>
-                  </CreateAddModal>
-                )}
-                <button onClick={goToNewPost}>리뷰쓰러가기</button> */}
                 {!isLoading &&
                   recentlyReview?.data.map((review) => {
                     if (places.id == review.hospitalId) {
