@@ -2,11 +2,13 @@ import {
   useDeletCounsel,
   useGetCounselList,
   useGetCounselTarget,
-} from "@/Hooks/usePetsult";
+} from "@/hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import CounselComments from "@/components/CounselComments";
+import CounselComments, {
+  ManageButtonContainer,
+} from "@/components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
@@ -90,10 +92,10 @@ const PetconsultDetail = () => {
             </UserInfo>
           </CounselInfo>
           {counselData.uid === authService.currentUser?.uid && (
-            <div>
+            <ManageButtonContainer>
               <button onClick={() => onDelete(counselData.id)}>삭제</button>
               <button onClick={() => onOpenInput(counselData.id)}>수정</button>
-            </div>
+            </ManageButtonContainer>
           )}
         </CounselHeader>
         <CounselText>{String(counselData.content)}</CounselText>

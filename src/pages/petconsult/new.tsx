@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAddCounsel } from "@/Hooks/usePetsult";
+import { useAddCounsel } from "@/hooks/usePetsult";
 import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import { useRouter } from "next/router";
 import { authService } from "@/firebase/firebase";

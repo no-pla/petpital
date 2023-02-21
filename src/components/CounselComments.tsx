@@ -4,7 +4,7 @@ import {
   useDeletCounselComment,
   useEditCounselComment,
   useGetPetConsultComment,
-} from "@/Hooks/usePetsultReview";
+} from "@/hooks/usePetsultReview";
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import CustomModal, { ModalButton } from "./custom/CustomModal";
@@ -158,7 +158,7 @@ const CounselComments = ({ target }: any) => {
                   </UserInfo>
                 </CounselInfo>
                 {comment.uid === authService.currentUser?.uid && (
-                  <div>
+                  <ManageButtonContainer>
                     {!isOpen[index] && (
                       <>
                         <button onClick={() => onDelete(comment.id)}>
@@ -167,7 +167,7 @@ const CounselComments = ({ target }: any) => {
                         <button onClick={() => openIpt(index)}>수정</button>
                       </>
                     )}
-                  </div>
+                  </ManageButtonContainer>
                 )}
               </CounselItem>
             )
@@ -198,6 +198,26 @@ const CounselComments = ({ target }: any) => {
     </CounselCommentContainer>
   );
 };
+
+export const ManageButtonContainer = styled.div`
+  & button {
+    background-color: transparent;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    &:hover {
+      background: rgba(101, 216, 223, 0.3);
+    }
+  }
+  & button:nth-of-type(1) {
+    color: #65d8df;
+  }
+  & button:nth-of-type(2) {
+    color: #c5c5c5;
+  }
+`;
 
 const UserInfo = styled.div`
   display: flex;

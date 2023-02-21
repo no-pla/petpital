@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 const HeaderContainer = styled.header`
   padding: 20px 0;
-  width: 100%;
+  width: 100vw;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -15,7 +15,7 @@ const HeaderContainer = styled.header`
 export const HeaderTitle = styled.h3`
   font-family: "Pretendard";
   font-weight: 700;
-  font-size: 24px;
+  font-size: 1rem;
 `;
 
 export const BackButton = styled.button`
