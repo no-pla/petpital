@@ -159,7 +159,7 @@ const NewPost = ({ postAdd, setPostAdd }) => {
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");
       setPostAdd(false);
-      router.push(`/posts`);
+      //   router.push(`/posts`);
     } catch (error) {
       console.error(error);
     }
@@ -208,6 +208,10 @@ const NewPost = ({ postAdd, setPostAdd }) => {
       console.error(error);
     }
   };
+
+  //   const SubmitPost =() => {
+  //     setPostAdd(false)
+  //   }
 
   return (
     <>
@@ -281,7 +285,7 @@ const NewPost = ({ postAdd, setPostAdd }) => {
               instanceId="selectbox"
             />
           </PostSelect>
-          <CreatePostButton>리뷰남기기</CreatePostButton>
+          <CreatePostButton onClick={SubmitPost}>리뷰남기기</CreatePostButton>
         </FormWrap>
       </Container>
     </>
