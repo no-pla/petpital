@@ -111,7 +111,7 @@ const NewPost = ({ postEdit, setPostEdit }) => {
   const [editContents, setEditContents] = useState("");
   const [editTotalCost, setEditTotalCost] = useState("");
   const [editRatings, setEditRatings] = useState("");
-  const [editSelectValue, setEditSelectValue] = useState("");
+  const [editSelectValue, setEditSelectValue] = useState([]);
 
   const router = useRouter();
 

@@ -11,9 +11,11 @@ import {
 import { useRouter } from "next/router";
 import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
-import ReactDOM from "react-dom";
 import { mainPetpitalList } from "../share/atom";
 import { useGetReviews } from "../hooks/useGetReviews";
+import CreateAddModal from "../components/custom/CreateAddModal";
+import CreatePost from "../components/CreatePost";
+import { createRoot } from "react-dom/client";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -22,10 +24,12 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
+  // const [postAdd, setPostAdd] = useState(false);
+  // console.log("postAdd1", postAdd);
   const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
-  const { recentlyReview, isLoading } = useGetReviews();
+  const { recentlyReview, isLoading } = useGetReviews("");
 
   const setNewSearch = useSetRecoilState(mainPetpitalList);
 
@@ -33,10 +37,6 @@ export default function SearchMap(props: any) {
   const {
     query: { target },
   } = router;
-
-  const goToNewPost = () => {
-    router.push(`/posts/`);
-  };
 
   const initialPlace = useRecoilValue(hospitalData);
   const placesData = useSetRecoilState(hospitalData);
@@ -53,6 +53,16 @@ export default function SearchMap(props: any) {
   };
 
   useEffect(() => {
+    // const goToNewPost = () => {
+    //   console.log("postAdd2", postAdd);
+    //   setPostAdd(true);
+    //   console.log("postAdd3", postAdd);
+    // };
+
+    // const ClosePost = () => {
+    //   setPostAdd(false);
+    // };
+
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
 
@@ -409,7 +419,7 @@ export default function SearchMap(props: any) {
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
           <div class="item">
-          <div id="roadview"></div>    
+          <div id="roadview"></div>  
             <h2>${title}</h2>
             <div class="info">
               <p class="gray">${places.road_address_name}</p>
@@ -433,7 +443,8 @@ export default function SearchMap(props: any) {
           const { x, y } = places;
           const roadview = document.getElementById("roadview"); // 로드뷰를 표시할 HTML 요소
           if (roadview) {
-            ReactDOM.render(
+            const root1 = createRoot(roadview);
+            root1.render(
               <Roadview
                 position={{
                   lat: y,
@@ -442,16 +453,22 @@ export default function SearchMap(props: any) {
                 }}
                 style={{ width: "90%", height: "200px" }}
               />,
-              roadview,
             );
           }
 
           const reviewList = document.getElementById("reviewList");
 
-          if (recentlyReview) {
-            ReactDOM.render(
+          if (reviewList) {
+            const root2 = createRoot(reviewList);
+            root2.render(
               <ReviewList>
-                <button onClick={goToNewPost}>dfd</button>
+                {/* {postAdd && (
+                  <CreateAddModal width="100%" height="100%">
+                    <CreatePost setPostAdd={setPostAdd} postAdd={postAdd} />
+                    <button onClick={ClosePost}>close</button>
+                  </CreateAddModal>
+                )}
+                <button onClick={goToNewPost}>리뷰쓰러가기</button> */}
                 {!isLoading &&
                   recentlyReview?.data.map((review) => {
                     if (places.id == review.hospitalId) {
@@ -479,7 +496,6 @@ export default function SearchMap(props: any) {
                     }
                   })}
               </ReviewList>,
-              reviewList,
             );
           }
           console.log(places.id);

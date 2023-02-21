@@ -15,7 +15,7 @@ const HeaderContainer = styled.header`
 export const HeaderTitle = styled.h3`
   font-family: "Pretendard";
   font-weight: 700;
-  font-size: 24px;
+  font-size: 1rem;
 `;
 
 export const BackButton = styled.button`

@@ -9,7 +9,6 @@ import { FaStar } from "react-icons/fa";
 import { currentUserUid } from "../../share/atom";
 import { useRecoilValue } from "recoil";
 import CreateAddModal from "../../components/custom/CreateAddModal";
-//createPost
 import CreatePost from "../../components/CreatePost";
 import EditPost from "../../components/EditPost";
 
@@ -293,6 +292,7 @@ function Posts() {
     setIsEdit(true);
   };
   const CloseCreatePost = () => {
+    localStorage.removeItem("newProfilePhoto");
     setIsEdit(false);
   };
 
@@ -301,6 +301,7 @@ function Posts() {
   };
 
   const CloseEditPost = () => {
+    localStorage.removeItem("newProfilePhoto");
     setPostEdit(false);
   };
 

@@ -7,11 +7,12 @@ const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
 
 export const useGetMainHospital = (page: number) => {
   const target = useRecoilValue(mainPetpitalList);
+  const targetHospital = target + " 동물병원";
   const { data } = useQuery(
     ["getMainPetpital", target, page],
     () => {
       return axios.get(
-        `https://dapi.kakao.com/v2/local/search/keyword.json?sort=accuracy&size=5&page=${page}&query=${target}`,
+        `https://dapi.kakao.com/v2/local/search/keyword.json?sort=accuracy&size=5&page=${page}&query=${targetHospital}`,
         {
           headers: {
             Authorization: `KakaoAK ${KAKAO_API_KEY}`,

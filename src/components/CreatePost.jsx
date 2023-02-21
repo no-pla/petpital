@@ -100,7 +100,7 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = ({ isEdit, setIsEdit }) => {
+const NewPost = ({ postAdd, setPostAdd }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -158,8 +158,8 @@ const NewPost = ({ isEdit, setIsEdit }) => {
       });
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");
-      setIsEdit(false);
-      router.push(`/posts`);
+      setPostAdd(false);
+      //   router.push(`/posts`);
     } catch (error) {
       console.error(error);
     }
@@ -208,6 +208,10 @@ const NewPost = ({ isEdit, setIsEdit }) => {
       console.error(error);
     }
   };
+
+  //   const SubmitPost =() => {
+  //     setPostAdd(false)
+  //   }
 
   return (
     <>
@@ -281,7 +285,7 @@ const NewPost = ({ isEdit, setIsEdit }) => {
               instanceId="selectbox"
             />
           </PostSelect>
-          <CreatePostButton>리뷰남기기</CreatePostButton>
+          <CreatePostButton onClick={SubmitPost}>리뷰남기기</CreatePostButton>
         </FormWrap>
       </Container>
     </>
