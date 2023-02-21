@@ -14,7 +14,6 @@ import Script from "next/script";
 import ReactDOM from "react-dom";
 import { mainPetpitalList } from "../share/atom";
 import { useGetReviews } from "../Hooks/useGetReviews";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 declare const window: typeof globalThis & {
   kakao: any;
