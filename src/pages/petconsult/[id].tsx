@@ -2,7 +2,7 @@ import {
   useDeletCounsel,
   useGetCounselList,
   useGetCounselTarget,
-} from "@/Hooks/usePetsult";
+} from "@/hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";

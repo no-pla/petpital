@@ -6,7 +6,7 @@ export default function index() {
 // 게시글 삭제
 // const handlePostDelete = async () => {
 //   try {
-//     await axios.delete(`http://localhost:5000/posts/${post.id}`);
+//     await axios.delete(`http://localhost:3001/posts/${post.id}`);
 //     refetchPost();
 //     // window.location.href = "/posts";
 //   } catch (error) {

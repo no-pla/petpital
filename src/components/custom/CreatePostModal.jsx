@@ -14,7 +14,7 @@ import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
 
-const Modal = ({ isEdit, onClose }) => {
+const CreatePostModal = ({ isEdit }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -74,7 +74,7 @@ const Modal = ({ isEdit, onClose }) => {
   const handleSubmit = async (downloadUrl) => {
     // event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/posts", {
+      const response = await axios.post("http://localhost:3001/posts", {
         title,
         contents,
         totalCost,
@@ -357,4 +357,4 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-export default Modal;
+export default CreatePostModal;
