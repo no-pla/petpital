@@ -100,7 +100,7 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = ({ isEdit, setIsEdit }) => {
+const NewPost = ({ postAdd, setPostAdd }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -158,7 +158,7 @@ const NewPost = ({ isEdit, setIsEdit }) => {
       });
       console.log("response", response);
       localStorage.removeItem("newProfilePhoto");
-      setIsEdit(false);
+      setPostAdd(false);
       router.push(`/posts`);
     } catch (error) {
       console.error(error);

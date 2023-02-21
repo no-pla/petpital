@@ -8,9 +8,9 @@ import { authService } from "../../firebase/firebase";
 import { FaStar } from "react-icons/fa";
 import { currentUserUid } from "../../share/atom";
 import { useRecoilValue } from "recoil";
-import CreateAddModal from "../../components/custom/CreateAddModal";
+// import CreateAddModal from "../../components/custom/CreateAddModal";
 //createPost
-import CreatePost from "../../components/CreatePost";
+// import CreatePost from "../../components/CreatePost";
 import EditPost from "../../components/EditPost";
 
 const Container = styled.div`

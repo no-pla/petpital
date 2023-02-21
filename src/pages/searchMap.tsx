@@ -13,6 +13,8 @@ import Script from "next/script";
 import ReactDOM from "react-dom";
 import { mainPetpitalList } from "../share/atom";
 import { useGetReviews } from "../hooks/useGetReviews";
+import CreateAddModal from "../components/custom/CreateAddModal";
+import CreatePost from "../components/CreatePost";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -21,6 +23,8 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
+  const [postAdd, setPostAdd] = useState(false);
+
   const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
@@ -34,7 +38,12 @@ export default function SearchMap(props: any) {
   } = router;
 
   const goToNewPost = () => {
-    router.push(`/posts/`);
+    console.log("dfdf");
+    setPostAdd(true);
+  };
+
+  const ClosePost = () => {
+    setPostAdd(false);
   };
 
   const initialPlace = useRecoilValue(hospitalData);
@@ -439,7 +448,13 @@ export default function SearchMap(props: any) {
           if (recentlyReview) {
             ReactDOM.render(
               <ReviewList>
-                <button onClick={goToNewPost}>dfd</button>
+                {postAdd && (
+                  <CreateAddModal width="100%" height="100%">
+                    <CreatePost setPostAdd={setPostAdd} postAdd={postAdd} />
+                    <button onClick={ClosePost}>close</button>
+                  </CreateAddModal>
+                )}
+                <button onClick={goToNewPost}>리뷰쓰러가기</button>
                 {!isLoading &&
                   recentlyReview?.data.map((review) => {
                     if (places.id == review.hospitalId) {
