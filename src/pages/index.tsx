@@ -1,4 +1,4 @@
-import { useGetReviews } from "../Hooks/useGetReviews";
+import { useGetReviews } from "../hooks/useGetReviews";
 import {
   CounselList,
   Counsel,
@@ -6,7 +6,7 @@ import {
   CounselButton,
 } from "./petconsult";
 import styled from "@emotion/styled";
-import { useGetPetConsult } from "../Hooks/usePetsult";
+import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "@/components/api/getMainHosiptal";
 import { useState } from "react";
@@ -286,7 +286,7 @@ const BestPetpitalContainer = styled.div`
 const BestPetpital = styled.div`
   border-radius: 5px;
   display: flex;
-  width: 100%;
+  width: calc(min(16vw, 400px));
   height: 240px;
   display: flex;
   flex-direction: column;

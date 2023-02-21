@@ -9,16 +9,16 @@ interface Props {
 const Modal: React.FC<Props> = ({ width, height, children }) => {
   return (
     <>
-      <Container>
+      <Overlay>
         <ModalContainer width={width} height={height}>
           {children}
         </ModalContainer>
-      </Container>
+      </Overlay>
     </>
   );
 };
 
-const Container = styled.div`
+const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -36,11 +36,11 @@ const ModalContainer = styled.div<Props>`
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
+  max-width: 650px;
   width: ${(props) => props.width || "80%"};
   height: ${(props) => props.height || "80%"};
-  max-height: 500px;
-  overflow: hidden;
+  max-height: 650px;
+  overflow-y: auto;
 `;
 
 export default Modal;
