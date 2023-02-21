@@ -10,7 +10,6 @@ import {
   ref,
   uploadString,
 } from "firebase/storage";
-import { auth } from "firebase/auth";
 import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
