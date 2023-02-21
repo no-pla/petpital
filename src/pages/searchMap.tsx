@@ -1,3 +1,4 @@
+import { BiCurrentLocation } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { hospitalData } from "@/share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
@@ -158,6 +159,17 @@ export default function SearchMap(props: any) {
           map.setCenter(locPosition);
         }
         //-----------------------------------------------------
+
+        const panTo = () => {
+          // 이동할 위도 경도 위치를 생성합니다
+          const moveLatLon = navigator.geolocation;
+
+          // 지도 중심을 부드럽게 이동시킵니다
+          // 만약 이동할 거리가 지도 화면보다 크면 부드러운 효과 없이 이동합니다
+          map.panTo(moveLatLon);
+        };
+
+        //----------------------------------
         const ps = new window.kakao.maps.services.Places();
 
         const infowindow = new window.kakao.maps.InfoWindow({ zIndex: 1 });
@@ -579,6 +591,7 @@ export default function SearchMap(props: any) {
           ) : (
             <></>
           )}
+          <BiCurrentLocation onClick={() => {}} size={40} />
         </div>
       </div>
     </MapSection>
