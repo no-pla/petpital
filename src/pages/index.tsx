@@ -13,6 +13,7 @@ import { useGetMainHospital } from "@/components/api/getMainHosiptal";
 import { useEffect, useState } from "react";
 import { HeaderTitle } from "@/components/custom/CustomHeader";
 import axios from "axios";
+import { MainBannerContiner } from "@/components/MainBanner";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -80,21 +81,23 @@ export default function Home() {
 
   return (
     <>
-      <MainBanner>
-        <PetpitalTitle>
-          우리 아이를 위한 병원,
-          <br />
-          어디에 있지?
-        </PetpitalTitle>
-        <PetpitalSubTitle>
-          동물병원 검색하고
-          <br />
-          리뷰도 확인해보세요
-        </PetpitalSubTitle>
-        <MainCustomButton onClick={() => router.push("/searchMap")}>
-          병원검색 하러가기
-        </MainCustomButton>
-      </MainBanner>
+      <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=80384910-8ef9-456e-8e2f-cb548d67e263">
+        <MainBanner>
+          <PetpitalTitle>
+            우리 아이를 위한 병원,
+            <br />
+            어디에 있지?
+          </PetpitalTitle>
+          <PetpitalSubTitle>
+            동물병원 검색하고
+            <br />
+            리뷰도 확인해보세요
+          </PetpitalSubTitle>
+          <MainCustomButton onClick={() => router.push("/searchMap")}>
+            병원검색 하러가기
+          </MainCustomButton>
+        </MainBanner>
+      </MainBannerContiner>
       <Section>
         <SectionTitle>아주 만족했던 병원이었개!🐶</SectionTitle>
         <SectionSubTitle>
@@ -226,8 +229,6 @@ export default function Home() {
 
 // 배너
 const MainBanner = styled.div`
-  height: calc(max(35vh, 300px));
-  background-color: #393b4c;
   padding-top: 50px;
   padding-left: 50px;
 `;
@@ -423,7 +424,7 @@ const Section = styled.section`
   padding: 0 60px;
 `;
 
-const MainCustomButton = styled.button`
+export const MainCustomButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -433,6 +434,7 @@ const MainCustomButton = styled.button`
   backdrop-filter: blur(20px);
   border-radius: 999px;
   height: 32px;
+  color: white;
   cursor: pointer;
 `;
 
@@ -462,7 +464,3 @@ export const HeaderButton = styled.button`
     }
   }
 `;
-
-//
-// 정확히 7분
-// 시연 2분 (영상 시연이 가장 좋음) + 발표 자료

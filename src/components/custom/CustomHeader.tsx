@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-const HeaderContainer = styled.header`
+const HeaderContainer = styled.div`
   padding: 20px 0;
   width: 100%;
   display: flex;
@@ -30,6 +30,7 @@ export const HeaderButton = styled.button`
   cursor: pointer;
   border: none;
   font-weight: 700;
+
   @media screen and (min-width: 376px) {
     font-size: 1rem;
     padding: 8px;
