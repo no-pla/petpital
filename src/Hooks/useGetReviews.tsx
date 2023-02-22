@@ -11,6 +11,11 @@ interface IReview {
     downloadUrl: string;
     hospitalId: string;
     id: number;
+    profileImage: string;
+    displayName: string;
+    date: string;
+    hospitalAddress: string;
+    hospitalName: string;
   }[];
 }
 

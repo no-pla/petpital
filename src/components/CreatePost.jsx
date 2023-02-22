@@ -204,7 +204,7 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
         handleSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
-        alert("새로운 사진이없습니다");
+        alert("사진을 업로드 해주세요");
         return;
       }
     } catch (error) {

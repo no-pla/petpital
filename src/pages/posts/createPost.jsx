@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
@@ -13,43 +13,46 @@ import {
 import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
+import { FiEdit3 } from "react-icons/fi";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
-  /* display: flex; */
-  /* flex-direction: column; */
+  /* display: flex;
+  flex-direction: column;
+  justify-content: center; */
   align-items: center;
-  padding: 150px;
+  padding: 100px;
   /* background-color: red; */
 `;
 
 const ImageBox = styled.label`
   display: flex;
   justify-content: center;
-  border-radius: 100%;
+  /* align-items: center; */
+  /* border-radius: 100%; */
   overflow: hidden;
   cursor: pointer;
-  width: 250px;
-  height: 250px;
+  width: 1000px;
+  height: 400px;
   margin: auto;
   > img {
     width: 100%;
     height: 100%;
     text-align: center;
-    object-fit: cover;
+    object-fit: fill;
   }
 `;
 
 const PostImage = styled.img`
-  border: 0.1px solid lightgray;
-  border-radius: 100%;
-  object-fit: cover;
+  border: 1px solid lightgray;
+  /* border-radius: 100%; */
+  object-fit: fill;
 `;
 
 const InputWrap = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 60px;
+  margin-top: 30px;
   margin-bottom: 30px;
 `;
 
@@ -60,6 +63,7 @@ const TitleBox = styled.textarea`
   border-radius: 5px;
   border: 1px solid gray;
   resize: none;
+  margin-bottom: 30px;
 `;
 
 const ContentBox = styled.textarea`
@@ -69,6 +73,7 @@ const ContentBox = styled.textarea`
   border-radius: 5px;
   border: 1px solid gray;
   resize: none;
+  margin-bottom: 30px;
 `;
 
 const TotalCostBox = styled.textarea`
@@ -78,6 +83,10 @@ const TotalCostBox = styled.textarea`
   border-radius: 5px;
   border: 1px solid gray;
   resize: none;
+  textarea::placeholder {
+    color: black;
+    opacity: 1;
+  }
 `;
 
 const CreatePostButton = styled.button`
@@ -86,7 +95,7 @@ const CreatePostButton = styled.button`
   font-size: 16px;
   border-radius: 5px;
   border: none;
-  background-color: lightgray;
+  background-color: #15b5bf;
   cursor: pointer;
   float: right;
 `;
@@ -108,6 +117,10 @@ const NewPost = () => {
   const [starRating, setStarRating] = useState(0);
   const [selectvalue, setSelectValue] = useState([]);
 
+  const focusTitle = useRef();
+  const focusContents = useRef();
+  const focusTotalCost = useRef();
+
   const router = useRouter();
 
   const placesData = useRecoilValue(hospitalData);
@@ -119,7 +132,7 @@ const NewPost = () => {
   const Star = ({ selected, onClick }) => (
     <div
       style={{
-        color: selected ? "#ffc107" : "#e4e5e9",
+        color: selected ? "#15B5BF" : "#e4e5e9",
       }}
       onClick={onClick}
     >
@@ -141,6 +154,33 @@ const NewPost = () => {
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
     // event.preventDefault();
+    if (title.replace(/ /g, "") === "") {
+      alert("제목을 입력 해주세요!");
+      focusTitle.current.focus();
+      return;
+    } else if (contents.replace(/ /g, "") === "") {
+      alert("내용을 입력 해주세요!");
+      focusContents.current.focus();
+      return;
+    } else if (totalCost.replace(/ /g, "") === "") {
+      alert("비용을 입력 해주세요!");
+      focusTotalCost.current.focus();
+      return;
+    } else if (totalCost.replace(/ /g, "") === "") {
+      alert("금액을 숫자로 입력 해주세요!");
+      focusTotalCost.current.focus();
+      return;
+    } else if (!/^\d+$/.test(totalCost)) {
+      alert("비용을 숫자로 입력해주세요!");
+      return;
+    } else if (starRating.length === 0) {
+      alert("별점평가를 완료 해주세요!");
+      return;
+    } else if (selectvalue.length === 0) {
+      alert("카테고리를 선택 해주세요!");
+      return;
+    }
+
     try {
       const response = await axios.post("http://localhost:3001/posts", {
         title,
@@ -156,10 +196,15 @@ const NewPost = () => {
         hospitalId: placesData.id,
         isEdit: false,
         id: createdAt,
+        hospitalAddress: placesData.address_name,
+        hospitalName: placesData.place_name,
       });
       console.log("response", response);
       localStorage.removeItem("Photo");
-      router.push(`/posts`);
+      router.push({
+        pathname: "/searchMap",
+        query: { target: placesData.place_name },
+      });
     } catch (error) {
       console.error(error);
     }
@@ -202,7 +247,7 @@ const NewPost = () => {
         handleSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
-        alert("새로운 사진이없습니다");
+        alert("사진을 업로드 해주세요");
         return;
       }
     } catch (error) {
@@ -214,52 +259,109 @@ const NewPost = () => {
     <>
       <Container>
         <FormWrap onSubmit={ChangePhoto}>
+          <label style={{ fontSize: "20px", fontWeight: "bold" }}>
+            사진인증
+          </label>
+          <p style={{ color: "lightgray" }}>
+            영수증, 병원 등 다른 회원님들에게 도움 될 만한 이미지를
+            공유해주세요.
+          </p>
           <ImageBox htmlFor="file">
             <PostImage
               id="preview-photo"
-              src="https://media.istockphoto.com/id/1248723171/vector/camera-photo-upload-icon-on-isolated-white-background-eps-10-vector.jpg?s=612x612&w=0&k=20&c=e-OBJ2jbB-W_vfEwNCip4PW4DqhHGXYMtC3K_mzOac0="
+              src="https://images.unsplash.com/photo-1648823161626-0e839927401b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
               alt="게시글사진"
             />
           </ImageBox>
           <input
             id="file"
             type="file"
-            style={{ display: "none" }}
+            style={{ display: "none", border: "none" }}
             accept="images/*"
             onChange={uploadPhoto}
           />
           <InputWrap>
-            <label htmlFor="title">제목쓰기</label>
+            <label
+              htmlFor="title"
+              style={{ fontSize: "20px", fontWeight: "bold" }}
+            >
+              제목 쓰기
+            </label>
+            <p style={{ color: "lightgray" }}>
+              눈에 띄는 제목으로 다른 회원님들에게 도움을 주세요.
+            </p>
             <TitleBox
               type="text"
-              placeholder="Title"
+              ref={focusTitle}
+              placeholder="제목을 입력해 주세요."
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               id="title"
               rows="1"
               maxLength="50"
+              style={{
+                border: "none",
+                backgroundColor: "#e8e7e6",
+                opacity: "0.6",
+              }}
             />
-            <label htmlFor="title">글 작성</label>
+            <label
+              htmlFor="title"
+              style={{ fontSize: "20px", fontWeight: "bold" }}
+            >
+              내용 쓰기
+            </label>
+            <p style={{ color: "lightgray" }}>
+              자세한 후기로 회원님들에게 도움을 주세요.
+            </p>
             <ContentBox
               type="text"
-              placeholder="Contents"
+              ref={focusContents}
+              placeholder="내용을 입력해 주세요."
               value={contents}
               onChange={(event) => setContents(event.target.value)}
               rows="8"
               maxLength="500"
+              style={{
+                border: "none",
+                backgroundColor: "#e8e7e6",
+                opacity: "0.6",
+              }}
             />
-            <label htmlFor="title">총 진료비</label>
+            <label
+              htmlFor="title"
+              style={{ fontSize: "20px", fontWeight: "bold" }}
+            >
+              진료 총액
+            </label>
+            <p style={{ color: "lightgray" }}>
+              진료 총액을 숫자로 입력해 주세요.
+            </p>
             <TotalCostBox
               type="text"
-              placeholder="TotalCost"
+              ref={focusTotalCost}
+              placeholder="금액을 입력해 주세요"
               value={totalCost}
               onChange={(event) => setTotalCost(event.target.value)}
-              rows="3"
-              maxLength="200"
+              rows="1"
+              maxLength="7"
+              style={{
+                border: "none",
+                backgroundColor: "#e8e7e6",
+                opacity: "0.6",
+              }}
             />
           </InputWrap>
           {/* <CreatePostButton type="submit">Create Post</CreatePostButton> */}
-          <label htmlFor="title">별점남기기</label>
+          <label
+            htmlFor="title"
+            style={{ fontSize: "20px", fontWeight: "bold" }}
+          >
+            별점 평가
+          </label>
+          <p style={{ color: "lightgray" }}>
+            이 병원을 별점으로 총평해 주세요.
+          </p>
           <StarRating>
             {starArray.map((star) => (
               <Star
@@ -269,7 +371,15 @@ const NewPost = () => {
               />
             ))}
           </StarRating>
-          <label htmlFor="title">이 병원의 좋은점을 남겨주세요</label>
+          <label
+            htmlFor="title"
+            style={{ fontSize: "20px", fontWeight: "bold" }}
+          >
+            카테고리
+          </label>
+          <p style={{ color: "lightgray" }}>
+            다른 회원님에게 이 병원을 간단하게 설명해 주세요.
+          </p>
           <PostSelect>
             <Select
               value={selectvalue}
@@ -282,7 +392,10 @@ const NewPost = () => {
               instanceId="selectbox"
             />
           </PostSelect>
-          <CreatePostButton>리뷰남기기</CreatePostButton>
+          <CreatePostButton>
+            <FiEdit3 />
+            리뷰 등록하기
+          </CreatePostButton>
         </FormWrap>
       </Container>
     </>
