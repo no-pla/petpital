@@ -10,7 +10,7 @@ import styled from "@emotion/styled";
 import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "@/components/api/getMainHosiptal";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { HeaderTitle } from "@/components/custom/CustomHeader";
 import axios from "axios";
 
@@ -28,13 +28,13 @@ export default function Home() {
   const [hospitaList, setHospitalList] = useState<string[]>([]);
   const [hospitaListImage, setHospitalImageList] = useState<string[]>([]);
   const { data: mainPetpial, refetch } = useGetMainHospital(page);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // 메인 사진을 불러오기 위해 배열에 병원 이름을 저장합니다.
     // 지역명 + 병원 이름이 담긴 배열을 만든다.
     const tempArray: any[] = [];
     const newArray: string[] = [];
+
     if (mainPetpial?.documents) {
       mainPetpial?.documents.map((place: any) => {
         const temp =
@@ -45,10 +45,11 @@ export default function Home() {
           place.place_name;
         tempArray.push(temp);
       });
+
       tempArray.forEach((hospital: string) => {
         axios
           .get(
-            `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=30&query=${hospital}`,
+            `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=1&query=${hospital}`,
             {
               headers: {
                 Authorization: `KakaoAK ${KAKAO_API_KEY}`,
@@ -56,38 +57,29 @@ export default function Home() {
             },
           )
           .then((res) => {
-            // console.log(res.data?.documents[0].image_url);
-            newArray.push(res?.data.documents[0]?.thumbnail_url);
+            const link = res?.data.documents[0]?.thumbnail_url;
+            // newArray.push(link);
+            setHospitalImageList((prev) => [...prev, link]);
           });
       });
     }
-    // setHospitalList(tempArray);
-    console.log(newArray);
-    setHospitalImageList(newArray);
     // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
-  }, [mainPetpial, page, KAKAO_API_KEY]);
-
-  const nextPage = () => {
-    setIsLoading(false);
-    const emptyArray: SetStateAction<string[]> = [];
-    setPage((prev) => prev - 1);
-    setHospitalList(emptyArray);
-    setHospitalImageList(emptyArray);
-    refetch();
-  };
+  }, [mainPetpial, page, KAKAO_API_KEY, hospitaList]);
 
   const previousPage = () => {
-    setIsLoading(false);
-    const emptyArray: SetStateAction<string[]> = [];
-    setPage((prev) => prev + 1);
-    setHospitalList(emptyArray);
+    const emptyArray: string[] = [];
     setHospitalImageList(emptyArray);
-    refetch();
+    setPage((prev) => prev - 1);
+  };
+
+  const nextPage = () => {
+    const emptyArray: string[] = [];
+    setHospitalImageList(emptyArray);
+    setPage((prev) => prev + 1);
   };
 
   return (
     <>
-      (
       <MainBanner>
         <PetpitalTitle>
           우리 아이를 위한 병원,
@@ -111,12 +103,12 @@ export default function Home() {
         <PageButtonContainer
           style={{ justifyContent: "right", marginBottom: "50px" }}
         >
-          <PageButton disabled={page === 1} onClick={nextPage}>
+          <PageButton disabled={page === 1} onClick={previousPage}>
             &larr;
           </PageButton>
           <PageButton
             disabled={mainPetpial?.meta.is_end === true}
-            onClick={previousPage}
+            onClick={nextPage}
           >
             &rarr;
           </PageButton>
@@ -134,7 +126,11 @@ export default function Home() {
                 }
               >
                 <BestPetpitalImage
-                  ImgSrc={hospitaListImage[index]}
+                  ImgSrc={
+                    hospitaListImage[index] === undefined
+                      ? "https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c"
+                      : hospitaListImage[index]
+                  }
                   loading="eager"
                 />
                 <BestPetpitalDesc>
@@ -230,7 +226,7 @@ export default function Home() {
 
 // 배너
 const MainBanner = styled.div`
-  height: calc(max(40vh, 300px));
+  height: calc(max(35vh, 300px));
   background-color: #393b4c;
   padding-top: 50px;
   padding-left: 50px;
@@ -253,7 +249,7 @@ const BestPetpitalContainer = styled.div`
   grid-template-columns: repeat(5, 190px);
   gap: 20px 24px;
   padding-bottom: 20px;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 1200px) {
     overflow-x: scroll;
   }
 `;
@@ -466,3 +462,7 @@ export const HeaderButton = styled.button`
     }
   }
 `;
+
+//
+// 정확히 7분
+// 시연 2분 (영상 시연이 가장 좋음) + 발표 자료
