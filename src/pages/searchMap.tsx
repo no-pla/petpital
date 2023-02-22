@@ -507,7 +507,7 @@ export default function SearchMap(props: any) {
 
         // 검색결과 목록의 자식 Element를 제거하는 함수입니다
         function removeAllChildNods(el: any) {
-          while (el.hasChildNodes()) {
+          while (el?.hasChildNodes()) {
             el.removeChild(el.lastChild);
           }
         }

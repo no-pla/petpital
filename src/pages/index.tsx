@@ -10,12 +10,14 @@ import styled from "@emotion/styled";
 import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "@/components/api/getMainHosiptal";
-import { useState } from "react";
-import { CustomHeader, HeaderTitle } from "@/components/custom/CustomHeader";
+import { SetStateAction, useEffect, useState } from "react";
+import { HeaderTitle } from "@/components/custom/CustomHeader";
+import axios from "axios";
 
 export default function Home() {
+  const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const router = useRouter();
-  const { recentlyReview, isLoading } = useGetReviews(
+  const { recentlyReview, isLoading: isLoadingReviews } = useGetReviews(
     "?_sort=createdAt&_order=desc&_limit=6",
   );
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
@@ -23,11 +25,69 @@ export default function Home() {
   });
 
   const [page, setPage] = useState(1);
+  const [hospitaList, setHospitalList] = useState<string[]>([]);
+  const [hospitaListImage, setHospitalImageList] = useState<string[]>([]);
+  const { data: mainPetpial, refetch } = useGetMainHospital(page);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { data: mainPetpial } = useGetMainHospital(page);
+  useEffect(() => {
+    // 메인 사진을 불러오기 위해 배열에 병원 이름을 저장합니다.
+    // 지역명 + 병원 이름이 담긴 배열을 만든다.
+    const tempArray: any[] = [];
+    const newArray: string[] = [];
+    if (mainPetpial?.documents) {
+      mainPetpial?.documents.map((place: any) => {
+        const temp =
+          place.address_name.split(" ")[0] +
+          " " +
+          place.address_name.split(" ")[1] +
+          " " +
+          place.place_name;
+        tempArray.push(temp);
+      });
+      tempArray.forEach((hospital: string) => {
+        axios
+          .get(
+            `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=30&query=${hospital}`,
+            {
+              headers: {
+                Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+              },
+            },
+          )
+          .then((res) => {
+            // console.log(res.data?.documents[0].image_url);
+            newArray.push(res?.data.documents[0]?.thumbnail_url);
+          });
+      });
+    }
+    // setHospitalList(tempArray);
+    console.log(newArray);
+    setHospitalImageList(newArray);
+    // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
+  }, [mainPetpial, page, KAKAO_API_KEY]);
+
+  const nextPage = () => {
+    setIsLoading(false);
+    const emptyArray: SetStateAction<string[]> = [];
+    setPage((prev) => prev - 1);
+    setHospitalList(emptyArray);
+    setHospitalImageList(emptyArray);
+    refetch();
+  };
+
+  const previousPage = () => {
+    setIsLoading(false);
+    const emptyArray: SetStateAction<string[]> = [];
+    setPage((prev) => prev + 1);
+    setHospitalList(emptyArray);
+    setHospitalImageList(emptyArray);
+    refetch();
+  };
 
   return (
     <>
+      (
       <MainBanner>
         <PetpitalTitle>
           우리 아이를 위한 병원,
@@ -51,21 +111,18 @@ export default function Home() {
         <PageButtonContainer
           style={{ justifyContent: "right", marginBottom: "50px" }}
         >
-          <PageButton
-            disabled={page === 1}
-            onClick={() => setPage((prev) => prev - 1)}
-          >
+          <PageButton disabled={page === 1} onClick={nextPage}>
             &larr;
           </PageButton>
           <PageButton
-            disabled={mainPetpial?.data.meta.is_end === true}
-            onClick={() => setPage((prev) => prev + 1)}
+            disabled={mainPetpial?.meta.is_end === true}
+            onClick={previousPage}
           >
             &rarr;
           </PageButton>
         </PageButtonContainer>
         <BestPetpitalContainer>
-          {mainPetpial?.data?.documents.map((petpital: any) => {
+          {mainPetpial?.documents.map((petpital: any, index: number) => {
             return (
               <BestPetpitalItem
                 key={petpital.id}
@@ -76,7 +133,10 @@ export default function Home() {
                   })
                 }
               >
-                <BestPetpitalImage src="https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c" />
+                <BestPetpitalImage
+                  ImgSrc={hospitaListImage[index]}
+                  loading="eager"
+                />
                 <BestPetpitalDesc>
                   <BestPetpitalName>
                     {petpital.place_name.length > 12
@@ -110,31 +170,32 @@ export default function Home() {
       <Section>
         <SectionTitle>내가 한번 가봤다냥</SectionTitle>
         <CurrentReivewContainer>
-          {recentlyReview?.data.map((review) => {
-            return (
-              <CurrentReview
-                onClick={() => router.push("/searchMap")}
-                key={review.id}
-              >
-                <CurrentReviewImage src="https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c"></CurrentReviewImage>
-                <CurrentReviewComment>
-                  <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
-                  <CurrentReviewPetpitalDesc>
-                    <CurrentReviewPetpitalName>
-                      병원이름
-                    </CurrentReviewPetpitalName>
-                    <CurrentReviewPetpitalAddress>
-                      주소
-                    </CurrentReviewPetpitalAddress>
-                  </CurrentReviewPetpitalDesc>
-                  <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
-                  <CurrentReviewCost>
-                    {Number(review.totalCost).toLocaleString("ko-KR")}
-                  </CurrentReviewCost>
-                </CurrentReviewComment>
-              </CurrentReview>
-            );
-          })}
+          {isLoadingReviews &&
+            recentlyReview?.data.map((review) => {
+              return (
+                <CurrentReview
+                  onClick={() => router.push("/searchMap")}
+                  key={review.id}
+                >
+                  <CurrentReviewImage src="https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c" />
+                  <CurrentReviewComment>
+                    <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
+                    <CurrentReviewPetpitalDesc>
+                      <CurrentReviewPetpitalName>
+                        병원이름
+                      </CurrentReviewPetpitalName>
+                      <CurrentReviewPetpitalAddress>
+                        주소
+                      </CurrentReviewPetpitalAddress>
+                    </CurrentReviewPetpitalDesc>
+                    <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                    <CurrentReviewCost>
+                      {Number(review.totalCost).toLocaleString("ko-KR")}
+                    </CurrentReviewCost>
+                  </CurrentReviewComment>
+                </CurrentReview>
+              );
+            })}
         </CurrentReivewContainer>
       </Section>
       <Section>
@@ -169,7 +230,7 @@ export default function Home() {
 
 // 배너
 const MainBanner = styled.div`
-  height: 40vh;
+  height: calc(max(40vh, 300px));
   background-color: #393b4c;
   padding-top: 50px;
   padding-left: 50px;
@@ -206,11 +267,12 @@ const BestPetpitalItem = styled.div`
   }
 `;
 
-const BestPetpitalImage = styled.img`
+const BestPetpitalImage = styled.img<{ ImgSrc: string }>`
   width: 100%;
   height: 120px;
   object-fit: cover;
   border-radius: 4px 4px 0 0;
+  background-image: url(${(props) => props.ImgSrc});
 `;
 
 const BestPetpitalDesc = styled.div`

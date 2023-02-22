@@ -8,7 +8,7 @@ const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
 export const useGetMainHospital = (page: number) => {
   const target = useRecoilValue(mainPetpitalList);
   const targetHospital = target + " 동물병원";
-  const { data } = useQuery(
+  const { data, refetch } = useQuery(
     ["getMainPetpital", target, page],
     () => {
       return axios.get(
@@ -22,7 +22,9 @@ export const useGetMainHospital = (page: number) => {
     },
     {
       keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      select: (data) => data.data,
     },
   );
-  return { data };
+  return { data, refetch };
 };
