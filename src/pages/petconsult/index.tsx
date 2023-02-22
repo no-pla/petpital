@@ -64,7 +64,7 @@ export const CounselButton = styled.button`
 export const PageButtonContainer = styled.div`
   width: 100%;
   text-align: center;
-  margin: 20px 0;
+  margin: 20px 0 96px 0;
   display: flex;
   gap: 20px;
   justify-content: center;
@@ -80,6 +80,7 @@ export const PageButton = styled.button`
   background-color: transparent;
   border: 2px solid #65d8df;
   border-radius: 50%;
+
   &:disabled {
     color: gray;
     border-color: gray;
@@ -123,7 +124,7 @@ const DownButtonImage = styled.img``;
 function Petconsult() {
   const router = useRouter();
   const targetRef = useRef<HTMLDivElement>(null);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [page, setPage] = useState(1);
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],

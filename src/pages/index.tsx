@@ -58,8 +58,10 @@ export default function Home() {
             },
           )
           .then((res) => {
-            const link = res?.data.documents[0]?.thumbnail_url;
-            // newArray.push(link);
+            const link =
+              res?.data.documents[0]?.thumbnail_url === undefined
+                ? "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fno_image_info.svg?alt=media&token=c770159e-01d1-443e-89d9-0e14dea7ebdd"
+                : res?.data.documents[0]?.thumbnail_url;
             setHospitalImageList((prev) => [...prev, link]);
           });
       });
@@ -118,6 +120,7 @@ export default function Home() {
         </PageButtonContainer>
         <BestPetpitalContainer>
           {mainPetpial?.documents.map((petpital: any, index: number) => {
+            console.log(petpital);
             return (
               <BestPetpitalItem
                 key={petpital.id}
@@ -131,7 +134,7 @@ export default function Home() {
                 <BestPetpitalImage
                   ImgSrc={
                     hospitaListImage[index] === undefined
-                      ? "https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c"
+                      ? "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fno_image_info.svg?alt=media&token=c770159e-01d1-443e-89d9-0e14dea7ebdd"
                       : hospitaListImage[index]
                   }
                   loading="eager"
@@ -151,21 +154,20 @@ export default function Home() {
                         " " +
                         petpital.road_address_name.split(" ")[1]}
                   </BestPetpitalAddress>
-                  <BestPetpitalCost>가격</BestPetpitalCost>
+                  <BestPetpitalCost>
+                    {petpital.phone || "정보 없음"}
+                  </BestPetpitalCost>
                 </BestPetpitalDesc>
               </BestPetpitalItem>
             );
           })}
         </BestPetpitalContainer>
       </Section>
-      <ReviewBanner>
-        회원님의 후기로
-        <br />
-        다른 반려인에게 도움을 주세요🙊
-        <MainCustomButton onClick={() => router.push("/searchMap")}>
-          리뷰 남기러가기
-        </MainCustomButton>
-      </ReviewBanner>
+      <ReviewBanner
+        backgroundMinImg="
+      https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fapp_banner.jpg?alt=media&token=1622f93e-970b-4a9d-a521-ada6094668fb"
+        backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Freview_banner.jpg?alt=media&token=aa4b416c-5b37-4ca1-afae-9b040631d396"
+      />
       <Section>
         <SectionTitle>내가 한번 가봤다냥</SectionTitle>
         <CurrentReivewContainer>
@@ -233,15 +235,24 @@ const MainBanner = styled.div`
   padding-left: 50px;
 `;
 
-const ReviewBanner = styled.div`
-  padding: 50px 20px;
-  background-color: #798b9b; // 임시값
-  margin: 100px 0 50px 0;
-  font-weight: 700;
-  font-size: 1.6rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+const ReviewBanner = styled.div<{
+  backgroundImg: string;
+  backgroundMinImg: string;
+}>`
+  background-image: url(${(props) => props.backgroundImg});
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  object-fit: cover;
+  height: calc(min(40vh, 200px));
+
+  @media screen and (max-width: 550px) {
+    background-image: url(${(props) => props.backgroundMinImg});
+    height: calc(min(30vh, 400px));
+    width: 100vw;
+    object-fit: cover;
+    margin-top: 80px;
+  }
 `;
 
 // 최근 검색 병원
@@ -298,6 +309,7 @@ const BestPetpitalCost = styled.div`
   color: #15b5bf;
   font-weight: 600;
   background-color: #afe5e9;
+  height: 30px;
 `;
 
 // 메인 리뷰

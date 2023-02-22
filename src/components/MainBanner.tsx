@@ -5,8 +5,9 @@ export const MainBannerContiner = ({ children, backgroundImg }: any) => {
 };
 
 const MainBanner = styled.div<{ backgroundImg: string }>`
+  padding-top: 30px;
   background-image: url(${(props) => props.backgroundImg});
   background-position: center;
   object-fit: cover;
-  height: calc(min(40vh, 400px));
+  height: calc(min(50vh, 400px));
 `;
