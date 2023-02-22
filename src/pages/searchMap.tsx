@@ -15,6 +15,7 @@ import { useGetReviews } from "../hooks/useGetReviews";
 import CreateAddModal from "../components/custom/CreateAddModal";
 import CreatePost from "../components/CreatePost";
 import { createRoot } from "react-dom/client";
+import Link from "next/link";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -531,6 +532,18 @@ export default function SearchMap(props: any) {
           <div className="option">
             <div>
               <div id="map_title">
+                <Link
+                  href="/"
+                  style={{
+                    position: "absolute",
+                    left: "10px",
+                    fontSize: "14px",
+                    backgroundColor: "gray",
+                    color: "white",
+                  }}
+                >
+                  뒤로가기
+                </Link>
                 <div
                   style={{ color: "blue", fontWeight: "700", fontSize: "20px" }}
                 >
@@ -748,6 +761,7 @@ export const MapSection = styled.div`
     background-color: #65d8df;
     border: none;
     outline: none;
+    cursor: pointer;
   }
   .reviewButton {
     font-size: 15px;
@@ -885,10 +899,8 @@ export const SearchIcon = styled(SearchOutlined)`
   color: #fff;
   cursor: pointer;
 `;
-
 export const LeftDisplayButton = styled(CaretLeftFilled)`
   color: #fff;
-  cursor: pointer;
 `;
 export const RightDisplayButton = styled(CaretRightFilled)`
   color: #fff;
