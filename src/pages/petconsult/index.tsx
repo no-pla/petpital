@@ -3,18 +3,24 @@ import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import axios from "axios";
+import {
+  CustomHeader,
+  HeaderButton,
+  HeaderTitle,
+} from "@/components/custom/CustomHeader";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-`;
-
-export const CounselList = styled.div`
-  margin-bottom: 180px;
-  display: flex;
-  gap: 12px;
+  justify-content: center;
+  justify-items: center;
+  @media screen and (max-width: 880px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 export const CounselTitle = styled.h3`
@@ -35,19 +41,44 @@ export const Counsel = styled.div`
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-  width: 40vw;
   box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
+  width: 90%;
 `;
 
 export const CounselButton = styled.button`
-  background: #65d8df;
+  background-color: #afe5e9;
+  color: #15b5bf;
   padding: 12px 8px;
   gap: 8px;
-  color: white;
   border: none;
   border-radius: 0px 0px 4px 4px;
   font-size: 1rem;
   cursor: pointer;
+`;
+
+export const PageButtonContainer = styled.div`
+  width: 100%;
+  text-align: center;
+  margin: 20px 0;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  @media screen and (max-width: 375px) {
+    margin-bottom: 120px;
+  }
+`;
+
+export const PageButton = styled.button`
+  font-size: 20px;
+  color: #65d8df;
+  padding: 4px 6px;
+  background-color: transparent;
+  border: 2px solid #65d8df;
+  border-radius: 50%;
+  &:disabled {
+    color: gray;
+    border-color: gray;
+  }
 `;
 
 function Petconsult() {
@@ -71,32 +102,40 @@ function Petconsult() {
   };
 
   return (
-    <CounselContainer>
-      {isLoading
-        ? "로딩중"
-        : petConsult?.data.map((counsel: any) => (
-            <Counsel key={counsel.id}>
-              <CounselTitle>{counsel.content}</CounselTitle>
-              <CounselButton onClick={() => onClick(counsel.id)}>
-                답변하러가기
-              </CounselButton>
-            </Counsel>
-          ))}
-      <div>
-        <button
+    <>
+      <CustomHeader>
+        <HeaderTitle>고민있음 털어놔보개!</HeaderTitle>
+        <HeaderButton onClick={() => router.push("/petconsult/new")}>
+          질문하기
+        </HeaderButton>
+      </CustomHeader>
+      <CounselContainer>
+        {isLoading
+          ? "로딩중"
+          : petConsult?.data.map((counsel: any) => (
+              <Counsel key={counsel.id}>
+                <CounselTitle>{counsel.content}</CounselTitle>
+                <CounselButton onClick={() => onClick(counsel.id)}>
+                  답변하러가기
+                </CounselButton>
+              </Counsel>
+            ))}
+      </CounselContainer>
+      <PageButtonContainer>
+        <PageButton
           disabled={page === 1 && true}
           onClick={() => setPage((prev) => prev - 1)}
         >
-          이전
-        </button>
-        <button
+          &larr;
+        </PageButton>
+        <PageButton
           disabled={petConsult?.data.length !== 10 && true}
           onClick={() => setPage((prev) => prev + 1)}
         >
-          다음
-        </button>
-      </div>
-    </CounselContainer>
+          &rarr;
+        </PageButton>
+      </PageButtonContainer>
+    </>
   );
 }
 

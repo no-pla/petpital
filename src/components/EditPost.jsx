@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
-import { colourOptions, colourStyles } from "../../components/Select";
+import { colourOptions, colourStyles } from "./Select";
 import Select from "react-select";
 import {
   getDownloadURL,
@@ -10,16 +10,17 @@ import {
   ref,
   uploadString,
 } from "firebase/storage";
-import { authService, storageService } from "../../firebase/firebase";
+import { authService, storageService } from "../firebase/firebase";
 import { useRecoilValue } from "recoil";
-import { hospitalData } from "../../share/atom";
+import { hospitalData } from "../share/atom";
+import { useMutation, useQuery } from "react-query";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
   /* display: flex; */
   /* flex-direction: column; */
   align-items: center;
-  padding: 150px;
+  padding: 50px;
 `;
 
 const ImageBox = styled.label`
@@ -28,8 +29,8 @@ const ImageBox = styled.label`
   border-radius: 100%;
   overflow: hidden;
   cursor: pointer;
-  width: 250px;
-  height: 250px;
+  width: 150px;
+  height: 150px;
   margin: auto;
   > img {
     width: 100%;
@@ -48,8 +49,8 @@ const PostImage = styled.img`
 const InputWrap = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 60px;
-  margin-bottom: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 const TitleBox = styled.textarea`
@@ -93,19 +94,24 @@ const StarRating = styled.div`
   display: flex;
   flex-direction: row;
   cursor: pointer;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
 
 const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = () => {
+const NewPost = ({ postEdit, setPostEdit }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
   const [starRating, setStarRating] = useState(0);
   const [selectvalue, setSelectValue] = useState([]);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContents, setEditContents] = useState("");
+  const [editTotalCost, setEditTotalCost] = useState("");
+  const [editRatings, setEditRatings] = useState("");
+  const [editSelectValue, setEditSelectValue] = useState([]);
 
   const router = useRouter();
 
@@ -126,42 +132,49 @@ const NewPost = () => {
     </div>
   );
 
-  const createdAt = Date.now();
-  const timestamp = new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(createdAt);
-  // const newDate = timestamp.toString().slice(0, 25);
-  console.log("uid", authService.currentUser?.uid);
+  // 게시글 업데이트
+  const { mutate: updateMutate } = useMutation(
+    (data) =>
+      axios
+        .put(`http://localhost:3001/posts/${data.id}`, data)
+        .then((res) => res.data),
+    {
+      onSuccess: () => {
+        setEditTitle("");
+        setEditContents("");
+        refetchPost();
+      },
+    },
+  );
 
-  // DB에 저장
-  const handleSubmit = async (downloadUrl) => {
-    // event.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:3001/posts", {
-        title,
-        contents,
-        totalCost,
-        rating: starRating,
-        selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
-        downloadUrl,
-        date: timestamp,
-        displayName: authService.currentUser?.displayName,
-        userId: authService.currentUser?.uid,
-        profileImage: authService.currentUser?.photoURL,
-        hospitalId: placesData.id,
-        isEdit: false,
-        id: createdAt,
-      });
-      console.log("response", response);
-      localStorage.removeItem("newProfilePhoto");
-      router.push(`/posts`);
-    } catch (error) {
-      console.error(error);
-    }
+  const handleEditSubmit = async (
+    e,
+    id,
+    downloadUrl,
+    selectedColors,
+    rating,
+    totalCost,
+    isEdit,
+    profileImage,
+    date,
+    displayName,
+    userId,
+  ) => {
+    // e.preventDefault();
+    updateMutate({
+      id,
+      title: editTitle,
+      contents: editContents,
+      downloadUrl,
+      selectedColors,
+      rating,
+      totalCost,
+      isEdit,
+      profileImage,
+      date,
+      displayName,
+      userId,
+    });
   };
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
@@ -197,7 +210,8 @@ const NewPost = () => {
         downloadUrl = await getDownloadURL(response.ref);
       }
       if (downloadUrl) {
-        handleSubmit(downloadUrl);
+        handleEditSubmit(downloadUrl);
+        setPostEdit(false);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
         alert("새로운 사진이없습니다");
@@ -231,8 +245,8 @@ const NewPost = () => {
             <TitleBox
               type="text"
               placeholder="Title"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              //   value={title}
+              onChange={(event) => setEditTitle(event.target.value)}
               id="title"
               rows="1"
               maxLength="50"
@@ -241,8 +255,8 @@ const NewPost = () => {
             <ContentBox
               type="text"
               placeholder="Contents"
-              value={contents}
-              onChange={(event) => setContents(event.target.value)}
+              //   value={contents}
+              onChange={(event) => setEditContents(event.target.value)}
               rows="8"
               maxLength="500"
             />
@@ -250,8 +264,8 @@ const NewPost = () => {
             <TotalCostBox
               type="text"
               placeholder="TotalCost"
-              value={totalCost}
-              onChange={(event) => setTotalCost(event.target.value)}
+              //   value={totalCost}
+              onChange={(event) => setEditTotalCost(event.target.value)}
               rows="3"
               maxLength="200"
             />
@@ -262,16 +276,18 @@ const NewPost = () => {
             {starArray.map((star) => (
               <Star
                 key={star}
-                selected={star <= starRating}
-                onClick={() => setStarRating(star)}
+                selected={star <= editRatings}
+                onClick={() => setEditRatings(star)}
               />
             ))}
           </StarRating>
           <label htmlFor="title">이 병원의 좋은점을 남겨주세요</label>
           <PostSelect>
             <Select
-              value={selectvalue}
-              onChange={(selectedOptions) => setSelectValue(selectedOptions)}
+              //   value={selectvalue}
+              onChange={(selectedOptions) =>
+                setEditSelectValue(selectedOptions)
+              }
               closeMenuOnSelect={false}
               defaultValue={[colourOptions[0], colourOptions[1]]}
               isMulti

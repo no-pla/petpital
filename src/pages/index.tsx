@@ -1,21 +1,23 @@
-import { useGetReviews } from "@/Hooks/useGetReviews";
+import { useGetReviews } from "../hooks/useGetReviews";
 import {
-  CounselList,
   Counsel,
   CounselTitle,
   CounselButton,
+  PageButtonContainer,
+  PageButton,
 } from "./petconsult";
 import styled from "@emotion/styled";
-import { useGetPetConsult } from "@/Hooks/usePetsult";
+import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "@/components/api/getMainHosiptal";
 import { useState } from "react";
-import Link from "next/link";
-import Script from "next/script";
+import { CustomHeader, HeaderTitle } from "@/components/custom/CustomHeader";
 
 export default function Home() {
   const router = useRouter();
-  const { recentlyReview, isLoading } = useGetReviews();
+  const { recentlyReview, isLoading } = useGetReviews(
+    "?_sort=createdAt&_order=desc&_limit=6",
+  );
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
     limit: "&_limit=3",
   });
@@ -26,7 +28,7 @@ export default function Home() {
 
   return (
     <>
-      <Slider>
+      <MainBanner>
         <PetpitalTitle>
           우리 아이를 위한 병원,
           <br />
@@ -37,86 +39,274 @@ export default function Home() {
           <br />
           리뷰도 확인해보세요
         </PetpitalSubTitle>
-        <MainCustomButton>병원검색 하러가기</MainCustomButton>
-      </Slider>
-      <SectionTitle>아주 만족했던 병원이었개!🐶</SectionTitle>
-      <SectionSubTitle>
-        육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
-      </SectionSubTitle>
-      <button disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
-        ⬅
-      </button>
-      <button
-        disabled={mainPetpial?.data.meta.is_end === true}
-        onClick={() => setPage((prev) => prev + 1)}
-      >
-        ➡
-      </button>
-      <BestPetpitalContainer>
-        {mainPetpial?.data?.documents.map((petpial: any) => {
-          return (
-            <Link href={`/${petpial.id}`} key={petpial.id}>
-              <BestPetpital>
-                <BestPetpitalImg src="https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg" />
-                <BestPetpitalPrice>{petpial.phone}</BestPetpitalPrice>
-                <BestPetpitalInfo>
-                  <BestPetpitalAddressName>
-                    {petpial.place_name}
-                  </BestPetpitalAddressName>
+        <MainCustomButton onClick={() => router.push("/searchMap")}>
+          병원검색 하러가기
+        </MainCustomButton>
+      </MainBanner>
+      <Section>
+        <SectionTitle>아주 만족했던 병원이었개!🐶</SectionTitle>
+        <SectionSubTitle>
+          육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
+        </SectionSubTitle>
+        <PageButtonContainer
+          style={{ justifyContent: "right", marginBottom: "50px" }}
+        >
+          <PageButton
+            disabled={page === 1}
+            onClick={() => setPage((prev) => prev - 1)}
+          >
+            &larr;
+          </PageButton>
+          <PageButton
+            disabled={mainPetpial?.data.meta.is_end === true}
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            &rarr;
+          </PageButton>
+        </PageButtonContainer>
+        <BestPetpitalContainer>
+          {mainPetpial?.data?.documents.map((petpital: any) => {
+            return (
+              <BestPetpitalItem
+                key={petpital.id}
+                onClick={() =>
+                  router.push({
+                    pathname: "/searchMap",
+                    query: { target: petpital.place_name },
+                  })
+                }
+              >
+                <BestPetpitalImage src="https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c" />
+                <BestPetpitalDesc>
+                  <BestPetpitalName>
+                    {petpital.place_name.length > 12
+                      ? petpital.place_name.slice(0, 12) + "..."
+                      : petpital.place_name}
+                  </BestPetpitalName>
                   <BestPetpitalAddress>
-                    {petpial.road_address_name}
+                    {petpital.road_address_name === ""
+                      ? "정보 없음"
+                      : petpital.road_address_name === undefined
+                      ? ""
+                      : petpital.road_address_name.split(" ")[0] +
+                        " " +
+                        petpital.road_address_name.split(" ")[1]}
                   </BestPetpitalAddress>
-                </BestPetpitalInfo>
-              </BestPetpital>
-            </Link>
-          );
-        })}
-      </BestPetpitalContainer>
-      <WriteAReviewSection>
+                  <BestPetpitalCost>가격</BestPetpitalCost>
+                </BestPetpitalDesc>
+              </BestPetpitalItem>
+            );
+          })}
+        </BestPetpitalContainer>
+      </Section>
+      <ReviewBanner>
         회원님의 후기로
         <br />
         다른 반려인에게 도움을 주세요🙊
-        <MainCustomButton>리뷰 남기러가기</MainCustomButton>
-      </WriteAReviewSection>
-      <SectionTitle>내가 한번 가봤다냥</SectionTitle>
-      <ReviewList>
-        {!isLoading &&
-          recentlyReview?.data.map((review) => {
+        <MainCustomButton onClick={() => router.push("/searchMap")}>
+          리뷰 남기러가기
+        </MainCustomButton>
+      </ReviewBanner>
+      <Section>
+        <SectionTitle>내가 한번 가봤다냥</SectionTitle>
+        <CurrentReivewContainer>
+          {recentlyReview?.data.map((review) => {
             return (
-              <Review key={review.id}>
-                <ReviewImg src={review.downloadUrl} alt="" />
-                <ReviewInfo>
-                  <ReviewTitle>{review.title}</ReviewTitle>
-                  <PetpitalInfo>
-                    <PetpitalAddressName>파인떙큐</PetpitalAddressName>
-                    <PetpitalAddress>경기도 용인시 기흥구</PetpitalAddress>
-                  </PetpitalInfo>
-                  <ReviewDesc>{review.contents}</ReviewDesc>
-                  <PetpitalPrice>
-                    <PetpitalHighPrice>25,000</PetpitalHighPrice>
-                  </PetpitalPrice>
-                </ReviewInfo>
-              </Review>
+              <CurrentReview
+                onClick={() => router.push("/searchMap")}
+                key={review.id}
+              >
+                <CurrentReviewImage src="https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c"></CurrentReviewImage>
+                <CurrentReviewComment>
+                  <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
+                  <CurrentReviewPetpitalDesc>
+                    <CurrentReviewPetpitalName>
+                      병원이름
+                    </CurrentReviewPetpitalName>
+                    <CurrentReviewPetpitalAddress>
+                      주소
+                    </CurrentReviewPetpitalAddress>
+                  </CurrentReviewPetpitalDesc>
+                  <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                  <CurrentReviewCost>
+                    {Number(review.totalCost).toLocaleString("ko-KR")}
+                  </CurrentReviewCost>
+                </CurrentReviewComment>
+              </CurrentReview>
             );
           })}
-      </ReviewList>
-      <SectionTitle>고민 있음 털어놔보개!</SectionTitle>
-      <CounselList>
-        {!isLoadingPetConsult &&
-          petConsult?.data.map((counsel) => (
-            <Counsel key={counsel.id}>
-              <CounselTitle>{counsel.content}</CounselTitle>
-              <CounselButton
-                onClick={() => router.push(`petconsult/${counsel.id}`)}
-              >
-                답변하러가기
-              </CounselButton>
-            </Counsel>
-          ))}
-      </CounselList>
+        </CurrentReivewContainer>
+      </Section>
+      <Section>
+        <HeaderContainer>
+          <HeaderTitle>고민있음 털어놔보개!</HeaderTitle>
+          <div>
+            <HeaderButton onClick={() => router.push("/petconsult/new")}>
+              질문하기
+            </HeaderButton>
+            <HeaderButton onClick={() => router.push("/petconsult")}>
+              전체보기
+            </HeaderButton>
+          </div>
+        </HeaderContainer>
+        <CounselList>
+          {!isLoadingPetConsult &&
+            petConsult?.data.map((counsel) => (
+              <Counsel key={counsel.id}>
+                <CounselTitle>{counsel.content}</CounselTitle>
+                <CounselButton
+                  onClick={() => router.push(`petconsult/${counsel.id}`)}
+                >
+                  답변하러가기
+                </CounselButton>
+              </Counsel>
+            ))}
+        </CounselList>
+      </Section>
     </>
   );
 }
+
+// 배너
+const MainBanner = styled.div`
+  height: 40vh;
+  background-color: #393b4c;
+  padding-top: 50px;
+  padding-left: 50px;
+`;
+
+const ReviewBanner = styled.div`
+  padding: 50px 20px;
+  background-color: #798b9b; // 임시값
+  margin: 100px 0 50px 0;
+  font-weight: 700;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+`;
+
+// 최근 검색 병원
+const BestPetpitalContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 190px);
+  gap: 20px 24px;
+  padding-bottom: 20px;
+  @media screen and (max-width: 800px) {
+    overflow-x: scroll;
+  }
+`;
+
+const BestPetpitalItem = styled.div`
+  width: calc(max(100%, 140px));
+  border-radius: 4px;
+  box-shadow: 0px 4px 4px 0px #0000001a;
+  @media screen and (max-width: 800px) {
+    grid-template-columns: repeat(5, 200px);
+  }
+`;
+
+const BestPetpitalImage = styled.img`
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px 4px 0 0;
+`;
+
+const BestPetpitalDesc = styled.div`
+  /* padding: 8px 0; */
+`;
+
+const BestPetpitalName = styled.div`
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0 6px 6px 6px;
+  border-bottom: 0.4px solid #e4e4e4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+const BestPetpitalAddress = styled.div`
+  padding: 6px;
+  font-weight: 300;
+  font-size: 0.8rem;
+`;
+const BestPetpitalCost = styled.div`
+  padding: 6px;
+  font-size: 1rem;
+  border-radius: 0 0 4px 4px;
+  color: #15b5bf;
+  font-weight: 600;
+  background-color: #afe5e9;
+`;
+
+// 메인 리뷰
+const CurrentReivewContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+  @media screen and (max-width: 800px) {
+    overflow-x: scroll;
+    grid-template-columns: repeat(2, 375px);
+  }
+`;
+
+const CurrentReview = styled.div`
+  display: flex;
+  background-color: #fafafa;
+  border-radius: 4px;
+`;
+
+const CurrentReviewImage = styled.img`
+  width: 150px;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px 0px 0px 4px;
+`;
+
+const CurrentReviewComment = styled.div`
+  padding: 15px 8px;
+  position: relative;
+`;
+
+const CurrentReviewTitle = styled.div`
+  font-weight: 600;
+`;
+
+const CurrentReviewPetpitalDesc = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0 15px;
+  margin: 9px 0;
+`;
+
+const CurrentReviewPetpitalName = styled.div`
+  color: #9f9f9f;
+  font-weight: 400;
+  font-size: 14px;
+`;
+
+const CurrentReviewPetpitalAddress = styled.div`
+  font-weight: 300;
+  font-size: 12px;
+`;
+
+const CurrentReviewDesc = styled.div`
+  font-weight: 300;
+  font-size: 14px;
+  color: #c5c5c5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const CurrentReviewCost = styled.div`
+  margin-top: 6px;
+  position: absolute;
+  bottom: 10px;
+`;
 
 // 메인 설명
 const PetpitalTitle = styled.h1`
@@ -126,6 +316,7 @@ const PetpitalTitle = styled.h1`
   line-height: 34px;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
+
 const PetpitalSubTitle = styled.h2`
   font-weight: 400;
   font-size: 1.2rem;
@@ -134,188 +325,46 @@ const PetpitalSubTitle = styled.h2`
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
 
-const Slider = styled.div`
-  height: 500px;
-  background-color: #798b9b; // 임시값
-  padding-top: 100px;
-  padding-left: 50px;
-`;
-
-// 리뷰쓰러가기 섹션
-const WriteAReviewSection = styled.div`
-  height: 200px;
-  background-color: #798b9b; // 임시값
-  margin: 150px 0 50px 0;
-  padding: 50px 70px;
-  font-weight: 700;
-  font-size: 1.8rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-`;
-
-// 리뷰 스타일
-const ReviewList = styled.div`
+const CounselList = styled.div`
+  margin-bottom: 180px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(460px, 2fr));
-  gap: 20px 24px;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  @media screen and (max-width: 930px) {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 `;
 
-const Review = styled.div`
-  background-color: #fafafa;
-  border-radius: 5px;
+const HeaderContainer = styled.header`
+  padding: 20px 0;
   display: flex;
-  width: 100%;
-  height: 200px;
-  position: relative;
-`;
-
-const ReviewImg = styled.img`
-  width: 40%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px 0px 0px 4px;
-`;
-
-const ReviewDesc = styled.div`
-  border-radius: 5px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  border-radius: 0px 4px 4px 0px;
-  color: #c5c5c5;
-  margin: 11px 0 5px 0;
-`;
-
-const ReviewTitle = styled.h3`
-  padding-top: 1px;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  margin-bottom: 17px;
-  font-weight: 600;
-  font-size: 1.4rem;
-  line-height: 19px;
-  word-break: break-all;
-`;
-
-const PetpitalInfo = styled.div`
-  display: flex;
-  flex-direction: row;
   justify-content: space-between;
-`;
-
-const PetpitalAddress = styled.div`
-  font-weight: 600;
-  font-size: 0.8rem;
-  line-height: 19px;
-`;
-
-const PetpitalAddressName = styled.div`
-  font-weight: 600;
-  font-size: 1.2rem;
-  line-height: 19px;
-`;
-
-const ReviewInfo = styled.div`
-  display: flex;
-  margin-left: 8px;
-  margin-right: 30px;
-  flex-direction: column;
-  width: 60%;
-`;
-
-const PetpitalPrice = styled.div`
-  margin-top: 8px;
-  position: absolute;
-  bottom: 18px;
-`;
-
-const PetpitalLowPrice = styled.span`
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background-color: #65d8df;
-  margin-right: 8px;
-  &::before {
-    content: "진료비 최저 ";
-    color: #fff;
+  align-items: baseline;
+  & button:nth-of-type(1) {
+    font-size: 0.8rem;
+    color: #15b5bf;
   }
-`;
-
-const PetpitalHighPrice = styled.span`
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background-color: #65d8df;
-  &::before {
-    content: "진료비 최대 ";
-    color: #fff;
+  & button:nth-of-type(2) {
+    font-size: 0.8rem;
+    color: #c5c5c5;
   }
-`;
-
-// 리뷰 많은 병원
-
-const BestPetpitalContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 5fr));
-  gap: 20px 24px;
-`;
-
-const BestPetpital = styled.div`
-  border-radius: 5px;
-  display: flex;
-  width: 100%;
-  height: 240px;
-  display: flex;
-  flex-direction: column;
-  background-color: #ffffff;
-  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.1));
-`;
-
-const BestPetpitalImg = styled.img`
-  height: 150px;
-  width: 100%;
-  object-fit: cover;
-  border-radius: 4px 0px 0px 4px;
-`;
-
-const BestPetpitalPrice = styled.span`
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background-color: #65d8df;
-  margin: 16px auto;
-  font-size: 1rem;
-
-  &::before {
-    content: "진료비 ";
-    color: #fff;
+  @media screen and (max-width: 375px) {
+    & div {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
   }
-`;
-
-const BestPetpitalInfo = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: 0 20px;
-`;
-
-const BestPetpitalAddress = styled.div`
-  font-weight: 400;
-  font-size: 0.8rem;
-  line-height: 19px;
-`;
-
-const BestPetpitalAddressName = styled.div`
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 19px;
 `;
 
 // 커스텀
+const Section = styled.section`
+  width: 100%;
+  padding: 0 60px;
+`;
+
 const MainCustomButton = styled.button`
   display: flex;
   justify-content: center;
@@ -326,13 +375,32 @@ const MainCustomButton = styled.button`
   backdrop-filter: blur(20px);
   border-radius: 999px;
   height: 32px;
+  cursor: pointer;
 `;
 
 const SectionTitle = styled.h3`
-  margin-top: 150px;
+  margin-top: 100px;
 `;
 
 const SectionSubTitle = styled.div`
   margin-bottom: 24px;
   color: #c5c5c5;
+`;
+
+export const HeaderButton = styled.button`
+  cursor: pointer;
+  border: none;
+  font-weight: 700;
+  background-color: transparent;
+  @media screen and (min-width: 376px) {
+    font-size: 1rem;
+    padding: 8px;
+    border-radius: 20px;
+    color: #15b5bf;
+    background-color: transparent;
+    transition: background-color 0.2s ease-in;
+    &:hover {
+      background: rgba(101, 216, 223, 0.3);
+    }
+  }
 `;

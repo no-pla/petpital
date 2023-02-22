@@ -147,7 +147,6 @@ export const useDeletCounsel = () => {
       await queryClient.cancelQueries({ queryKey: ["getCounsel"] });
       const oldCounsel = queryClient.getQueriesData(["getCounsel"]);
       queryClient.setQueriesData(["getCounsel"], newCounsel);
-      console.log("oldCounsel", oldCounsel, "newCounsel", newCounsel);
       return { oldCounsel, newCounsel };
       // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
       // 낙관적 업데이트를 통해 캐시 수정
@@ -163,7 +162,7 @@ export const useDeletCounsel = () => {
     },
     onSettled: () => {
       // 무조건 실행
-      queryClient.invalidateQueries({ queryKey: ["getCounsel"] });
+      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
     },
   });
 };

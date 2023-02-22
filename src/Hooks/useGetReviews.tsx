@@ -9,15 +9,16 @@ interface IReview {
     rating: number;
     selectedColors: string[];
     downloadUrl: string;
+    hospitalId: string;
     id: number;
   }[];
 }
 
-export const useGetReviews = () => {
+export const useGetReviews = (limit: string) => {
   const { isLoading, data: recentlyReview } = useQuery<IReview>(
     "getrecentlyReview",
     () => {
-      return axios.get("http://localhost:3001/posts");
+      return axios.get(`http://localhost:3001/posts${limit}`);
     },
   );
   return { recentlyReview, isLoading };

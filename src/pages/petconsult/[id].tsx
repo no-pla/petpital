@@ -2,16 +2,23 @@ import {
   useDeletCounsel,
   useGetCounselList,
   useGetCounselTarget,
-} from "@/Hooks/usePetsult";
+} from "@/hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import CounselComments from "@/components/CounselComments";
+import { useState } from "react";
+import CounselComments, {
+  ManageButtonContainer,
+} from "@/components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { toggleModal } from "@/share/atom";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import {
+  BackButton,
+  CustomHeader,
+  HeaderButton,
+} from "@/components/custom/CustomHeader";
+import { authService } from "../../firebase/firebase";
+
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
   data: {
@@ -36,12 +43,9 @@ export function getServerSideProps({ query }: any) {
 const PetconsultDetail = () => {
   const router = useRouter();
   const id = router.query.id;
-  const defaultModal = useRecoilValue(toggleModal);
   const { mutate: deleteCounsel } = useDeletCounsel();
   const { data: targetTime } = useGetCounselTarget(id);
-  const { data: infinite } = useGetCounselList(targetTime);
-  const [counsel, setCounsel] = useState<any>();
-  const [openModal, setOpenModal] = useState(defaultModal);
+  const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
 
   const fetchInfiniteComment = async (targetTime: any) => {
@@ -55,7 +59,7 @@ const PetconsultDetail = () => {
   );
 
   const onDelete = (id: any) => {
-    setOpenModal((prev) => !prev);
+    setOpenModal((prev: any) => !prev);
     setTargetId(id);
   };
 
@@ -64,7 +68,7 @@ const PetconsultDetail = () => {
     if (id === targetId) {
       router.push(`/petconsult`);
     }
-    setOpenModal((prev) => !prev);
+    setOpenModal((prev: any) => !prev);
   };
 
   const onOpenInput = (targetId: string) => {
@@ -73,28 +77,43 @@ const PetconsultDetail = () => {
 
   function Components(this: any, { counselData }: any) {
     return (
-      <div key={counselData.id}>
-        <button onClick={() => onDelete(counselData.id)}>삭제</button>
-        <button onClick={() => onOpenInput(counselData.id)}>수정</button>
+      <Counsel key={counselData.id}>
         <CounselHeader>
-          <UserProfileImg
-            src={counselData.profileImg}
-            alt={counselData.nickname + " 유저의 프로필 사진입니다."}
-          />
-          <div>{counselData.nickname}</div>
-          <div>
-            작성 시간:
-            {new Date(counselData.createdAt).toLocaleDateString("ko-Kr")}
-          </div>
+          <CounselInfo>
+            <UserProfileImg
+              src={counselData.profileImg}
+              alt={counselData.nickname + " 유저의 프로필 사진입니다."}
+            />
+            <UserInfo>
+              <div>{counselData.nickname}</div>
+              <div>
+                {new Date(counselData.createdAt).toLocaleDateString("ko-Kr")}
+              </div>
+            </UserInfo>
+          </CounselInfo>
+          {counselData.uid === authService.currentUser?.uid && (
+            <ManageButtonContainer>
+              <button onClick={() => onDelete(counselData.id)}>삭제</button>
+              <button onClick={() => onOpenInput(counselData.id)}>수정</button>
+            </ManageButtonContainer>
+          )}
         </CounselHeader>
         <CounselText>{String(counselData.content)}</CounselText>
         <CounselComments target={counselData.id} />
-      </div>
+      </Counsel>
     );
   }
 
   return (
-    <div>
+    <CounselContainer>
+      <CustomHeader>
+        <BackButton onClick={() => router.push("/petconsult")}>
+          &larr; 이전으로
+        </BackButton>
+        <HeaderButton onClick={() => router.push("/petconsult/new")}>
+          질문하기
+        </HeaderButton>
+      </CustomHeader>
       {data?.data?.map((counselData: any) => {
         return <Components key={counselData.id} counselData={counselData} />;
       })}
@@ -103,35 +122,79 @@ const PetconsultDetail = () => {
           modalText1={"입력하신 게시글을"}
           modalText2={"삭제 하시겠습니까?"}
         >
-          <ModalButton onClick={() => setOpenModal((prev) => !prev)}>
+          <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
             취소
           </ModalButton>
           <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
         </CustomModal>
       )}
-    </div>
+    </CounselContainer>
   );
 };
 
-const CounselHeader = styled.div``;
+const Counsel = styled.div`
+  min-height: 80vh;
+  height: 100%;
+  border-bottom: 1px solid #c5c5c5;
+`;
 
-const UserProfileImg = styled.img`
-  width: 150px;
-  height: 150px;
+export const CounselHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin: 0 20px;
+  padding-top: 20px;
+`;
+
+export const CounselInfo = styled.div`
+  display: flex;
+  margin: 0 20px;
+`;
+
+const CounselContainer = styled.div`
+  @media screen and (max-width: 375px) {
+    margin-bottom: 120px;
+  }
+`;
+
+export const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  & div:nth-of-type(1) {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  & div:nth-of-type(2) {
+    ::before {
+      content: "게시일 • ";
+    }
+    color: #c5c5c5;
+    font-weight: 400;
+    font-size: 12px;
+  }
+`;
+
+export const UserProfileImg = styled.img`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   object-fit: cover;
+  margin-right: 10px;
 `;
 
 const CounselText = styled.div`
   width: 80%;
   height: 120px;
-  background: #65d8df;
+  background: #afe5e9;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto;
   font-size: 28px;
   color: #ffffff;
   border-radius: 4px;
+  margin: 40px auto;
 `;
 
 export default PetconsultDetail;
