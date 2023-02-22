@@ -1,4 +1,3 @@
-import { BiCurrentLocation } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { hospitalData } from "@/share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
@@ -337,9 +336,7 @@ export default function SearchMap(props: any) {
             itemStr += "<span>" + places.address_name + "</span>";
           }
 
-          itemStr += '<span class="tel">' + places.phone + "</span>";
-          itemStr +=
-            "<a href=" + places.place_url + ">병원 정보 보기</a>" + "</div>";
+          itemStr += '<span class="tel">' + places.phone + "</span>" + "</div>";
           el.innerHTML = itemStr;
           el.className = "item";
           // placesData(places);
@@ -420,17 +417,24 @@ export default function SearchMap(props: any) {
           const content = `                  
           <div class="item">
           <div id="roadview"></div>  
+          <div style="margin-left:10px">
             <h2>${title}</h2>
+            <span class="tel">${places.phone}</span>
+            
             <div class="info">
-              <p class="gray">${places.road_address_name}</p>
-              <p>${places.address_name}</p>
-              <p class="tel">${places.phone}</p>
+              <span class="gray">${places.road_address_name}</span>
+              <br>
+              <span> ${places.address_name}</span>
+              </div>
+              <br>
+              
+      
               <p>
               <a href="${places.place_url}" target="_blank"
-              style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
+              class="detailButton" >상세정보 및 공유, 데이터 보기</a>
               </p>  
-              <p>
-              <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기</a>
+              <p style="margin-top:40px">
+              <a class="reviewButton" href="/posts/createPost">리뷰 참여하기</a>
               </p>
               <div id="reviewList"></div>          
         </div>
@@ -451,7 +455,7 @@ export default function SearchMap(props: any) {
                   lng: x,
                   radius: 50,
                 }}
-                style={{ width: "90%", height: "200px" }}
+                style={{ width: "100%", height: "200px" }}
               />,
             );
           }
@@ -527,7 +531,11 @@ export default function SearchMap(props: any) {
           <div className="option">
             <div>
               <div id="map_title">
-                <div>동물병원 리스트</div>
+                <div
+                  style={{ color: "blue", fontWeight: "700", fontSize: "20px" }}
+                >
+                  동물병원 리스트
+                </div>
               </div>
 
               <form id="form">
@@ -537,6 +545,7 @@ export default function SearchMap(props: any) {
                   id="keyword"
                   placeholder="찾으실 동물병원의 (시)도 + 구 + 읍(면,동)을 입력하세요"
                   onChange={onchangeSearch}
+                  style={{ fontSize: "13px" }}
                 />
 
                 <button id="submit_btn" type="submit">
@@ -592,7 +601,6 @@ export default function SearchMap(props: any) {
           ) : (
             <></>
           )}
-          <BiCurrentLocation onClick={() => {}} size={40} />
         </div>
       </div>
     </MapSection>
@@ -669,13 +677,14 @@ export const MapSection = styled.div`
   }
 
   #submit_btn {
-    background-color: #ff6e30;
+    background-color: #65d8df;
     border: none;
     outline: none;
   }
 
   #placesList h5 {
-    color: #ff6e30;
+    font-size: 20px;
+    margin-bottom: 10px;
   }
 
   #placesList li {
@@ -701,6 +710,7 @@ export const MapSection = styled.div`
 
   #placesList .info .tel {
     color: #009900;
+    font-size: 14px;
   }
 
   #btnDiv {
@@ -720,7 +730,7 @@ export const MapSection = styled.div`
   #pagination .on {
     font-weight: bold;
     cursor: default;
-    color: #ff6e30;
+    color: #65d8df;
   }
 
   #btnOn {
@@ -735,9 +745,37 @@ export const MapSection = styled.div`
     width: 20px;
     padding: 0px;
     height: 70px;
-    background-color: #ffa230;
+    background-color: #65d8df;
     border: none;
     outline: none;
+  }
+  .reviewButton {
+    font-size: 15px;
+    color: #fff;
+    bottom: 0px;
+    cursor: pointer;
+    background: #15b5bf;
+    padding: 15px 145px 15px 145px;
+    width: 200px;
+    text-align: center;
+    margin-top: 30px;
+  }
+  .detailButton {
+    font-size: 15px;
+    color: #fff;
+    bottom: 0px;
+    cursor: pointer;
+    background: #1182ce;
+    padding: 15px 95px 15px 90px;
+    text-align: center;
+    margin-top: 30px;
+  }
+  .tel {
+    display: flex;
+    justify-content: end;
+    font-size: 16px;
+    color: #0f8b0f;
+    margin-right: 20px;
   }
 `;
 
@@ -752,7 +790,7 @@ const Review = styled.div`
   background-color: #fafafa;
   border-radius: 5px;
   display: flex;
-  width: 90%;
+  width: 80%;
   height: 200px;
   position: relative;
 `;

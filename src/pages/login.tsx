@@ -80,22 +80,20 @@ const Login = () => {
           style={{ marginBottom: 40 }}
         />
         <FormWrap onSubmit={onSubmit}>
-          <Inputbox>
-            <Input
-              type="text"
-              name={email}
-              placeholder="이메일을 입력해 주세요."
-              // required
-              value={email}
-              onChange={(e) => {
-                const value = e.target.value;
-                setEmail(value);
-              }}
-              onKeyPress={(e) => {
-                e.key === "Enter" && e.preventDefault();
-              }}
-            />
-          </Inputbox>
+          <Input
+            type="text"
+            name={email}
+            placeholder="이메일을 입력해 주세요."
+            // required
+            value={email}
+            onChange={(e) => {
+              const value = e.target.value;
+              setEmail(value);
+            }}
+            onKeyPress={(e) => {
+              e.key === "Enter" && e.preventDefault();
+            }}
+          />
 
           {!matchCheckEmail ? (
             email ? (
@@ -197,7 +195,7 @@ export const ModalWrap = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 40px 40px 30px 40px;
+  padding: 40px 20px 30px 20px;
   background-color: #fff;
   border-radius: 16px;
   color: #000;
@@ -249,16 +247,13 @@ export const ButtonWrap = styled.div`
   }
 `;
 
-export const Inputbox = styled.div`
-  border: 1;
-`;
 export const Input = styled.input`
   border-bottom: 1px solid #ddd;
-  background: transparent;
+  background-color: #eee;
   padding: 8px;
   margin: 4px 4px 8px 4px;
   font-size: 16px;
-  border-style: none;
+  border: 1px;
 `;
 
 export const ErrorMessage = styled.p`

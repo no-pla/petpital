@@ -17,6 +17,8 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import Image from "next/image";
+import loginLogo from "../../public/loginLogo.jpg";
 
 const Join = () => {
   const [email, setEmail] = useState("");
@@ -67,7 +69,13 @@ const Join = () => {
   return (
     <ModalBackground>
       <ModalWrap>
-        <Title>회원가입</Title>
+        <Image
+          src={loginLogo}
+          alt="loginLogo"
+          width={170}
+          height={40}
+          style={{ marginBottom: 40 }}
+        />
         <FormWrap onSubmit={onSubmitJoin}>
           <InputWrap>
             <LabelText>닉네임</LabelText>
@@ -153,19 +161,7 @@ const Join = () => {
           </InputWrap>
 
           <ButtonWrap>
-            <CustomButton bgColor="#33a264" height={12} type="submit">
-              완료
-            </CustomButton>
-
-            <CustomButton
-              bgColor="#000"
-              height={12}
-              onClick={() => {
-                router.push("/");
-              }}
-            >
-              취소
-            </CustomButton>
+            <SignupButton type="submit">회원가입</SignupButton>
           </ButtonWrap>
         </FormWrap>
       </ModalWrap>
@@ -202,7 +198,7 @@ const Join = () => {
           <AuthTitle>가입성공</AuthTitle>
           <p>회원가입이 완료되었습니다.</p>
           <CustomButton
-            bgColor="#33a264"
+            bgColor="#15b5bf"
             height={8}
             width={16}
             onClick={() => {
@@ -224,9 +220,24 @@ const InputWrap = styled.div`
   display: flex;
   flex-direction: column;
   margin: 8px 0;
+  padding: 0 20px;
 `;
 
 const LabelText = styled.div`
   font-size: 14px;
   padding: 0 8px;
+  font-weight: 700;
+`;
+
+export const SignupButton = styled.button`
+  flex: 1;
+  cursor: pointer;
+  background: #15b5bf;
+  color: #fff;
+  padding: 15px;
+  border-style: none;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 20px 25px 0 25px;
 `;

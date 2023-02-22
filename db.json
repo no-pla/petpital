@@ -320,6 +320,25 @@
       "hospitalId": "20646966",
       "isEdit": false,
       "id": 1676964409795
+    },
+    {
+      "title": "ㅇㅇ",
+      "contents": "ㄴㅇㄴ",
+      "totalCost": "14000",
+      "rating": 5,
+      "selectedColors": [
+        "시설이좋아요",
+        "꼼꼼해요",
+        "친절해요"
+      ],
+      "downloadUrl": "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/1677024738779?alt=media&token=c4837357-324e-4c78-aae2-afc3220ecc4d",
+      "date": "2023. 02. 22. 오전 09:12",
+      "displayName": "박재현",
+      "userId": "t5GXLjYVdvdHPLdojt7hvbBvCsi2",
+      "profileImage": "https://graph.facebook.com/8773602639377600/picture",
+      "hospitalId": "24568431",
+      "isEdit": false,
+      "id": 1677024736035
     }
   ],
   "qna": [
