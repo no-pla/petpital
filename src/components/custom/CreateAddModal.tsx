@@ -6,7 +6,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const CreateAddModal: React.FC<Props> = ({ width, height, children }) => {
+const CreateAddModal = ({ width, height, children }: Props): JSX.Element => {
   return (
     <>
       <Overlay>

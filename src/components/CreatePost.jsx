@@ -100,7 +100,7 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = ({ postAdd, setPostAdd }) => {
+const NewPost = ({ setIsEdit, refetchPost }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -155,10 +155,13 @@ const NewPost = ({ postAdd, setPostAdd }) => {
         hospitalId: placesData.id,
         isEdit: false,
         id: createdAt,
+        hospitalAddress: placesData.address_name,
+        hospitalName: placesData.place_name,
       });
       console.log("response", response);
-      localStorage.removeItem("newProfilePhoto");
-      setPostAdd(false);
+      localStorage.removeItem("Photo");
+      refetchPost();
+      setIsEdit(false);
       //   router.push(`/posts`);
     } catch (error) {
       console.error(error);
@@ -176,7 +179,7 @@ const NewPost = ({ postAdd, setPostAdd }) => {
       reader.onloadend = (finishedEvent) => {
         // 파일리더가 파일객체를 data URL로 변환 작업을 끝났을 때
         const contentimgDataUrl = finishedEvent.currentTarget.result;
-        localStorage.setItem("newProfilePhoto", contentimgDataUrl);
+        localStorage.setItem("Photo", contentimgDataUrl);
         document.getElementById("preview-photo").src = contentimgDataUrl; //useref 사용해서 DOM에 직접 접근 하지 말기
       };
     } catch (error) {
@@ -189,7 +192,7 @@ const NewPost = ({ postAdd, setPostAdd }) => {
     // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
     // 그 값 가져와서 firestore에 업로드
     try {
-      let newPhoto = localStorage.getItem("newProfilePhoto");
+      let newPhoto = localStorage.getItem("Photo");
       const imgRef = ref(storageService, `${Date.now()}`);
 
       let downloadUrl;
@@ -209,9 +212,9 @@ const NewPost = ({ postAdd, setPostAdd }) => {
     }
   };
 
-  //   const SubmitPost =() => {
-  //     setPostAdd(false)
-  //   }
+  //   const SubmitPost = () => {
+  //     setPostAdd(false);
+  //   };
 
   return (
     <>
