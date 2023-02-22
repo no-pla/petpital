@@ -274,6 +274,23 @@ const CounselCommentForm = styled.form`
   flex-direction: row;
   align-items: center;
   margin: 0 auto;
+  gap: 0 4px;
+
+  & button:nth-of-type(1) {
+    color: #65d8df;
+    background-color: transparent;
+    padding: 4px;
+    border: none;
+    cursor: pointer;
+  }
+
+  & button:nth-of-type(2) {
+    color: #c5c5c5;
+    background-color: transparent;
+    padding: 4px;
+    border: none;
+    cursor: pointer;
+  }
 `;
 
 const CounselInput = styled.input`
@@ -299,4 +316,3 @@ const CounselEditInput = styled.input`
 `;
 
 export default CounselComments;
-//

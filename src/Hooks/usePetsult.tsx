@@ -70,7 +70,6 @@ export const useGetCounselTarget = (id: any) => {
       enabled: !!id,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
-      staleTime: 0,
       cacheTime: 0,
       select: (data) => data?.data.createdAt,
     },
@@ -91,7 +90,6 @@ export const useGetCounselList = (targetTime: any) => {
       enabled: !!targetTime,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
-      staleTime: 0,
       cacheTime: 0,
     },
   );
