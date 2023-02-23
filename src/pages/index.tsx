@@ -124,12 +124,12 @@ export default function Home() {
             return (
               <BestPetpitalItem
                 key={petpital.id}
-                onClick={() =>
-                  router.push({
-                    pathname: "/searchMap",
-                    query: { target: petpital.place_name },
-                  })
-                }
+                // onClick={() =>
+                //   router.push({
+                //     pathname: "/searchMap",
+                //     query: { target: petpital.place_name },
+                //   })
+                // }
               >
                 <BestPetpitalImage
                   ImgSrc={

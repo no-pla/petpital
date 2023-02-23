@@ -52,6 +52,8 @@ export default function SearchMap(props: any) {
   };
 
   useEffect(() => {
+    if (!router.isReady) return;
+
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
 
@@ -440,6 +442,7 @@ export default function SearchMap(props: any) {
 
           const { x, y } = places;
           const roadview = document.getElementById("roadview"); // 로드뷰를 표시할 HTML 요소
+          console.log("콘솔: ", menuWrap, roadview);
           if (roadview) {
             const root1 = createRoot(roadview);
             root1.render(
@@ -520,7 +523,6 @@ export default function SearchMap(props: any) {
               </ReviewList>,
             );
           }
-          console.log(places.id);
 
           setIsOpen1(!isOpen1);
           infowindow.setContent(content1);
@@ -535,7 +537,7 @@ export default function SearchMap(props: any) {
         }
       });
     };
-  }, [recentlyReview]);
+  }, [recentlyReview, router.isReady]);
 
   return (
     <MapSection className="map_wrap" isOpen={isOpen} isOpen1={isOpen1}>
@@ -643,6 +645,7 @@ interface ISearchBarOpen {
 }
 
 export const MapSection = styled.div`
+  padding-top: 70px;
   display: flex;
   #map {
     width: 1200px;
