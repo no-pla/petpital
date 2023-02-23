@@ -172,7 +172,7 @@ export default function Home() {
           {recentlyReview?.data.map((review) => {
             return (
               <CurrentReview
-                onClick={() => router.push("/searchMap")}
+                // onClick={() => router.push("/searchMap")}
                 key={review.id}
               >
                 <CurrentImageContainer>
