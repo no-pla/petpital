@@ -236,6 +236,7 @@ const Button = styled.button`
 const MyPageBottom = styled.div`
   background-color: white;
   width: 100%;
+  padding-top: 70px;
 `;
 
 const PicContainer = styled.div`
