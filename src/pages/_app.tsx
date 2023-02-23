@@ -6,7 +6,13 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import "../styles/globals.css";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const quertClient = new QueryClient();
+  const quertClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+      },
+    },
+  });
 
   return (
     <RecoilRoot>

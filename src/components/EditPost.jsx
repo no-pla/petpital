@@ -101,22 +101,19 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = ({ postEdit, setPostEdit }) => {
-  const [title, setTitle] = useState("");
-  const [contents, setContents] = useState("");
-  const [totalCost, setTotalCost] = useState("");
-  const [starRating, setStarRating] = useState(0);
-  const [selectvalue, setSelectValue] = useState([]);
+const NewPost = ({ setPostEdit, refetchPost, id }) => {
   const [editTitle, setEditTitle] = useState("");
   const [editContents, setEditContents] = useState("");
   const [editTotalCost, setEditTotalCost] = useState("");
   const [editRatings, setEditRatings] = useState("");
   const [editSelectValue, setEditSelectValue] = useState([]);
+  const [editDownLoadUrl, setEditDownLoadUrl] = useState("");
 
   const router = useRouter();
 
   const placesData = useRecoilValue(hospitalData);
-  console.log(placesData);
+  console.log("placedata", placesData);
+  console.log("dddd", id);
 
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -136,45 +133,43 @@ const NewPost = ({ postEdit, setPostEdit }) => {
   const { mutate: updateMutate } = useMutation(
     (data) =>
       axios
-        .put(`http://localhost:3001/posts/${data.id}`, data)
+        .put(`http://localhost:3001/posts/${id}`, data)
         .then((res) => res.data),
     {
       onSuccess: () => {
-        setEditTitle("");
-        setEditContents("");
         refetchPost();
       },
     },
   );
 
-  const handleEditSubmit = async (
-    e,
-    id,
-    downloadUrl,
-    selectedColors,
-    rating,
-    totalCost,
-    isEdit,
-    profileImage,
-    date,
-    displayName,
-    userId,
-  ) => {
+  const createdAt = Date.now();
+  const timestamp = new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(createdAt);
+
+  const handleEditSubmit = async (downloadUrl) => {
     // e.preventDefault();
     updateMutate({
       id,
+      downloadUrl,
       title: editTitle,
       contents: editContents,
-      downloadUrl,
-      selectedColors,
-      rating,
-      totalCost,
-      isEdit,
-      profileImage,
-      date,
-      displayName,
-      userId,
+      selectedColors: editSelectValue.map((option) => option.value),
+      rating: editRatings,
+      totalCost: editTotalCost,
+      profileImage: authService.currentUser?.photoURL,
+      date: timestamp,
+      displayName: authService.currentUser?.displayName,
+      userId: authService.currentUser?.uid,
+      hospitalId: placesData.id,
     });
+    refetchPost();
+    localStorage.removeItem("Photo");
+    setPostEdit(false);
   };
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
@@ -188,7 +183,7 @@ const NewPost = ({ postEdit, setPostEdit }) => {
       reader.onloadend = (finishedEvent) => {
         // 파일리더가 파일객체를 data URL로 변환 작업을 끝났을 때
         const contentimgDataUrl = finishedEvent.currentTarget.result;
-        localStorage.setItem("newProfilePhoto", contentimgDataUrl);
+        localStorage.setItem("Photo", contentimgDataUrl);
         document.getElementById("preview-photo").src = contentimgDataUrl; //useref 사용해서 DOM에 직접 접근 하지 말기
       };
     } catch (error) {
@@ -201,7 +196,7 @@ const NewPost = ({ postEdit, setPostEdit }) => {
     // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
     // 그 값 가져와서 firestore에 업로드
     try {
-      let newPhoto = localStorage.getItem("newProfilePhoto");
+      let newPhoto = localStorage.getItem("Photo");
       const imgRef = ref(storageService, `${Date.now()}`);
 
       let downloadUrl;
@@ -210,11 +205,12 @@ const NewPost = ({ postEdit, setPostEdit }) => {
         downloadUrl = await getDownloadURL(response.ref);
       }
       if (downloadUrl) {
+        console.log("downloadUrl", downloadUrl);
+        // setEditDownLoadUrl(downloadUrl);
         handleEditSubmit(downloadUrl);
-        setPostEdit(false);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
-        alert("새로운 사진이없습니다");
+        alert("사진을 업로드 해주세요");
         return;
       }
     } catch (error) {
@@ -225,7 +221,23 @@ const NewPost = ({ postEdit, setPostEdit }) => {
   return (
     <>
       <Container>
-        <FormWrap onSubmit={ChangePhoto}>
+        <FormWrap
+          onSubmit={(e) => {
+            ChangePhoto(
+              e,
+              id,
+              downloadUrl,
+              selectedColors,
+              rating,
+              totalCost,
+              isEdit,
+              profileImage,
+              date,
+              displayName,
+              userId,
+            );
+          }}
+        >
           <ImageBox htmlFor="file">
             <PostImage
               id="preview-photo"
@@ -284,7 +296,7 @@ const NewPost = ({ postEdit, setPostEdit }) => {
           <label htmlFor="title">이 병원의 좋은점을 남겨주세요</label>
           <PostSelect>
             <Select
-              //   value={selectvalue}
+              value={editSelectValue}
               onChange={(selectedOptions) =>
                 setEditSelectValue(selectedOptions)
               }
@@ -296,7 +308,7 @@ const NewPost = ({ postEdit, setPostEdit }) => {
               instanceId="selectbox"
             />
           </PostSelect>
-          <CreatePostButton>리뷰남기기</CreatePostButton>
+          <CreatePostButton>수정하기</CreatePostButton>
         </FormWrap>
       </Container>
     </>

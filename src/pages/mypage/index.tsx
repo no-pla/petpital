@@ -19,7 +19,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import AuthModal from "@/components/custom/AuthModal";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
 
-const index = () => {
+const Index = () => {
   const [modal, setModal] = useState(false);
   const currentUser = useAuth();
   const [newNickname, setNewNickname] = useState("");
@@ -76,8 +76,6 @@ const index = () => {
       setPhotoURL(currentUser.photoURL);
     }
   }, [currentUser]);
-
-
 
   //카테고리 버튼
   const [selected, setSelected] = useState("");
@@ -175,7 +173,7 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;
 
 const MyPageContainer = styled.div`
   height: 100%;
@@ -244,12 +242,11 @@ const Button = styled.button`
 const MyPageBottom = styled.div`
   background-color: white;
   width: 100%;
-  height: 800vh;
 `;
 
 const PicContainer = styled.div`
-  width: 160px;
-  height: 100%;
+  width: 140px;
+  height: 20%;
 `;
 
 const ImageWrap = styled.div`
@@ -259,10 +256,11 @@ const ImageWrap = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 100%;
-  height: 100%;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   border: 1px solid #d0d0d0;
+  object-fit: cover;
 `;
 
 const ButtonWrap = styled.div`

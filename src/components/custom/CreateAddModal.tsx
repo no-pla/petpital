@@ -6,7 +6,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const Modal: React.FC<Props> = ({ width, height, children }) => {
+const CreateAddModal = ({ width, height, children }: Props): JSX.Element => {
   return (
     <>
       <Overlay>
@@ -43,4 +43,4 @@ const ModalContainer = styled.div<Props>`
   overflow-y: auto;
 `;
 
-export default Modal;
+export default CreateAddModal;

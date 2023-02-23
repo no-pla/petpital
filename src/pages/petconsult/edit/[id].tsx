@@ -107,6 +107,7 @@ const EditCounsel = () => {
         <NewCounselInput
           onChange={(event) => setNewCounsel(event.target.value)}
           placeholder={data?.data.content}
+          autoFocus
         />
         <NewCounselButton>수정</NewCounselButton>
       </NewCounselForm>
@@ -130,8 +131,8 @@ const NewCounselInput = styled.input`
   border: none;
   margin-bottom: 80px;
   font-size: 28px;
-  font-weight: 700;
-
+  width: 100%;
+  height: 120px;
   &::placeholder {
     color: #ffffff;
   }

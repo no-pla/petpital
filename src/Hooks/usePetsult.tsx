@@ -14,27 +14,6 @@ interface INewPetsult {
   }[];
 }
 
-interface INewPetsult {
-  data: {
-    id: string;
-    content: string;
-    nickname: any;
-    profileImg: any;
-    createdAt: number;
-  }[];
-}
-
-interface INewPetsult {
-  filter(arg0: (log: any) => void): INewPetsult;
-  data: {
-    id: string;
-    content: string;
-    nickname: any;
-    profileImg: any;
-    createdAt: number;
-  }[];
-}
-
 // 상담 게시글 추가
 
 export const useGetPetConsult = ({ limit }: any) => {
@@ -71,7 +50,6 @@ export const useGetCounselTarget = (id: any) => {
       enabled: !!id,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
-      staleTime: 0,
       cacheTime: 0,
       select: (data) => data?.data.createdAt,
     },
@@ -92,7 +70,6 @@ export const useGetCounselList = (targetTime: any) => {
       enabled: !!targetTime,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
-      staleTime: 0,
       cacheTime: 0,
     },
   );

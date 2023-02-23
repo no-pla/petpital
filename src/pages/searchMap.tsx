@@ -1,4 +1,3 @@
-import { BiCurrentLocation } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { hospitalData } from "@/share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
@@ -16,6 +15,8 @@ import { useGetReviews } from "../hooks/useGetReviews";
 import CreateAddModal from "../components/custom/CreateAddModal";
 import CreatePost from "../components/CreatePost";
 import { createRoot } from "react-dom/client";
+import Link from "next/link";
+import { FaStar } from "react-icons/fa";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -24,8 +25,6 @@ declare const window: typeof globalThis & {
 const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_API_KEY;
 
 export default function SearchMap(props: any) {
-  // const [postAdd, setPostAdd] = useState(false);
-  // console.log("postAdd1", postAdd);
   const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
@@ -53,16 +52,6 @@ export default function SearchMap(props: any) {
   };
 
   useEffect(() => {
-    // const goToNewPost = () => {
-    //   console.log("postAdd2", postAdd);
-    //   setPostAdd(true);
-    //   console.log("postAdd3", postAdd);
-    // };
-
-    // const ClosePost = () => {
-    //   setPostAdd(false);
-    // };
-
     const script = document.createElement("script");
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
 
@@ -296,6 +285,7 @@ export default function SearchMap(props: any) {
 
               itemEl.onclick = function () {
                 displayInfowindow(marker, title, places[i]);
+                // router.push('/searchMap/${places.id}')
               };
 
               itemEl.onmouseout = function () {
@@ -337,9 +327,7 @@ export default function SearchMap(props: any) {
             itemStr += "<span>" + places.address_name + "</span>";
           }
 
-          itemStr += '<span class="tel">' + places.phone + "</span>";
-          itemStr +=
-            "<a href=" + places.place_url + ">병원 정보 보기</a>" + "</div>";
+          itemStr += '<span class="tel">' + places.phone + "</span>" + "</div>";
           el.innerHTML = itemStr;
           el.className = "item";
           // placesData(places);
@@ -347,6 +335,7 @@ export default function SearchMap(props: any) {
         }
         // localStorage.setItem("places", JSON.stringify(places));
         // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
+
         function addMarker(position: any, idx: any) {
           const imageSrc =
               "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png", // 마커 이미지 url, 스프라이트 이미지를 씁니다
@@ -414,24 +403,33 @@ export default function SearchMap(props: any) {
 
         // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
         // 인포윈도우에 장소명을 표시합니다
+
         async function displayInfowindow(marker: any, title: any, places: any) {
           placesData(places);
           const content1 = `<div style="padding:10px;min-width:200px">${title}</div>`;
           const content = `                  
           <div class="item">
           <div id="roadview"></div>  
+          <div style="margin-left:10px">
             <h2>${title}</h2>
+            <span class="tel">${places.phone}</span>
+            
             <div class="info">
-              <p class="gray">${places.road_address_name}</p>
-              <p>${places.address_name}</p>
-              <p class="tel">${places.phone}</p>
+              <span class="gray">${places.road_address_name}</span>
+              <br>
+              <span> ${places.address_name}</span>
+              </div>
+              <br>
+              
+      
               <p>
               <a href="${places.place_url}" target="_blank"
-              style="color:red; font-size:18px" >상세정보 및 공유, 데이터 보기</a>
+              class="detailButton" >상세정보 및 공유, 데이터 보기</a>
               </p>  
-              <p>
-              <a href="/posts/createPost" style="font-size:20px; color:green; font-Weight">리뷰 남기기</a>
+              <p style="margin-top:40px">
+              <a class="reviewButton" href="/posts/createPost">리뷰 참여하기</a>
               </p>
+              
               <div id="reviewList"></div>          
         </div>
       </div>
@@ -451,50 +449,74 @@ export default function SearchMap(props: any) {
                   lng: x,
                   radius: 50,
                 }}
-                style={{ width: "90%", height: "200px" }}
+                style={{ width: "100%", height: "200px" }}
               />,
             );
           }
 
           const reviewList = document.getElementById("reviewList");
-
           if (reviewList) {
             const root2 = createRoot(reviewList);
             root2.render(
               <ReviewList>
-                {/* {postAdd && (
-                  <CreateAddModal width="100%" height="100%">
-                    <CreatePost setPostAdd={setPostAdd} postAdd={postAdd} />
-                    <button onClick={ClosePost}>close</button>
-                  </CreateAddModal>
-                )}
-                <button onClick={goToNewPost}>리뷰쓰러가기</button> */}
                 {!isLoading &&
-                  recentlyReview?.data.map((review) => {
-                    if (places.id == review.hospitalId) {
-                      return (
-                        <Review key={review.id}>
-                          <ReviewImg src={review.downloadUrl} alt="" />
-                          <ReviewInfo>
-                            <ReviewTitle>{review.title}</ReviewTitle>
-                            <PetpitalInfo>
-                              <PetpitalAddressName>
-                                파인떙큐
-                              </PetpitalAddressName>
-                              <PetpitalAddress>
-                                경기도 용인시 기흥구
-                              </PetpitalAddress>
-                            </PetpitalInfo>
-                            {review.hospitalId}
-                            <ReviewDesc>{review.contents}</ReviewDesc>
-                            <PetpitalPrice>
-                              <PetpitalHighPrice>25,000</PetpitalHighPrice>
-                            </PetpitalPrice>
-                          </ReviewInfo>
-                        </Review>
-                      );
-                    }
-                  })}
+                  recentlyReview?.data
+                    .map((review) => {
+                      if (places.id == review.hospitalId) {
+                        return (
+                          <Review key={review.id}>
+                            <ReviewImg src={review.downloadUrl} alt="" />
+                            <ReviewInfo>
+                              <UserContainer>
+                                <ProfileImg src={review.profileImage} />
+                                <ProfileName>{review.displayName}</ProfileName>
+                                <StarRating>
+                                  <FaStar size="15" color="#ffc107" />
+                                  {review.rating}/5
+                                </StarRating>
+                              </UserContainer>
+
+                              <ContentsWrap>
+                                <ReviewTitle>{review.title}</ReviewTitle>
+
+                                <ReviewContents>
+                                  {review.contents}
+                                </ReviewContents>
+                              </ContentsWrap>
+                              <PetpitalPrice>
+                                <PetpitalHighPrice>
+                                  {review.totalCost}원
+                                </PetpitalHighPrice>
+                              </PetpitalPrice>
+                              <TagWrap>
+                                <TagTop>
+                                  {review.selectedColors?.map((c) => {
+                                    if (c === "깨끗해요") {
+                                      return <TagFirst key={c}>{c}</TagFirst>;
+                                    } else if (c === "시설이좋아요") {
+                                      return <TagSecond key={c}>{c}</TagSecond>;
+                                    } else if (c === "친절해요") {
+                                      return <TagThird key={c}>{c}</TagThird>;
+                                    }
+                                  })}
+                                </TagTop>
+                                <TagBottom>
+                                  {review.selectedColors?.map((c) => {
+                                    if (c === "꼼꼼해요") {
+                                      return <TagFourth key={c}>{c}</TagFourth>;
+                                    } else if (c === "저렴해요") {
+                                      return <TagFifth key={c}>{c}</TagFifth>;
+                                    }
+                                  })}
+                                  <DateWrap>{review.date}</DateWrap>
+                                </TagBottom>
+                              </TagWrap>
+                            </ReviewInfo>
+                          </Review>
+                        );
+                      }
+                    })
+                    .reverse()}
               </ReviewList>,
             );
           }
@@ -507,7 +529,7 @@ export default function SearchMap(props: any) {
 
         // 검색결과 목록의 자식 Element를 제거하는 함수입니다
         function removeAllChildNods(el: any) {
-          while (el.hasChildNodes()) {
+          while (el?.hasChildNodes()) {
             el.removeChild(el.lastChild);
           }
         }
@@ -527,7 +549,23 @@ export default function SearchMap(props: any) {
           <div className="option">
             <div>
               <div id="map_title">
-                <div>동물병원 리스트</div>
+                <Link
+                  href="/"
+                  style={{
+                    position: "absolute",
+                    left: "10px",
+                    fontSize: "14px",
+                    backgroundColor: "gray",
+                    color: "white",
+                  }}
+                >
+                  뒤로가기
+                </Link>
+                <div
+                  style={{ color: "blue", fontWeight: "700", fontSize: "20px" }}
+                >
+                  동물병원 리스트
+                </div>
               </div>
 
               <form id="form">
@@ -537,6 +575,7 @@ export default function SearchMap(props: any) {
                   id="keyword"
                   placeholder="찾으실 동물병원의 (시)도 + 구 + 읍(면,동)을 입력하세요"
                   onChange={onchangeSearch}
+                  style={{ fontSize: "13px" }}
                 />
 
                 <button id="submit_btn" type="submit">
@@ -592,7 +631,6 @@ export default function SearchMap(props: any) {
           ) : (
             <></>
           )}
-          <BiCurrentLocation onClick={() => {}} size={40} />
         </div>
       </div>
     </MapSection>
@@ -669,13 +707,14 @@ export const MapSection = styled.div`
   }
 
   #submit_btn {
-    background-color: #ff6e30;
+    background-color: #65d8df;
     border: none;
     outline: none;
   }
 
   #placesList h5 {
-    color: #ff6e30;
+    font-size: 20px;
+    margin-bottom: 10px;
   }
 
   #placesList li {
@@ -701,6 +740,7 @@ export const MapSection = styled.div`
 
   #placesList .info .tel {
     color: #009900;
+    font-size: 14px;
   }
 
   #btnDiv {
@@ -720,7 +760,7 @@ export const MapSection = styled.div`
   #pagination .on {
     font-weight: bold;
     cursor: default;
-    color: #ff6e30;
+    color: #65d8df;
   }
 
   #btnOn {
@@ -735,26 +775,60 @@ export const MapSection = styled.div`
     width: 20px;
     padding: 0px;
     height: 70px;
-    background-color: #ffa230;
+    background-color: #65d8df;
     border: none;
     outline: none;
+    cursor: pointer;
+  }
+  .reviewButton {
+    font-size: 15px;
+    color: #fff;
+    bottom: 0px;
+    cursor: pointer;
+    background: #15b5bf;
+    padding: 15px 145px 15px 145px;
+    width: 200px;
+    text-align: center;
+    margin-top: 30px;
+  }
+  .detailButton {
+    font-size: 15px;
+    color: #fff;
+    bottom: 0px;
+    cursor: pointer;
+    background: #1182ce;
+    padding: 15px 95px 15px 90px;
+    text-align: center;
+    margin-top: 30px;
+  }
+  .tel {
+    display: flex;
+    justify-content: end;
+    font-size: 16px;
+    color: #0f8b0f;
+    margin-right: 20px;
   }
 `;
 
 // 리뷰 스타일
 const ReviewList = styled.div`
-  display: grid;
+  /* display: grid;
   grid-template-columns: repeat(auto-fill, minmax(460px, 2fr));
-  gap: 20px 24px;
+  gap: 20px 24px; */
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  width: 100%;
 `;
 
 const Review = styled.div`
-  background-color: #fafafa;
+  background-color: #f7f3f3e8;
   border-radius: 5px;
   display: flex;
-  width: 90%;
+  width: 100%;
   height: 200px;
-  position: relative;
+  margin-top: 10px;
+  /* position: relative; */
 `;
 
 const ReviewImg = styled.img`
@@ -764,19 +838,80 @@ const ReviewImg = styled.img`
   border-radius: 4px 0px 0px 4px;
 `;
 
+const UserContainer = styled.div`
+  width: 100%;
+  height: 15%;
+  /* background-color: pink; */
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #dddde2;
+`;
+
+const StarRating = styled.div`
+  /* background-color: blue; */
+  width: 20%;
+  height: 60%;
+  font-size: 15px;
+  margin-left: 20px;
+`;
+
+// const ProfileWrap = styled.div`
+//   width: 50%;
+//   height: 100%;
+//   background-color: blue;
+// `;
+
+const ProfileImg = styled.img`
+  width: 10%;
+  height: 70%;
+  border-radius: 100%;
+`;
+
+const ProfileName = styled.div`
+  width: 70%;
+  height: 70%;
+  /* background-color: red; */
+  font-size: 18px;
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  white-space: no-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 const ReviewDesc = styled.div`
-  border-radius: 5px;
+  /* border-radius: 5px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   border-radius: 0px 4px 4px 0px;
   color: #c5c5c5;
-  margin: 11px 0 5px 0;
+  margin: 11px 0 5px 0; */
+  background-color: red;
 `;
 
-const ReviewTitle = styled.h3`
-  padding-top: 1px;
+const ContentsWrap = styled.div`
+  /* background-color: purple; */
+  width: 100%;
+  height: 65%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ReviewTitle = styled.div`
+  /* background-color: red; */
+  height: 20%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  white-space: no-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* padding-top: 1px;
   -webkit-box-orient: vertical;
   overflow: hidden;
   white-space: nowrap;
@@ -786,38 +921,46 @@ const ReviewTitle = styled.h3`
   font-size: 1.4rem;
   line-height: 19px;
   word-break: break-all;
+  background-color: blue; */
+`;
+
+const ReviewContents = styled.div`
+  font-size: 15px;
+  /* background-color: red; */
+  width: 100%;
+  height: 80%;
+  /* font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 19px; */
+  white-space: no-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const PetpitalInfo = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-`;
-
-const PetpitalAddress = styled.div`
-  font-weight: 600;
-  font-size: 0.8rem;
-  line-height: 19px;
-`;
-
-const PetpitalAddressName = styled.div`
-  font-weight: 600;
-  font-size: 1.2rem;
-  line-height: 19px;
+  /* background-color: blue; */
 `;
 
 const ReviewInfo = styled.div`
   display: flex;
-  margin-left: 8px;
-  margin-right: 30px;
+  margin-left: 4px;
+  /* margin-right: 30px; */
   flex-direction: column;
-  width: 60%;
+  width: 100%;
+  /* background-color: purple; */
 `;
 
 const PetpitalPrice = styled.div`
-  margin-top: 8px;
+  /* margin-top: 8px;
   position: absolute;
-  bottom: 18px;
+  bottom: 10px;
+  right: 265px; */
+  position: absolute;
+  left: 10px;
+  margin-top: 2px;
 `;
 
 const PetpitalLowPrice = styled.span`
@@ -838,19 +981,117 @@ const PetpitalHighPrice = styled.span`
   border-radius: 4px;
   background-color: #65d8df;
   &::before {
-    content: "진료비 최대 ";
+    content: "진료비 : ";
     color: #fff;
   }
+  white-space: no-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const TagWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  /* background-color: blue; */
+  height: 20%;
+  width: 100%;
+`;
+
+const TagTop = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 40%;
+  width: 100%;
+  /* background-color: gray; */
+`;
+
+const TagBottom = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 40%;
+  width: 100%;
+  /* background-color: orange; */
+  margin-top: 5px;
+`;
+
+const TagFirst = styled.div`
+  background-color: #00b8d9;
+  width: 56px;
+  height: 20px;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+
+const TagSecond = styled.div`
+  background-color: #0052cc;
+  width: 76px;
+  height: 20px;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+
+const TagThird = styled.div`
+  background-color: #5243aa;
+  width: 56px;
+  height: 20px;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+
+const TagFourth = styled.div`
+  background-color: #ff5630;
+  width: 56px;
+  height: 20px;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+
+const TagFifth = styled.div`
+  background-color: #ff8b00;
+  width: 56px;
+  height: 20px;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+
+const DateWrap = styled.div`
+  position: absolute;
+  right: 2px;
+  /* background-color: blue; */
+  font-size: 7px;
 `;
 
 export const SearchIcon = styled(SearchOutlined)`
   color: #fff;
   cursor: pointer;
 `;
-
 export const LeftDisplayButton = styled(CaretLeftFilled)`
   color: #fff;
-  cursor: pointer;
 `;
 export const RightDisplayButton = styled(CaretRightFilled)`
   color: #fff;

@@ -1,9 +1,8 @@
 import { useGetReviews } from "../../hooks/useGetReviews";
 import React from "react";
 import styled from "@emotion/styled";
-import { authService } from "../../firebase/firebase"
+import { authService } from "../../firebase/firebase";
 import { useRouter } from "next/router";
-
 
 const Review = () => {
   const { recentlyReview, isLoading } = useGetReviews(
@@ -14,38 +13,38 @@ const Review = () => {
 
   const router = useRouter();
 
-const myId = authService.currentUser?.uid
-
+  const myId = authService.currentUser?.uid;
 
   return (
     <div>
-      {isLoading
-        ? "로딩중"
-        : recentlyReview?.data
-        .filter((review)=> myId === review.userId)
-        .map((review: any) => (
-            <ReviewContainer>
-            <ReviewBox
-            onClick={() => router.push(`/posts`)}>
-              <ReviewId key={review.userId}>
-                <ReviewImg src={review.downloadUrl} alt="" />
-                <ReviewInfo>
-                  <ReviewTitle>{review.title}</ReviewTitle>
-                  <PetpitalInfo>
-                    <PetpitalAddressName>병원 이름</PetpitalAddressName>
-                    <PetpitalAddress>병원 주소입니다.</PetpitalAddress>
-                  </PetpitalInfo>
-                  <ReviewDesc>{review.contents}</ReviewDesc>
-                  {/* <div>별점 : {review.rating} / 5</div> */}
-                  <PetpitalPrice>
-                    <PetpitalHighPrice>{review.totalCost}</PetpitalHighPrice>
-                  </PetpitalPrice>
-                  {/* {review.selectedColors.map((e)=> (<div>{e}</div>))} */}
-                </ReviewInfo>
-              </ReviewId>
-            </ReviewBox>
-            </ReviewContainer>
-          ))}
+      <ReviewContainer>
+        <ReviewBox onClick={() => router.push(`/posts`)}>
+          {isLoading
+            ? "로딩중"
+            : recentlyReview?.data
+                .filter((review) => myId === review.userId)
+                .map((review: any) => (
+                  <ReviewId key={review.userId}>
+                    <ReviewImg src={review.downloadUrl} alt="" />
+                    <ReviewInfo>
+                      <ReviewTitle>{review.title}</ReviewTitle>
+                      <PetpitalInfo>
+                        <PetpitalAddressName>병원 이름</PetpitalAddressName>
+                        <PetpitalAddress>병원 주소입니다.</PetpitalAddress>
+                      </PetpitalInfo>
+                      <ReviewDesc>{review.contents}</ReviewDesc>
+                      {/* <div>별점 : {review.rating} / 5</div> */}
+                      <PetpitalPrice>
+                        <PetpitalHighPrice>
+                          {review.totalCost}
+                        </PetpitalHighPrice>
+                      </PetpitalPrice>
+                      {/* {review.selectedColors.map((e)=> (<div>{e}</div>))} */}
+                    </ReviewInfo>
+                  </ReviewId>
+                ))}
+        </ReviewBox>
+      </ReviewContainer>
     </div>
   );
 };
@@ -57,10 +56,10 @@ export default Review;
 const ReviewContainer = styled.div`
   display: flex;
   justify-content: center;
-`
+`;
 
 const ReviewBox = styled.div`
-   margin-top: 50px;
+  margin-top: 50px;
   width: 80%;
   border: 1px solid;
   background-color: #fafafa;

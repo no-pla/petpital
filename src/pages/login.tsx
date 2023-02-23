@@ -17,6 +17,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { currentUserUid, hospitalData } from "@/share/atom";
 import { useSetRecoilState } from "recoil";
+import Image from "next/image";
+import loginLogo from "../../public/loginLogo.jpg";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -70,7 +72,13 @@ const Login = () => {
   return (
     <ModalBackground>
       <ModalWrap>
-        <Title>로그인</Title>
+        <Image
+          src={loginLogo}
+          alt="loginLogo"
+          width={170}
+          height={40}
+          style={{ marginBottom: 40 }}
+        />
         <FormWrap onSubmit={onSubmit}>
           <Input
             type="text"
@@ -108,27 +116,18 @@ const Login = () => {
           />
 
           <ButtonWrap>
-            <CustomButton type="submit" bgColor="#33a264" height={12}>
-              로그인
-            </CustomButton>
-            <CustomButton
-              height={12}
-              bgColor="#000"
-              onClick={() => {
-                router.push("/");
-              }}
-            >
-              취소
-            </CustomButton>
+            <LoginButton type="submit">로그인</LoginButton>
           </ButtonWrap>
         </FormWrap>
-
+        <span style={{ color: "#aaa", padding: "40px" }}>
+          ---------------------또는----------------------
+        </span>
         <ButtonWrap>
           <span onClick={onGoogleSignIn}>
-            <FcGoogle size={30} />
+            <FcGoogle size={40} />
           </span>
           <span onClick={onFacebookSignIn}>
-            <GrFacebook size={30} />
+            <GrFacebook size={35} />
           </span>
         </ButtonWrap>
         {/* 회원가입 */}
@@ -196,7 +195,7 @@ export const ModalWrap = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 24px 28px;
+  padding: 40px 20px 30px 20px;
   background-color: #fff;
   border-radius: 16px;
   color: #000;
@@ -214,8 +213,22 @@ export const FormWrap = styled.form`
   margin: 1em 0;
 `;
 
-const Singup = styled.button`
-  color: #33a264;
+export const LoginButton = styled.button`
+  flex: 1;
+  cursor: pointer;
+  background: #15b5bf;
+  color: #fff;
+  padding: 15px;
+  border-style: none;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 20px;
+`;
+
+const Singup = styled.span`
+  padding-top: 20px;
+  color: #15b5bf;
   font-weight: 600;
   margin-top: 16px;
   cursor: pointer;
@@ -235,11 +248,12 @@ export const ButtonWrap = styled.div`
 `;
 
 export const Input = styled.input`
-  border: 0;
   border-bottom: 1px solid #ddd;
-  background: transparent;
+  background-color: #eee;
   padding: 8px;
   margin: 4px 4px 8px 4px;
+  font-size: 16px;
+  border: 1px;
 `;
 
 export const ErrorMessage = styled.p`
