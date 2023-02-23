@@ -14,7 +14,7 @@ const FooterContainer = styled.footer`
   bottom: 0;
   left: 0;
   width: 100vw;
-  height: 80px;
+  height: 50px;
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(20px);
   display: flex;
