@@ -26,7 +26,7 @@ const EditCounsel = () => {
   const { data } = useQuery(
     ["getEditCounsels", id],
     () => {
-      return axios.get(`http://localhost:3001/qna/${id}`);
+      return axios.get(`https://swift-flash-alfalfa.glitch.me/posts/${id}`);
     },
     {
       enabled: !!id,

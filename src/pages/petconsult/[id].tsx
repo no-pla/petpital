@@ -50,7 +50,7 @@ const PetconsultDetail = () => {
 
   const fetchInfiniteComment = async (targetTime: any) => {
     return await axios.get(
-      `http://localhost:3001/qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+      `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
     );
   };
 

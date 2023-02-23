@@ -130,7 +130,7 @@ function Petconsult() {
     ["pagnationCounsel", page],
     () => {
       return axios.get(
-        `http://localhost:3001/qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
+        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {

@@ -125,7 +125,7 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
   const { mutate: updateMutate } = useMutation(
     (data) =>
       axios
-        .put(`http://localhost:3001/posts/${id}`, data)
+        .put(`https://humble-summer-ballcap.glitch.me/posts/${id}`, data)
         .then((res) => res.data),
     {
       onSuccess: () => {
