@@ -181,10 +181,12 @@ export default function Home() {
                     <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
                     <CurrentReviewPetpitalDesc>
                       <CurrentReviewPetpitalName>
-                        병원이름
+                        {review.hospitalName}
                       </CurrentReviewPetpitalName>
                       <CurrentReviewPetpitalAddress>
-                        주소
+                        {review.hospitalAddress.split(" ")[0] +
+                          " " +
+                          review.hospitalAddress.split(" ")[1]}
                       </CurrentReviewPetpitalAddress>
                     </CurrentReviewPetpitalDesc>
                     <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>

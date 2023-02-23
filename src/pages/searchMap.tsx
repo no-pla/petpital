@@ -825,13 +825,13 @@ const Review = styled.div`
   background-color: #f7f3f3e8;
   border-radius: 5px;
   display: flex;
-  width: 100%;
+  width: 60%;
   height: 200px;
   margin-top: 10px;
 `;
 
 const ReviewImg = styled.img`
-  width: 40%;
+  width: 60%;
   height: 100%;
   object-fit: fill;
   border-radius: 4px 0px 0px 4px;
@@ -892,9 +892,10 @@ const ReviewContents = styled.div`
   font-size: 15px;
   width: 100%;
   height: 80%;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 const ReviewInfo = styled.div`
