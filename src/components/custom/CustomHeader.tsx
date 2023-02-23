@@ -6,6 +6,7 @@ const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  margin-top: 70px;
   @media screen and (max-width: 1200px) {
     padding: 20px;
     width: 100%;

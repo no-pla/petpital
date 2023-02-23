@@ -17,14 +17,14 @@ const Review = () => {
 
   return (
     <div>
-      <ReviewContainer>
-        <ReviewBox onClick={() => router.push(`/posts`)}>
-          {isLoading
-            ? "로딩중"
-            : recentlyReview?.data
-                .filter((review) => myId === review.userId)
-                .map((review: any) => (
-                  <ReviewId key={review.userId}>
+      {isLoading
+        ? "로딩중"
+        : recentlyReview?.data
+            .filter((review) => myId === review.userId)
+            .map((review: any) => (
+              <ReviewContainer key={review.userId}>
+                <ReviewBox onClick={() => router.push(`posts/`)}>
+                  <ReviewId>
                     <ReviewImg src={review.downloadUrl} alt="" />
                     <ReviewInfo>
                       <ReviewTitle>{review.title}</ReviewTitle>
@@ -42,9 +42,9 @@ const Review = () => {
                       {/* {review.selectedColors.map((e)=> (<div>{e}</div>))} */}
                     </ReviewInfo>
                   </ReviewId>
-                ))}
-        </ReviewBox>
-      </ReviewContainer>
+                </ReviewBox>
+              </ReviewContainer>
+            ))}
     </div>
   );
 };

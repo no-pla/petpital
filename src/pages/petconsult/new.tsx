@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAddCounsel } from "@/hooks/usePetsult";
 import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import { useRouter } from "next/router";
@@ -15,7 +15,7 @@ const short = require("short-uuid");
 export interface INewPetsult {
   uid: any;
   id: string;
-  content: string;
+  content: any;
   nickname: any;
   profileImg: any;
   createdAt: number;
@@ -25,59 +25,45 @@ const NewPetsult = () => {
   const router = useRouter();
   const [backPage, setBackPage] = useState(false);
   const [emptyComment, setEmptyComment] = useState(false);
-
-  const [newPetsult, setNewPetsult] = useState<INewPetsult>({
-    uid: authService.currentUser?.uid,
-    id: short.generate(),
-    content: "",
-    nickname: authService.currentUser?.displayName,
-    profileImg:
-      authService.currentUser?.photoURL ||
-      "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
-    createdAt: Date.now(),
-  });
+  const newCounselRef = useRef<HTMLInputElement>(null);
   const { mutate: addCounsel } = useAddCounsel();
 
   const addPetsult = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!newPetsult.content) {
-      setEmptyComment((prev) => !prev);
-      return;
-    } else {
-      addCounsel(newPetsult);
-      setNewPetsult({
+    if (newCounselRef.current?.value !== "") {
+      const content = newCounselRef.current?.value;
+      const newCounsel = {
         uid: authService.currentUser?.uid,
         id: short.generate(),
-        content: "",
+        content,
         nickname: authService.currentUser?.displayName,
         profileImg:
           authService.currentUser?.photoURL ||
           "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
         createdAt: Date.now(),
-      });
-      router.push(`/petconsult/${newPetsult.id}`);
+      };
+      addCounsel(newCounsel);
+
+      router.push(`/petconsult/${newCounsel.id}`);
+    } else {
+      setEmptyComment((prev) => !prev);
+      return;
     }
   };
 
-  const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { value: content },
-    } = event;
-
-    setNewPetsult({
-      uid: authService.currentUser?.uid,
-      id: short.generate(),
-      content,
-      nickname: authService.currentUser?.displayName,
-      profileImg:
-        authService.currentUser?.photoURL ||
-        "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
-      createdAt: Date.now(),
-    });
+  const RefInput = () => {
+    return (
+      <NewCounselInput
+        placeholder="궁금한 점을 입력해 주세요…"
+        ref={newCounselRef}
+        disabled={backPage}
+        autoFocus
+      />
+    );
   };
 
   const backToCounselPage = () => {
-    if (newPetsult.content === "") {
+    if (newCounselRef.current?.value === "") {
       router.push("/petconsult");
     } else {
       setBackPage((prev) => !prev);
@@ -134,12 +120,7 @@ const NewPetsult = () => {
         </CounselInfo>
       </CounselHeader>
       <NewCounselForm onSubmit={addPetsult}>
-        <NewCounselInput
-          placeholder="궁금한 점을 입력해 주세요…"
-          value={newPetsult.content}
-          onChange={onChange}
-          autoFocus
-        />
+        <RefInput />
         <NewCounselButton type="submit">질문하기</NewCounselButton>
       </NewCounselForm>
       <SubBanner backgroundImg="https://coolthemestores.com/wp-content/uploads/2021/07/hamster-wallpaper-background.jpg">

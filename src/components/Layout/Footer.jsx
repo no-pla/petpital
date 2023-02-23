@@ -22,6 +22,9 @@ const FooterContainer = styled.footer`
   gap: 12px;
   justify-content: flex-end;
   z-index: 100;
+  @media screen and (max-width: 375px) {
+    display: none;
+  }
 `;
 
 const FooterText = styled.div`
