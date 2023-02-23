@@ -21,6 +21,7 @@ const FooterContainer = styled.footer`
   align-items: center;
   gap: 12px;
   justify-content: flex-end;
+  z-index: 100;
 `;
 
 const FooterText = styled.div`

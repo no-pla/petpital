@@ -58,6 +58,7 @@ const HeaderContainer = styled.header`
   top: 0;
   left: 0;
   display: flex;
+  z-index: 100;
 `;
 
 const HeaderItems = styled.div`
