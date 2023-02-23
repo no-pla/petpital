@@ -669,7 +669,6 @@ export const MapSection = styled.div`
     position: relative;
     z-index: 2;
     font-size: 12px;
-    position: fixed;
     top: 0;
     left: 0;
   }
@@ -677,23 +676,21 @@ export const MapSection = styled.div`
   #menu_wrap {
     position: relative;
     width: 400px;
-    height: 100vh;
+    height: 1080px;
     border-radius: 20px;
-    overflow-y: auto;
+    overflow-y: scroll;
     background: rgba(255, 255, 255, 0.7);
     display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")};
-    padding-top: 75px;
   }
 
   #menu_wrap1 {
     position: relative;
     width: 400px;
-    height: 100vh;
+    height: 1080px;
     border-radius: 20px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
     display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")};
-    padding-top: 75px;
   }
 
   #map_title {

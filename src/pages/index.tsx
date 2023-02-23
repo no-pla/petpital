@@ -185,9 +185,9 @@ export default function Home() {
                       {review.hospitalName}
                     </CurrentReviewPetpitalName>
                     <CurrentReviewPetpitalAddress>
-                      {review?.hospitalAddress.split(" ")[0] +
+                      {/* {review?.hospitalAddress.split(" ")[0] +
                         " " +
-                        review?.hospitalAddress.split(" ")[1]}
+                        review?.hospitalAddress.split(" ")[1]} */}
                     </CurrentReviewPetpitalAddress>
                   </CurrentReviewPetpitalDesc>
                   <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
@@ -321,6 +321,7 @@ const CurrentReivewContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px 24px;
+  padding: 10px 0;
   @media screen and (max-width: 800px) {
     overflow-x: scroll;
     grid-template-columns: repeat(2, 375px);
@@ -339,7 +340,7 @@ const CurrentImageContainer = styled.div`
 `;
 
 const CurrentReviewImage = styled.img`
-  width: 150px;
+  width: 220px;
   height: 100%;
   object-fit: cover;
   border-radius: 4px 0px 0px 4px;
