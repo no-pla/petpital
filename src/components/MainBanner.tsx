@@ -9,5 +9,6 @@ const MainBanner = styled.div<{ backgroundImg: string }>`
   background-image: url(${(props) => props.backgroundImg});
   background-position: center;
   object-fit: cover;
-  height: calc(min(50vh, 400px));
+  height: 480px;
+  padding-top: 60px;
 `;

@@ -47,7 +47,7 @@ const CounselComments = ({ target }: any) => {
         nickname: authService.currentUser?.displayName,
         profileImg:
           authService.currentUser?.photoURL ||
-          "https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg",
+          "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
         createdAt: Date.now(),
         onEdit: false,
       };
@@ -99,7 +99,9 @@ const CounselComments = ({ target }: any) => {
       <CounselCommentForm onSubmit={onSubmit}>
         <UserProfileImg
           src={
-            "https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg"
+            authService?.currentUser?.photoURL
+              ? authService?.currentUser.photoURL
+              : "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606"
           }
         />
         <CounselInput
