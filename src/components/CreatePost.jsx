@@ -1,23 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/router";
 import styled from "@emotion/styled";
 import { colourOptions, colourStyles } from "./Select";
 import Select from "react-select";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadString,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { authService, storageService } from "../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../share/atom";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
-  /* display: flex; */
-  /* flex-direction: column; */
   align-items: center;
   padding: 50px;
 `;
@@ -107,10 +99,7 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
   const [starRating, setStarRating] = useState(0);
   const [selectvalue, setSelectValue] = useState([]);
 
-  const router = useRouter();
-
   const placesData = useRecoilValue(hospitalData);
-  console.log(placesData);
 
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -134,12 +123,9 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
     hour: "2-digit",
     minute: "2-digit",
   }).format(createdAt);
-  // const newDate = timestamp.toString().slice(0, 25);
-  console.log("uid", authService.currentUser?.uid);
 
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
-    // event.preventDefault();
     try {
       const response = await axios.post("http://localhost:3001/posts", {
         title,
@@ -162,7 +148,6 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
       localStorage.removeItem("Photo");
       refetchPost();
       setIsEdit(false);
-      //   router.push(`/posts`);
     } catch (error) {
       console.error(error);
     }
@@ -170,7 +155,6 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
   const uploadPhoto = async (event) => {
-    // event.preventDefault();
     try {
       const theFile = event.target.files[0];
       const reader = new FileReader();
@@ -211,10 +195,6 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
       console.error(error);
     }
   };
-
-  //   const SubmitPost = () => {
-  //     setPostAdd(false);
-  //   };
 
   return (
     <>
@@ -264,7 +244,6 @@ const NewPost = ({ setIsEdit, refetchPost }) => {
               maxLength="200"
             />
           </InputWrap>
-          {/* <CreatePostButton type="submit">Create Post</CreatePostButton> */}
           <label htmlFor="title">별점남기기</label>
           <StarRating>
             {starArray.map((star) => (

@@ -36,7 +36,7 @@ export const useAddCounselComment = () => {
     },
     onError: (error, newCounsel, context) => {
       // 실패 시 실행. 롤백을 해주어야 함
-      console.log("실패", error, newCounsel, context);
+      console.log("실패", error);
       queryClient.setQueryData(["getCounsel"], context?.oldCounselComment);
     },
     onSettled: () => {
@@ -70,7 +70,7 @@ export const useEditCounselComment = () => {
     },
     onSuccess() {
       // 성공 시 실행
-      console.log("성공");
+      // console.log("성공");
     },
     onError(error: any) {
       console.log(error);
@@ -108,7 +108,7 @@ export const useDeletCounselComment = () => {
     },
     onError: (error, newCounsel, context) => {
       // 실패 시 실행. 롤백을 해주어야 함
-      console.log("실패", error, newCounsel, context);
+      console.log("실패", error);
       queryClient.setQueryData(["getComments"], context?.oldCounsel);
     },
     onSettled: () => {

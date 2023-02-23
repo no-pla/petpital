@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { HeaderTitle } from "@/components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "@/components/MainBanner";
+import { authService } from "@/firebase/firebase";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -120,16 +121,15 @@ export default function Home() {
         </PageButtonContainer>
         <BestPetpitalContainer>
           {mainPetpial?.documents.map((petpital: any, index: number) => {
-            console.log(petpital);
             return (
               <BestPetpitalItem
                 key={petpital.id}
-                onClick={() =>
-                  router.push({
-                    pathname: "/searchMap",
-                    query: { target: petpital.place_name },
-                  })
-                }
+                // onClick={() =>
+                //   router.push({
+                //     pathname: "/searchMap",
+                //     query: { target: petpital.place_name },
+                //   })
+                // }
               >
                 <BestPetpitalImage
                   ImgSrc={
@@ -139,25 +139,23 @@ export default function Home() {
                   }
                   loading="eager"
                 />
-                <BestPetpitalDesc>
-                  <BestPetpitalName>
-                    {petpital.place_name.length > 12
-                      ? petpital.place_name.slice(0, 12) + "..."
-                      : petpital.place_name}
-                  </BestPetpitalName>
-                  <BestPetpitalAddress>
-                    {petpital.road_address_name === ""
-                      ? "정보 없음"
-                      : petpital.road_address_name === undefined
-                      ? ""
-                      : petpital.road_address_name.split(" ")[0] +
-                        " " +
-                        petpital.road_address_name.split(" ")[1]}
-                  </BestPetpitalAddress>
-                  <BestPetpitalCost>
-                    {petpital.phone || "정보 없음"}
-                  </BestPetpitalCost>
-                </BestPetpitalDesc>
+                <BestPetpitalName>
+                  {petpital.place_name.length > 12
+                    ? petpital.place_name.slice(0, 12) + "..."
+                    : petpital.place_name}
+                </BestPetpitalName>
+                <BestPetpitalAddress>
+                  {petpital.road_address_name === ""
+                    ? "정보 없음"
+                    : petpital.road_address_name === undefined
+                    ? ""
+                    : petpital.road_address_name.split(" ")[0] +
+                      " " +
+                      petpital.road_address_name.split(" ")[1]}
+                </BestPetpitalAddress>
+                <BestPetpitalCost>
+                  {petpital.phone || "정보 없음"}
+                </BestPetpitalCost>
               </BestPetpitalItem>
             );
           })}
@@ -203,7 +201,13 @@ export default function Home() {
         <HeaderContainer>
           <HeaderTitle>고민있음 털어놔보개!</HeaderTitle>
           <div>
-            <HeaderButton onClick={() => router.push("/petconsult/new")}>
+            <HeaderButton
+              onClick={() =>
+                authService.currentUser === null
+                  ? router.push("/login")
+                  : router.push("/petconsult/new")
+              }
+            >
               질문하기
             </HeaderButton>
             <HeaderButton onClick={() => router.push("/petconsult")}>
@@ -281,10 +285,7 @@ const BestPetpitalImage = styled.img<{ ImgSrc: string }>`
   object-fit: cover;
   border-radius: 4px 4px 0 0;
   background-image: url(${(props) => props.ImgSrc});
-`;
-
-const BestPetpitalDesc = styled.div`
-  /* padding: 8px 0; */
+  background-position: center;
 `;
 
 const BestPetpitalName = styled.div`
@@ -401,7 +402,8 @@ const CounselList = styled.div`
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, 1fr);
-  @media screen and (max-width: 930px) {
+  @media screen and (max-width: 820px) {
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;

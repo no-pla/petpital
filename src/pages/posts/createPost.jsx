@@ -14,6 +14,7 @@ import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
 import { FiEdit3 } from "react-icons/fi";
+import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
@@ -32,7 +33,7 @@ const ImageBox = styled.label`
   /* border-radius: 100%; */
   overflow: hidden;
   cursor: pointer;
-  width: 1000px;
+  width: 100%;
   height: 400px;
   margin: auto;
   > img {
@@ -116,6 +117,12 @@ const NewPost = () => {
   const [totalCost, setTotalCost] = useState("");
   const [starRating, setStarRating] = useState(0);
   const [selectvalue, setSelectValue] = useState([]);
+  const [openModalTitle, setOpenModalTitle] = useState(false);
+  const [openModalContents, setOpenModalContents] = useState(false);
+  const [openModalTotalCost, setOpenModalTotalCost] = useState(false);
+  const [openModalStarRating, setOpenModalStarRating] = useState(false);
+  const [openModalSelectValue, setOpenModalSelectValue] = useState(false);
+  const [openModalPhoto, setOpenModalPhoto] = useState(false);
 
   const focusTitle = useRef();
   const focusContents = useRef();
@@ -124,7 +131,6 @@ const NewPost = () => {
   const router = useRouter();
 
   const placesData = useRecoilValue(hospitalData);
-  console.log(placesData);
 
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -148,36 +154,24 @@ const NewPost = () => {
     hour: "2-digit",
     minute: "2-digit",
   }).format(createdAt);
-  // const newDate = timestamp.toString().slice(0, 25);
-  console.log("uid", authService.currentUser?.uid);
-  //
+
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
-    // event.preventDefault();
     if (title.replace(/ /g, "") === "") {
-      alert("제목을 입력 해주세요!");
-      focusTitle.current.focus();
+      setOpenModalTitle(true);
+
       return;
     } else if (contents.replace(/ /g, "") === "") {
-      alert("내용을 입력 해주세요!");
-      focusContents.current.focus();
+      setOpenModalContents(true);
       return;
-    } else if (totalCost.replace(/ /g, "") === "") {
-      alert("비용을 입력 해주세요!");
-      focusTotalCost.current.focus();
-      return;
-    } else if (totalCost.replace(/ /g, "") === "") {
-      alert("금액을 숫자로 입력 해주세요!");
-      focusTotalCost.current.focus();
-      return;
-    } else if (!/^\d+$/.test(totalCost)) {
-      alert("비용을 숫자로 입력해주세요!");
+    } else if (totalCost.replace(/ /g, "") === "" || !/^\d+$/.test(totalCost)) {
+      setOpenModalTotalCost(true);
       return;
     } else if (starRating.length === 0) {
-      alert("별점평가를 완료 해주세요!");
+      setOpenModalStarRating(true);
       return;
     } else if (selectvalue.length === 0) {
-      alert("카테고리를 선택 해주세요!");
+      setOpenModalSelectValue(true);
       return;
     }
 
@@ -199,7 +193,6 @@ const NewPost = () => {
         hospitalAddress: placesData.address_name,
         hospitalName: placesData.place_name,
       });
-      console.log("response", response);
       localStorage.removeItem("Photo");
       router.push({
         pathname: "/searchMap",
@@ -243,11 +236,10 @@ const NewPost = () => {
         downloadUrl = await getDownloadURL(response.ref);
       }
       if (downloadUrl) {
-        console.log("downloadUrl", downloadUrl);
         handleSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
-        alert("사진을 업로드 해주세요");
+        setOpenModalPhoto(true);
         return;
       }
     } catch (error) {
@@ -255,8 +247,65 @@ const NewPost = () => {
     }
   };
 
+  const ModalTitleEmpty = () => {
+    setOpenModalTitle(false);
+    focusTitle.current.focus();
+  };
+
+  const ModalContentsEmpty = () => {
+    setOpenModalContents(false);
+    focusContents.current.focus();
+  };
+
+  const ModalTotalCostEmpty = () => {
+    setOpenModalTotalCost(false);
+    focusTotalCost.current.focus();
+  };
+
+  const ModalStarRatingEmpty = () => {
+    setOpenModalStarRating(false);
+  };
+
+  const ModalSelectValueEmpty = () => {
+    setOpenModalSelectValue(false);
+  };
+
+  const ModalPhotoEmpty = () => {
+    setOpenModalPhoto(false);
+  };
+
   return (
     <>
+      {openModalTitle && (
+        <CustomModal modalText1={"제목을 입력해주세요"}>
+          <ModalButton onClick={ModalTitleEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalContents && (
+        <CustomModal modalText1={"내용을 입력해주세요"}>
+          <ModalButton onClick={ModalContentsEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalTotalCost && (
+        <CustomModal modalText1={"비용을 숫자로 입력해주세요"}>
+          <ModalButton onClick={ModalTotalCostEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalStarRating && (
+        <CustomModal modalText1={"별점평가를 완료해주세요"}>
+          <ModalButton onClick={ModalStarRatingEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalSelectValue && (
+        <CustomModal modalText1={"카테고리를 선택해주세요"}>
+          <ModalButton onClick={ModalSelectValueEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalPhoto && (
+        <CustomModal modalText1={"사진을 업로드해주세요"}>
+          <ModalButton onClick={ModalPhotoEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
       <Container>
         <FormWrap onSubmit={ChangePhoto}>
           <label style={{ fontSize: "20px", fontWeight: "bold" }}>

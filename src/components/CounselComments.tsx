@@ -6,14 +6,12 @@ import {
   useGetPetConsultComment,
 } from "@/hooks/usePetsultReview";
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CustomModal, { ModalButton } from "./custom/CustomModal";
 
 const short = require("short-uuid");
 
 const CounselComments = ({ target }: any) => {
-  const [enteredComment, setEnteredComment] = useState("");
-  const [newComment, setNewComent] = useState("");
   const [isOpen, setIsOpen] = useState<boolean[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
@@ -22,6 +20,8 @@ const CounselComments = ({ target }: any) => {
   const { mutate: editComment } = useEditCounselComment();
   const { data: commentList } = useGetPetConsultComment();
   const { mutate: deleteComment } = useDeletCounselComment();
+  const newCommentRef = useRef<HTMLInputElement>(null);
+  const newEditCommentRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 리뷰 개별 수정 가능하기 위해 추가
@@ -35,7 +35,7 @@ const CounselComments = ({ target }: any) => {
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (enteredComment === "") {
+    if (newCommentRef.current?.value === "") {
       setEmptyComment((prev) => !prev);
       return;
     } else {
@@ -43,16 +43,14 @@ const CounselComments = ({ target }: any) => {
         uid: authService.currentUser?.uid,
         counselId: target,
         id: short.generate(),
-        content: enteredComment,
+        content: newCommentRef.current?.value,
         nickname: authService.currentUser?.displayName,
         profileImg:
           authService.currentUser?.photoURL ||
-          "https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg",
+          "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
         createdAt: Date.now(),
-        onEdit: false,
       };
       addNewComment(newComment);
-      setEnteredComment("");
     }
   };
 
@@ -68,17 +66,17 @@ const CounselComments = ({ target }: any) => {
 
   const onSumbitNewComment = (
     event: React.FormEvent<HTMLFormElement>,
+    index: number,
     comment: any,
-    index: any,
   ) => {
     event.preventDefault();
-    if (newComment === "") {
+    if (newEditCommentRef?.current?.value === "") {
       setEmptyComment((prev) => !prev);
     } else {
       const newArray = [...isOpen];
       newArray[index] = false;
       setIsOpen(newArray);
-      editComment({ ...comment, content: newComment });
+      editComment({ ...comment, content: newEditCommentRef?.current?.value });
     }
   };
 
@@ -94,28 +92,35 @@ const CounselComments = ({ target }: any) => {
     setIsOpen(newArray);
   };
 
+  const NewCommentInput = () => {
+    return (
+      <CounselInput
+        placeholder={
+          authService.currentUser === null
+            ? "로그인 후 이용해 주세요"
+            : "답변 추가"
+        }
+        ref={newCommentRef}
+        disabled={authService.currentUser === null}
+      />
+    );
+  };
+
+  const EditCommentInput = ({ comment }: any) => {
+    return <CounselEditInput ref={newEditCommentRef} placeholder={comment} />;
+  };
+
   return (
     <CounselCommentContainer>
       <CounselCommentForm onSubmit={onSubmit}>
         <UserProfileImg
           src={
-            "https://i.pinimg.com/originals/09/4b/57/094b575671def2c7e7adb60becdee7c4.jpg"
+            authService?.currentUser?.photoURL
+              ? authService?.currentUser.photoURL
+              : "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606"
           }
         />
-        <CounselInput
-          placeholder={
-            authService.currentUser === null
-              ? "로그인 후 이용해 주세요"
-              : "답변 추가"
-          }
-          value={enteredComment}
-          onChange={(event) => {
-            setEnteredComment(event.target.value);
-          }}
-          disabled={authService.currentUser === null}
-        />
-
-        {/* <button>댓글 등록하기</button> */}
+        <NewCommentInput />
       </CounselCommentForm>
       <CounselLists>
         {commentList?.data?.map((comment: any, index: any) => {
@@ -139,15 +144,10 @@ const CounselComments = ({ target }: any) => {
                       ) : (
                         <CounselCommentForm
                           onSubmit={(event) =>
-                            onSumbitNewComment(event, comment, index)
+                            onSumbitNewComment(event, index, comment)
                           }
                         >
-                          <CounselEditInput
-                            placeholder={comment.content}
-                            onChange={(event) =>
-                              setNewComent(event?.target.value)
-                            }
-                          />
+                          <EditCommentInput comment={comment.content} />
                           <button type="submit">등록하기</button>
                           <button type="button" onClick={() => closeIpt(index)}>
                             취소하기
@@ -306,6 +306,7 @@ const UserProfileImg = styled.img`
   height: 60px;
   border-radius: 50px;
   margin-right: 10px;
+  object-fit: cover;
 `;
 
 const CounselEditInput = styled.input`
