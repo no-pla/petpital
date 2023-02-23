@@ -442,7 +442,7 @@ export default function SearchMap(props: any) {
 
           const { x, y } = places;
           const roadview = document.getElementById("roadview"); // 로드뷰를 표시할 HTML 요소
-          console.log("콘솔: ", menuWrap, roadview);
+          // console.log("콘솔: ", menuWrap, roadview);
           if (roadview) {
             const root1 = createRoot(roadview);
             root1.render(
@@ -468,7 +468,9 @@ export default function SearchMap(props: any) {
                       if (places.id == review.hospitalId) {
                         return (
                           <Review key={review.id}>
-                            <ReviewImg src={review.downloadUrl} alt="" />
+                            <ReviewImgContainer>
+                              <ReviewImg src={review.downloadUrl} alt="" />
+                            </ReviewImgContainer>
                             <ReviewInfo>
                               <UserContainer>
                                 <ProfileImg src={review.profileImage} />
@@ -667,6 +669,9 @@ export const MapSection = styled.div`
     position: relative;
     z-index: 2;
     font-size: 12px;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
 
   #menu_wrap {
@@ -677,6 +682,7 @@ export const MapSection = styled.div`
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
     display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")};
+    padding-top: 75px;
   }
 
   #menu_wrap1 {
@@ -687,6 +693,7 @@ export const MapSection = styled.div`
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
     display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")};
+    padding-top: 75px;
   }
 
   #map_title {
@@ -800,9 +807,10 @@ export const MapSection = styled.div`
     bottom: 0px;
     cursor: pointer;
     background: #1182ce;
-    padding: 15px 95px 15px 90px;
+    padding: 15px 100px 15px 95px;
     text-align: center;
     margin-top: 30px;
+    width: 100%;
   }
   .tel {
     display: flex;
@@ -830,11 +838,16 @@ const Review = styled.div`
   margin-top: 10px;
 `;
 
-const ReviewImg = styled.img`
-  width: 40%;
+const ReviewImgContainer = styled.div`
+  width: 260px;
   height: 100%;
-  object-fit: fill;
+`;
+
+const ReviewImg = styled.img`
+  width: 100%;
+  height: 100%;
   border-radius: 4px 0px 0px 4px;
+  object-fit: cover;
 `;
 
 const UserContainer = styled.div`
@@ -846,16 +859,18 @@ const UserContainer = styled.div`
 `;
 
 const StarRating = styled.div`
-  width: 20%;
+  width: 30%;
   height: 60%;
   font-size: 15px;
   margin-left: 20px;
+  /* position: absolute; */
 `;
 
 const ProfileImg = styled.img`
   width: 10%;
   height: 70%;
   border-radius: 100%;
+  object-fit: cover;
 `;
 
 const ProfileName = styled.div`
@@ -879,11 +894,12 @@ const ContentsWrap = styled.div`
 
 const ReviewTitle = styled.div`
   height: 20%;
+  width: 220px;
   font-size: 20px;
   display: flex;
   align-items: center;
   font-weight: bold;
-  white-space: no-wrap;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
@@ -891,10 +907,10 @@ const ReviewTitle = styled.div`
 const ReviewContents = styled.div`
   font-size: 15px;
   width: 100%;
-  height: 80%;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 const ReviewInfo = styled.div`

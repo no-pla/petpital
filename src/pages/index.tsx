@@ -169,32 +169,35 @@ export default function Home() {
       <Section>
         <SectionTitle>내가 한번 가봤다냥</SectionTitle>
         <CurrentReivewContainer>
-          {isLoadingReviews &&
-            recentlyReview?.data.map((review) => {
-              return (
-                <CurrentReview
-                  onClick={() => router.push("/searchMap")}
-                  key={review.id}
-                >
-                  <CurrentReviewImage src="https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c" />
-                  <CurrentReviewComment>
-                    <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
-                    <CurrentReviewPetpitalDesc>
-                      <CurrentReviewPetpitalName>
-                        병원이름
-                      </CurrentReviewPetpitalName>
-                      <CurrentReviewPetpitalAddress>
-                        주소
-                      </CurrentReviewPetpitalAddress>
-                    </CurrentReviewPetpitalDesc>
-                    <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
-                    <CurrentReviewCost>
-                      {Number(review.totalCost).toLocaleString("ko-KR")}
-                    </CurrentReviewCost>
-                  </CurrentReviewComment>
-                </CurrentReview>
-              );
-            })}
+          {recentlyReview?.data.map((review) => {
+            return (
+              <CurrentReview
+                onClick={() => router.push("/searchMap")}
+                key={review.id}
+              >
+                <CurrentImageContainer>
+                  <CurrentReviewImage src={review.downloadUrl} />
+                </CurrentImageContainer>
+                <CurrentReviewComment>
+                  <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
+                  <CurrentReviewPetpitalDesc>
+                    <CurrentReviewPetpitalName>
+                      {review.hospitalName}
+                    </CurrentReviewPetpitalName>
+                    <CurrentReviewPetpitalAddress>
+                      {review?.hospitalAddress.split(" ")[0] +
+                        " " +
+                        review?.hospitalAddress.split(" ")[1]}
+                    </CurrentReviewPetpitalAddress>
+                  </CurrentReviewPetpitalDesc>
+                  <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                  <CurrentReviewCost>
+                    {Number(review.totalCost).toLocaleString("ko-KR")}
+                  </CurrentReviewCost>
+                </CurrentReviewComment>
+              </CurrentReview>
+            );
+          })}
         </CurrentReivewContainer>
       </Section>
       <Section>
@@ -328,6 +331,11 @@ const CurrentReview = styled.div`
   display: flex;
   background-color: #fafafa;
   border-radius: 4px;
+  height: 180px;
+`;
+
+const CurrentImageContainer = styled.div`
+  width: 220px;
 `;
 
 const CurrentReviewImage = styled.img`
@@ -344,6 +352,11 @@ const CurrentReviewComment = styled.div`
 
 const CurrentReviewTitle = styled.div`
   font-weight: 600;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 220px;
 `;
 
 const CurrentReviewPetpitalDesc = styled.div`

@@ -24,7 +24,7 @@
     "**/*.ts",
     "**/*.tsx",
     "src/pages/login.tsx",
-    "src/pages/posts/index.jsx"
+    "src/pages/posts/index.tsx"
   ],
   "exclude": ["node_modules"]
 }
