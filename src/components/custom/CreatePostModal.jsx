@@ -4,12 +4,7 @@ import { useRouter } from "next/router";
 import styled from "@emotion/styled";
 import { colourOptions, colourStyles } from "../../components/Select";
 import Select from "react-select";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadString,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
@@ -24,7 +19,6 @@ const CreatePostModal = ({ isEdit }) => {
   const router = useRouter();
 
   const placesData = useRecoilValue(hospitalData);
-  console.log(placesData);
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -67,12 +61,9 @@ const CreatePostModal = ({ isEdit }) => {
     hour: "2-digit",
     minute: "2-digit",
   }).format(createdAt);
-  // const newDate = timestamp.toString().slice(0, 25);
-  console.log("uid", authService.currentUser?.uid);
 
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
-    // event.preventDefault();
     try {
       const response = await axios.post("http://localhost:3001/posts", {
         title,
@@ -99,7 +90,6 @@ const CreatePostModal = ({ isEdit }) => {
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
   const uploadPhoto = async (event) => {
-    // event.preventDefault();
     try {
       const theFile = event.target.files[0];
       const reader = new FileReader();
@@ -194,7 +184,6 @@ const CreatePostModal = ({ isEdit }) => {
                       maxLength="200"
                     />
                   </InputWrap>
-                  {/* <CreatePostButton type="submit">Create Post</CreatePostButton> */}
                   <label htmlFor="title">별점남기기</label>
                   <StarRating>
                     {starArray.map((star) => (
@@ -260,11 +249,8 @@ const ModalContainer = styled.div`
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-  /* max-width: 500px; */
   width: 800px;
   height: 800px;
-  /* max-height: 500px; */
-  /* overflow: hidden; */
   overflow-y: auto;
 `;
 
@@ -274,8 +260,6 @@ const Wrap = styled.div`
   margin-bottom: 300px;
 `;
 const FormWrap = styled.form`
-  /* display: flex; */
-  /* flex-direction: column; */
   align-items: center;
   padding: 50px;
 `;

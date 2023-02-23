@@ -4,21 +4,14 @@ import { useRouter } from "next/router";
 import styled from "@emotion/styled";
 import { colourOptions, colourStyles } from "./Select";
 import Select from "react-select";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadString,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { authService, storageService } from "../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../share/atom";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
-  /* display: flex; */
-  /* flex-direction: column; */
   align-items: center;
   padding: 50px;
 `;
@@ -107,7 +100,6 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
   const [editTotalCost, setEditTotalCost] = useState("");
   const [editRatings, setEditRatings] = useState("");
   const [editSelectValue, setEditSelectValue] = useState([]);
-  const [editDownLoadUrl, setEditDownLoadUrl] = useState("");
 
   const router = useRouter();
 
@@ -152,7 +144,6 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
   }).format(createdAt);
 
   const handleEditSubmit = async (downloadUrl) => {
-    // e.preventDefault();
     updateMutate({
       id,
       downloadUrl,
@@ -174,7 +165,6 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
   const uploadPhoto = async (event) => {
-    // event.preventDefault();
     try {
       const theFile = event.target.files[0];
       const reader = new FileReader();
@@ -257,7 +247,6 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
             <TitleBox
               type="text"
               placeholder="Title"
-              //   value={title}
               onChange={(event) => setEditTitle(event.target.value)}
               id="title"
               rows="1"
@@ -267,7 +256,6 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
             <ContentBox
               type="text"
               placeholder="Contents"
-              //   value={contents}
               onChange={(event) => setEditContents(event.target.value)}
               rows="8"
               maxLength="500"
@@ -276,13 +264,11 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
             <TotalCostBox
               type="text"
               placeholder="TotalCost"
-              //   value={totalCost}
               onChange={(event) => setEditTotalCost(event.target.value)}
               rows="3"
               maxLength="200"
             />
           </InputWrap>
-          {/* <CreatePostButton type="submit">Create Post</CreatePostButton> */}
           <label htmlFor="title">별점남기기</label>
           <StarRating>
             {starArray.map((star) => (

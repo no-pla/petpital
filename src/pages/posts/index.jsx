@@ -213,7 +213,6 @@ function Posts() {
   const [page, setPage] = useState(1);
 
   const placesData = useRecoilValue(hospitalData);
-  console.log(placesData);
 
   // const { query } = useRouter();
 
@@ -322,7 +321,6 @@ function Posts() {
   );
 
   const handleDelete = async (id) => {
-    console.log("id", id);
     deleteMutate(id);
   };
 
@@ -341,7 +339,6 @@ function Posts() {
   };
 
   const goToEditPost = (id, downloadUrl) => {
-    console.log("downloadUrl", downloadUrl);
     setPostId(id);
     setPostEdit(true);
   };
@@ -354,8 +351,6 @@ function Posts() {
     localStorage.removeItem("Photo");
     setPostEdit(false);
   };
-
-  console.log("post", post);
 
   return (
     <Container>

@@ -1,12 +1,7 @@
 import axios from "axios";
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { useQuery } from "react-query";
-import {
-  useDeletCounsel,
-  useEditCounsel,
-  useGetCounselList,
-  useGetCounselTarget,
-} from "@/hooks/usePetsult";
+import { useEditCounsel } from "@/hooks/usePetsult";
 import { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "../[id]";
@@ -14,12 +9,14 @@ import { authService } from "@/firebase/firebase";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
 import { HeaderButton } from "@/pages";
 import { BackButton, CustomHeader } from "@/components/custom/CustomHeader";
+import { SubBanner } from "@/components/SubBanner";
 
 const EditCounsel = () => {
   const router = useRouter();
   const newCounselRef = useRef<HTMLInputElement>(null);
   const { mutate: editCounsel } = useEditCounsel();
   const [emptyComment, setEmptyComment] = useState(false);
+  const [tooLongComment, setToLongComment] = useState(false);
   const [backPage, setBackPage] = useState(false);
 
   const {
@@ -38,8 +35,15 @@ const EditCounsel = () => {
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (newCounselRef.current?.value === "") {
+    if (
+      newCounselRef.current?.value === "" ||
+      newCounselRef.current?.value === null ||
+      newCounselRef.current?.value === undefined
+    ) {
       setEmptyComment((prev) => !prev);
+      return;
+    } else if (newCounselRef.current?.value.length > 40) {
+      setToLongComment(true);
       return;
     } else {
       editCounsel({ ...data?.data, content: newCounselRef.current?.value });
@@ -49,17 +53,16 @@ const EditCounsel = () => {
 
   const backToCounselPage = () => {
     if (newCounselRef.current?.value === "") {
-      router.push("/petconsult");
+      router.push(`/petconsult/${id}`);
     } else {
       setBackPage((prev) => !prev);
     }
   };
-
   const RefInput = () => {
     return (
       <NewCounselInput
         ref={newCounselRef}
-        disabled={backPage}
+        disabled={backPage || tooLongComment || emptyComment}
         autoFocus
         placeholder={data?.data.content}
       />
@@ -68,6 +71,16 @@ const EditCounsel = () => {
 
   return (
     <>
+      {tooLongComment && (
+        <CustomModal
+          modalText1={"글이 너무 깁니다."}
+          modalText2={"40자 이하로 작성해 주세요!"}
+        >
+          <ModalButton onClick={() => setToLongComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
       {emptyComment && (
         <CustomModal
           modalText1={"내용이 비어있습니다."}
@@ -118,6 +131,7 @@ const EditCounsel = () => {
         <RefInput />
         <NewCounselButton>수정</NewCounselButton>
       </NewCounselForm>
+      <SubBanner />
     </>
   );
 };

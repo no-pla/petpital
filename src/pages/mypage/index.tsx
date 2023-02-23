@@ -1,21 +1,10 @@
-import {
-  onAuthStateChanged,
-  updateProfile,
-  sendEmailVerification,
-} from "firebase/auth";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import {
-  app,
-  authService,
-  database,
-  dbService,
-  storageService,
-} from "../../firebase/firebase";
-import React, { useEffect, useRef, useState, ChangeEvent } from "react";
+import { authService, storageService } from "../../firebase/firebase";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import Likedpetpital from "./Likedpetpital";
 import styled from "@emotion/styled";
 import Review from "./Review";
-import { doc, updateDoc } from "firebase/firestore";
 import AuthModal from "@/components/custom/AuthModal";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
 import { useRouter } from "next/router";
@@ -36,9 +25,6 @@ const Index = () => {
 
   function useAuth() {
     const [currentUser, setCurrentUser] = useState<any>();
-
-    console.log("currentUser:", currentUser);
-
     useEffect(() => {
       const unsub = onAuthStateChanged(authService, (user) =>
         setCurrentUser(user),
@@ -62,7 +48,6 @@ const Index = () => {
     setLoading(false);
     setCheckImageModal(true);
   }
-  console.log("회원정보 재성:", authService.currentUser);
 
   async function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (e?.target?.files?.[0]) {
@@ -103,8 +88,6 @@ const Index = () => {
         displayName: newNickname,
       });
     }
-    console.log("displayName새로운 닉네임", newNickname);
-    console.log("회원정보", authService.currentUser);
   };
 
   const onLogOutClick = () => {
@@ -197,7 +180,6 @@ const MyPageTop = styled.div`
 
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
   align-items: center;
 `;
 

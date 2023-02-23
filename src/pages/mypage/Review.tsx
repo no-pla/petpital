@@ -8,8 +8,6 @@ const Review = () => {
   const { recentlyReview, isLoading } = useGetReviews(
     "?_sort=createdAt&_order=desc",
   );
-  console.log("recentlyReview:", recentlyReview);
-  // console.log("isLoading:", isLoading);
 
   const router = useRouter();
 

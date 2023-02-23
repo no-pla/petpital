@@ -520,8 +520,6 @@ export default function SearchMap(props: any) {
               </ReviewList>,
             );
           }
-          console.log(places.id);
-
           setIsOpen1(!isOpen1);
           infowindow.setContent(content1);
           infowindow.open(map, marker);
@@ -812,9 +810,6 @@ export const MapSection = styled.div`
 
 // 리뷰 스타일
 const ReviewList = styled.div`
-  /* display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(460px, 2fr));
-  gap: 20px 24px; */
   display: flex;
   flex-direction: column;
   margin-top: 15px;
@@ -828,7 +823,6 @@ const Review = styled.div`
   width: 100%;
   height: 200px;
   margin-top: 10px;
-  /* position: relative; */
 `;
 
 const ReviewImg = styled.img`
@@ -841,25 +835,17 @@ const ReviewImg = styled.img`
 const UserContainer = styled.div`
   width: 100%;
   height: 15%;
-  /* background-color: pink; */
   display: flex;
   align-items: center;
   border-bottom: 1px solid #dddde2;
 `;
 
 const StarRating = styled.div`
-  /* background-color: blue; */
   width: 20%;
   height: 60%;
   font-size: 15px;
   margin-left: 20px;
 `;
-
-// const ProfileWrap = styled.div`
-//   width: 50%;
-//   height: 100%;
-//   background-color: blue;
-// `;
 
 const ProfileImg = styled.img`
   width: 10%;
@@ -870,7 +856,6 @@ const ProfileImg = styled.img`
 const ProfileName = styled.div`
   width: 70%;
   height: 70%;
-  /* background-color: red; */
   font-size: 18px;
   margin-left: 5px;
   display: flex;
@@ -880,20 +865,7 @@ const ProfileName = styled.div`
   text-overflow: ellipsis;
 `;
 
-const ReviewDesc = styled.div`
-  /* border-radius: 5px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  border-radius: 0px 4px 4px 0px;
-  color: #c5c5c5;
-  margin: 11px 0 5px 0; */
-  background-color: red;
-`;
-
 const ContentsWrap = styled.div`
-  /* background-color: purple; */
   width: 100%;
   height: 65%;
   display: flex;
@@ -901,7 +873,6 @@ const ContentsWrap = styled.div`
 `;
 
 const ReviewTitle = styled.div`
-  /* background-color: red; */
   height: 20%;
   font-size: 20px;
   display: flex;
@@ -910,69 +881,28 @@ const ReviewTitle = styled.div`
   white-space: no-wrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  /* padding-top: 1px;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  margin-bottom: 17px;
-  font-weight: 600;
-  font-size: 1.4rem;
-  line-height: 19px;
-  word-break: break-all;
-  background-color: blue; */
 `;
 
 const ReviewContents = styled.div`
   font-size: 15px;
-  /* background-color: red; */
   width: 100%;
   height: 80%;
-  /* font-weight: 600;
-  font-size: 1.2rem;
-  line-height: 19px; */
-  white-space: no-wrap;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-
-const PetpitalInfo = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  /* background-color: blue; */
 `;
 
 const ReviewInfo = styled.div`
   display: flex;
   margin-left: 4px;
-  /* margin-right: 30px; */
   flex-direction: column;
   width: 100%;
-  /* background-color: purple; */
 `;
 
 const PetpitalPrice = styled.div`
-  /* margin-top: 8px;
-  position: absolute;
-  bottom: 10px;
-  right: 265px; */
   position: absolute;
   left: 10px;
   margin-top: 2px;
-`;
-
-const PetpitalLowPrice = styled.span`
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background-color: #65d8df;
-  margin-right: 8px;
-  &::before {
-    content: "진료비 최저 ";
-    color: #fff;
-  }
 `;
 
 const PetpitalHighPrice = styled.span`
@@ -992,7 +922,6 @@ const PetpitalHighPrice = styled.span`
 const TagWrap = styled.div`
   display: flex;
   flex-direction: column;
-  /* background-color: blue; */
   height: 20%;
   width: 100%;
 `;
@@ -1002,7 +931,6 @@ const TagTop = styled.div`
   flex-direction: row;
   height: 40%;
   width: 100%;
-  /* background-color: gray; */
 `;
 
 const TagBottom = styled.div`
@@ -1010,7 +938,6 @@ const TagBottom = styled.div`
   flex-direction: row;
   height: 40%;
   width: 100%;
-  /* background-color: orange; */
   margin-top: 5px;
 `;
 
@@ -1082,7 +1009,6 @@ const TagFifth = styled.div`
 const DateWrap = styled.div`
   position: absolute;
   right: 2px;
-  /* background-color: blue; */
   font-size: 7px;
 `;
 

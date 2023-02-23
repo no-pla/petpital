@@ -70,7 +70,6 @@ const CounselComments = ({ target }: any) => {
     comment: any,
   ) => {
     event.preventDefault();
-    console.log(newEditCommentRef?.current?.value);
     if (newEditCommentRef?.current?.value === "") {
       setEmptyComment((prev) => !prev);
     } else {
