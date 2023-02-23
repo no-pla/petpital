@@ -16,9 +16,10 @@ import {
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { Router, useRouter } from "next/router";
 import Image from "next/image";
 import loginLogo from "../../public/loginLogo.jpg";
+import { BiArrowBack } from "react-icons/bi";
 
 const Join = () => {
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ const Join = () => {
   const [joinFail, setJoinFail] = useState(false);
   const [joinComplete, setJoinComplete] = useState(false);
   const [joinAready, setJoinAready] = useState(false);
+
   const router = useRouter();
 
   const onSubmitJoin = async (event: any) => {
@@ -69,6 +71,19 @@ const Join = () => {
   return (
     <ModalBackground>
       <ModalWrap>
+        <BiArrowBack
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "20px",
+            cursor: "pointer",
+          }}
+          size="30"
+          color="#15b5bf"
+          onClick={() => {
+            router.push("/");
+          }}
+        />
         <Image
           src={loginLogo}
           alt="loginLogo"

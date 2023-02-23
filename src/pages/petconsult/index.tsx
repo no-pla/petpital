@@ -158,7 +158,7 @@ function Petconsult() {
           modalText2={"질문을 남겨보세요!"}
         >
           <ModalButton onClick={() => setIsLogin(false)}>취소</ModalButton>
-          <ModalButton onClick={() => router.push("/")}>
+          <ModalButton onClick={() => router.push("/signup")}>
             회원가입 하기
           </ModalButton>
         </CustomModal>

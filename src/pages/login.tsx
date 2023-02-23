@@ -19,6 +19,7 @@ import { currentUserUid, hospitalData } from "@/share/atom";
 import { useSetRecoilState } from "recoil";
 import Image from "next/image";
 import loginLogo from "../../public/loginLogo.jpg";
+import { BiArrowBack } from "react-icons/bi";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -72,6 +73,19 @@ const Login = () => {
   return (
     <ModalBackground>
       <ModalWrap>
+        <BiArrowBack
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "20px",
+            cursor: "pointer",
+          }}
+          size="30"
+          color="#15b5bf"
+          onClick={() => {
+            router.push("/");
+          }}
+        />
         <Image
           src={loginLogo}
           alt="loginLogo"
@@ -191,6 +205,7 @@ export const ModalBackground = styled.div`
 `;
 
 export const ModalWrap = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
