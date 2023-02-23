@@ -6,7 +6,7 @@ interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
   data: {
     id: string;
-    content: string;
+    content: any;
     nickname: any;
     profileImg: any;
     createdAt: number;
