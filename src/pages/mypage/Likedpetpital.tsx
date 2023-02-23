@@ -21,19 +21,16 @@ const Likedpetpital = () => {
 
   return (
     <>
-      <CounselList>
-        {!isLoadingPetConsult &&
-          petConsult?.data
-            .filter((counsel) => myId === counsel.uid)
-            .map((counsel) => (
-              <Counsel
-                key={counsel.uid}
-                onClick={() => router.push(`petconsult/${counsel.id}`)}
-              >
+      {!isLoadingPetConsult &&
+        petConsult?.data
+          .filter((counsel) => myId === counsel.uid)
+          .map((counsel) => (
+            <CounselList key={counsel.uid}>
+              <Counsel onClick={() => router.push(`petconsult/${counsel.id}`)}>
                 <CounselTitle>{counsel.content}</CounselTitle>
               </Counsel>
-            ))}
-      </CounselList>
+            </CounselList>
+          ))}
     </>
   );
 };
