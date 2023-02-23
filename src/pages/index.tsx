@@ -120,7 +120,6 @@ export default function Home() {
         </PageButtonContainer>
         <BestPetpitalContainer>
           {mainPetpial?.documents.map((petpital: any, index: number) => {
-            console.log(petpital);
             return (
               <BestPetpitalItem
                 key={petpital.id}
@@ -401,7 +400,8 @@ const CounselList = styled.div`
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, 1fr);
-  @media screen and (max-width: 930px) {
+  @media screen and (max-width: 820px) {
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
