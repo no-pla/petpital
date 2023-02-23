@@ -25,6 +25,7 @@ const NewPetsult = () => {
   const router = useRouter();
   const [backPage, setBackPage] = useState(false);
   const [emptyComment, setEmptyComment] = useState(false);
+
   const [newPetsult, setNewPetsult] = useState<INewPetsult>({
     uid: authService.currentUser?.uid,
     id: short.generate(),
