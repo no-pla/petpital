@@ -14,7 +14,11 @@ export const colourOptions = [
 ];
 
 export const colourStyles = {
-  control: (styles) => ({ ...styles, backgroundColor: "white" }),
+  control: (styles) => ({
+    ...styles,
+    backgroundColor: "#f5f2f0",
+    opacity: "1",
+  }),
   option: (styles, { data, isDisabled, isFocused, isSelected }) => {
     const color = chroma(data.color);
     return {

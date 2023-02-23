@@ -90,7 +90,7 @@ const CreatePostModal = ({ isEdit }) => {
         id: createdAt,
       });
       console.log("response", response);
-      localStorage.removeItem("newProfilePhoto");
+      localStorage.removeItem("Photo");
       router.push(`/searchMap`);
     } catch (error) {
       console.error(error);
@@ -108,7 +108,7 @@ const CreatePostModal = ({ isEdit }) => {
       reader.onloadend = (finishedEvent) => {
         // 파일리더가 파일객체를 data URL로 변환 작업을 끝났을 때
         const contentimgDataUrl = finishedEvent.currentTarget.result;
-        localStorage.setItem("newProfilePhoto", contentimgDataUrl);
+        localStorage.setItem("Photo", contentimgDataUrl);
         document.getElementById("preview-photo").src = contentimgDataUrl; //useref 사용해서 DOM에 직접 접근 하지 말기
       };
     } catch (error) {
@@ -121,7 +121,7 @@ const CreatePostModal = ({ isEdit }) => {
     // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
     // 그 값 가져와서 firestore에 업로드
     try {
-      let newPhoto = localStorage.getItem("newProfilePhoto");
+      let newPhoto = localStorage.getItem("Photo");
       const imgRef = ref(storageService, `${Date.now()}`);
 
       let downloadUrl;
@@ -130,10 +130,11 @@ const CreatePostModal = ({ isEdit }) => {
         downloadUrl = await getDownloadURL(response.ref);
       }
       if (downloadUrl) {
+        console.log("downloadUrl", downloadUrl);
         handleSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
-        alert("새로운 사진이없습니다");
+        alert("사진을 업로드 해주세요");
         return;
       }
     } catch (error) {

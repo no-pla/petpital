@@ -14,27 +14,6 @@ interface INewPetsult {
   }[];
 }
 
-interface INewPetsult {
-  data: {
-    id: string;
-    content: string;
-    nickname: any;
-    profileImg: any;
-    createdAt: number;
-  }[];
-}
-
-interface INewPetsult {
-  filter(arg0: (log: any) => void): INewPetsult;
-  data: {
-    id: string;
-    content: string;
-    nickname: any;
-    profileImg: any;
-    createdAt: number;
-  }[];
-}
-
 // 상담 게시글 추가
 
 export const useGetPetConsult = ({ limit }: any) => {
