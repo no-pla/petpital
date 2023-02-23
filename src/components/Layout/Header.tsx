@@ -1,9 +1,11 @@
 import { authService } from "@/firebase/firebase";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import CustomModal, { ModalButton } from "../custom/CustomModal";
 
 export default function Header() {
+  const [openModalLogout, setOpenModalLogout] = useState(false);
   const router = useRouter();
   const targetHospital = useRef<HTMLInputElement>(null);
 
@@ -27,44 +29,70 @@ export default function Header() {
     );
   };
 
+  const onLogOutClick = () => {
+    authService.signOut();
+    setOpenModalLogout(true);
+    router.push("/");
+  };
+
+  const onLogOutClose = () => {
+    setOpenModalLogout(false);
+  };
+
   return (
-    <HeaderContainer>
-      <HeaderItems>
-        <HeaderLogo
-          src="https://user-images.githubusercontent.com/88391843/220821556-46417499-4c61-47b8-b5a3-e0ffc41f1df1.png"
-          onClick={() => router.push("/")}
-        />
-        <HeaderItem onClick={() => router.push("/searchMap")}>
-          병원리스트
-        </HeaderItem>
-        <HeaderItem onClick={() => router.push("/petconsult")}>
-          질문 광장
-        </HeaderItem>
-        <HeaderForm onSubmit={onSubmit}>{/* <Input /> */}</HeaderForm>
-        <HeaderItem
-          onClick={() =>
-            authService.currentUser === null
-              ? router.push("/login")
-              : router.push("/searchMap")
-          }
-        >
-          리뷰 쓰기
-        </HeaderItem>
-        <GoToMyPage
-          onClick={() =>
-            authService.currentUser === null
-              ? router.push("/login")
-              : router.push("/mypage")
-          }
-        />
-      </HeaderItems>
-    </HeaderContainer>
+    <>
+      {openModalLogout && (
+        <CustomModal modalText1={"로그아웃성공"} modalText2={""}>
+          <ModalButton onClick={onLogOutClose}>확인</ModalButton>
+        </CustomModal>
+      )}
+      <HeaderContainer>
+        <HeaderItems>
+          <HeaderLogo
+            src="https://user-images.githubusercontent.com/88391843/220821556-46417499-4c61-47b8-b5a3-e0ffc41f1df1.png"
+            onClick={() => router.push("/")}
+          />
+          <HeaderItem onClick={() => router.push("/searchMap")}>
+            병원리스트
+          </HeaderItem>
+          <HeaderItem onClick={() => router.push("/petconsult")}>
+            질문 광장
+          </HeaderItem>
+          <HeaderForm onSubmit={onSubmit}>{/* <Input /> */}</HeaderForm>
+          <HeaderItem
+            onClick={() =>
+              authService.currentUser === null
+                ? router.push("/login")
+                : router.push("/searchMap")
+            }
+          >
+            리뷰 쓰기
+          </HeaderItem>
+          <HeaderItem
+            onClick={() =>
+              authService.currentUser === null
+                ? router.push("/login")
+                : onLogOutClick()
+            }
+          >
+            {authService.currentUser === null ? "회원가입/로그인" : "로그아웃"}
+          </HeaderItem>
+          <GoToMyPage
+            onClick={() =>
+              authService.currentUser === null
+                ? router.push("/login")
+                : router.push("/mypage")
+            }
+          />
+        </HeaderItems>
+      </HeaderContainer>
+    </>
   );
 }
 
 const HeaderContainer = styled.header`
   width: 100vw;
-  height: 80px;
+  height: 60px;
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(20px);
   position: fixed;
@@ -100,6 +128,7 @@ const HeaderItem = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+  /* background-color: red; */
 `;
 
 const HeaderSearchInput = styled.input`
@@ -110,7 +139,7 @@ const HeaderSearchInput = styled.input`
   border-radius: 4px;
 `;
 const GoToMyPage = styled.div`
-  flex-grow: 1;
+  /* flex-grow: 1; */
   background-repeat: no-repeat;
   width: 24px;
   height: 24px;
