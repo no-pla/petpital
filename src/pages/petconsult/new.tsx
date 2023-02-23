@@ -10,6 +10,7 @@ import {
 } from "@/components/custom/CustomHeader";
 import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "./[id]";
 import styled from "@emotion/styled";
+import { SubBanner } from "@/components/SubBanner";
 const short = require("short-uuid");
 
 export interface INewPetsult {
@@ -25,12 +26,23 @@ const NewPetsult = () => {
   const router = useRouter();
   const [backPage, setBackPage] = useState(false);
   const [emptyComment, setEmptyComment] = useState(false);
+  const [tooLongComment, setToLongComment] = useState(false);
   const newCounselRef = useRef<HTMLInputElement>(null);
   const { mutate: addCounsel } = useAddCounsel();
 
   const addPetsult = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (newCounselRef.current?.value !== "") {
+    if (
+      newCounselRef.current?.value === "" ||
+      newCounselRef.current?.value === null ||
+      newCounselRef.current?.value === undefined
+    ) {
+      setEmptyComment((prev) => !prev);
+    } else if (newCounselRef.current?.value.length > 40) {
+      setToLongComment(true);
+      return;
+    } else {
+      //
       const content = newCounselRef.current?.value;
       const newCounsel = {
         uid: authService.currentUser?.uid,
@@ -45,9 +57,6 @@ const NewPetsult = () => {
       addCounsel(newCounsel);
 
       router.push(`/petconsult/${newCounsel.id}`);
-    } else {
-      setEmptyComment((prev) => !prev);
-      return;
     }
   };
 
@@ -56,7 +65,7 @@ const NewPetsult = () => {
       <NewCounselInput
         placeholder="궁금한 점을 입력해 주세요…"
         ref={newCounselRef}
-        disabled={backPage}
+        disabled={backPage || tooLongComment || emptyComment}
         autoFocus
       />
     );
@@ -72,6 +81,16 @@ const NewPetsult = () => {
 
   return (
     <>
+      {tooLongComment && (
+        <CustomModal
+          modalText1={"글이 너무 깁니다."}
+          modalText2={"40자 이하로 작성해 주세요!"}
+        >
+          <ModalButton onClick={() => setToLongComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
       {backPage && (
         <CustomModal
           modalText1={"질문하고 다양한"}
@@ -106,7 +125,7 @@ const NewPetsult = () => {
           <UserProfileImg
             src={
               authService.currentUser?.photoURL ||
-              "https://lh3.googleusercontent.com/a/AEdFTp5U2EnK1FMKWmSorIVabTl1FEHY08ZYYrK0cXhI=s96-c"
+              "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606"
             }
             alt={
               authService.currentUser?.displayName +
@@ -123,55 +142,10 @@ const NewPetsult = () => {
         <RefInput />
         <NewCounselButton type="submit">질문하기</NewCounselButton>
       </NewCounselForm>
-      <SubBanner backgroundImg="https://coolthemestores.com/wp-content/uploads/2021/07/hamster-wallpaper-background.jpg">
-        <SubBannerTitle>
-          궁금한 점 없으셨나요?
-          <br />
-          무엇이든 물어보개~
-        </SubBannerTitle>
-        <SubBannerLogo>
-          <SubBannerLogoImg src="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2F%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%85%E1%85%A9%E1%84%80%E1%85%A9%20(1).png?alt=media&token=9171cde5-4ca1-4bfb-abf4-03cf00508dae" />
-          <div>
-            <b>팻피털</b>에서!
-          </div>
-        </SubBannerLogo>
-      </SubBanner>
+      <SubBanner />
     </>
   );
 };
-
-const SubBanner = styled.div<{ backgroundImg: string }>`
-  height: 25vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 0 24px 24px 24px;
-  width: 80%;
-  margin: 0 auto;
-  justify-content: space-between;
-  background-image: url(${(props) => props.backgroundImg});
-  background-position: center;
-`;
-
-const SubBannerTitle = styled.h3`
-  font-weight: normal;
-  font-size: 1.6rem;
-  color: #ffffff;
-`;
-
-const SubBannerLogo = styled.div`
-  display: flex;
-  object-fit: cover;
-  justify-content: space-between;
-  & div:nth-of-type(1) {
-    color: white;
-    font-size: 1.8rem;
-  }
-`;
-
-const SubBannerLogoImg = styled.img`
-  object-fit: scale-down;
-`;
 
 const NewCounselForm = styled.form`
   margin: 40px auto 80px auto;

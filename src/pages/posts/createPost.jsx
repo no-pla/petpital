@@ -131,7 +131,6 @@ const NewPost = () => {
   const router = useRouter();
 
   const placesData = useRecoilValue(hospitalData);
-  console.log(placesData);
 
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -155,12 +154,9 @@ const NewPost = () => {
     hour: "2-digit",
     minute: "2-digit",
   }).format(createdAt);
-  // const newDate = timestamp.toString().slice(0, 25);
-  console.log("uid", authService.currentUser?.uid);
-  //
+
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
-    // event.preventDefault();
     if (title.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
 
@@ -197,7 +193,6 @@ const NewPost = () => {
         hospitalAddress: placesData.address_name,
         hospitalName: placesData.place_name,
       });
-      console.log("response", response);
       localStorage.removeItem("Photo");
       router.push({
         pathname: "/searchMap",
@@ -241,7 +236,6 @@ const NewPost = () => {
         downloadUrl = await getDownloadURL(response.ref);
       }
       if (downloadUrl) {
-        console.log("downloadUrl", downloadUrl);
         handleSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴

@@ -139,25 +139,23 @@ export default function Home() {
                   }
                   loading="eager"
                 />
-                <BestPetpitalDesc>
-                  <BestPetpitalName>
-                    {petpital.place_name.length > 12
-                      ? petpital.place_name.slice(0, 12) + "..."
-                      : petpital.place_name}
-                  </BestPetpitalName>
-                  <BestPetpitalAddress>
-                    {petpital.road_address_name === ""
-                      ? "정보 없음"
-                      : petpital.road_address_name === undefined
-                      ? ""
-                      : petpital.road_address_name.split(" ")[0] +
-                        " " +
-                        petpital.road_address_name.split(" ")[1]}
-                  </BestPetpitalAddress>
-                  <BestPetpitalCost>
-                    {petpital.phone || "정보 없음"}
-                  </BestPetpitalCost>
-                </BestPetpitalDesc>
+                <BestPetpitalName>
+                  {petpital.place_name.length > 12
+                    ? petpital.place_name.slice(0, 12) + "..."
+                    : petpital.place_name}
+                </BestPetpitalName>
+                <BestPetpitalAddress>
+                  {petpital.road_address_name === ""
+                    ? "정보 없음"
+                    : petpital.road_address_name === undefined
+                    ? ""
+                    : petpital.road_address_name.split(" ")[0] +
+                      " " +
+                      petpital.road_address_name.split(" ")[1]}
+                </BestPetpitalAddress>
+                <BestPetpitalCost>
+                  {petpital.phone || "정보 없음"}
+                </BestPetpitalCost>
               </BestPetpitalItem>
             );
           })}
@@ -287,10 +285,7 @@ const BestPetpitalImage = styled.img<{ ImgSrc: string }>`
   object-fit: cover;
   border-radius: 4px 4px 0 0;
   background-image: url(${(props) => props.ImgSrc});
-`;
-
-const BestPetpitalDesc = styled.div`
-  /* padding: 8px 0; */
+  background-position: center;
 `;
 
 const BestPetpitalName = styled.div`
