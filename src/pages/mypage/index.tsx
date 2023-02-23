@@ -18,6 +18,7 @@ import Review from "./Review";
 import { doc, updateDoc } from "firebase/firestore";
 import AuthModal from "@/components/custom/AuthModal";
 import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import { useRouter } from "next/router";
 
 const Index = () => {
   const [modal, setModal] = useState(false);
@@ -30,6 +31,8 @@ const Index = () => {
   const [photoURL, setPhotoURL] = useState(
     "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
   );
+
+  const router = useRouter();
 
   function useAuth() {
     const [currentUser, setCurrentUser] = useState<any>();
@@ -104,6 +107,11 @@ const Index = () => {
     console.log("회원정보", authService.currentUser);
   };
 
+  const onLogOutClick = () => {
+    authService.signOut();
+    router.push("/");
+  };
+
   return (
     <>
       <MyPageContainer>
@@ -155,6 +163,10 @@ const Index = () => {
                   }}
                 >
                   프로필 변경하기
+                </ProfileModifyButton>
+
+                <ProfileModifyButton onClick={onLogOutClick}>
+                  로그아웃
                 </ProfileModifyButton>
               </PicContainer>
             </div>
