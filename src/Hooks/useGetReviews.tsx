@@ -24,7 +24,7 @@ export const useGetReviews = (limit: string) => {
   const { isLoading, data: recentlyReview } = useQuery<IReview>(
     "getrecentlyReview",
     () => {
-      return axios.get(`http://localhost:3001/posts${limit}`);
+      return axios.get(`https://humble-summer-ballcap.glitch.me/posts${limit}`);
     },
   );
   return { recentlyReview, isLoading };

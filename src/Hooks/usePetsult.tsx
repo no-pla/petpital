@@ -22,7 +22,7 @@ export const useGetPetConsult = ({ limit }: any) => {
       queryKey: ["getCounsel", limit],
       queryFn: () => {
         return axios.get(
-          `http://localhost:3001/qna?_sort=createdAt&_order=desc${limit}`,
+          `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc${limit}`,
         );
       },
     });
@@ -30,7 +30,7 @@ export const useGetPetConsult = ({ limit }: any) => {
 };
 
 const addCounsel = (newCounsult: any) => {
-  return axios.post("http://localhost:3001/qna", newCounsult);
+  return axios.post("https://swift-flash-alfalfa.glitch.me/posts", newCounsult);
 };
 
 export const useAddCounsel = () => {
@@ -43,7 +43,7 @@ export const useGetCounselTarget = (id: any) => {
   const { data } = useQuery(
     ["getCounsels", id],
     () => {
-      return axios.get(`http://localhost:3001/qna/${id}`);
+      return axios.get(`https://swift-flash-alfalfa.glitch.me/posts/${id}`);
     },
     {
       // id가 존재할 때만 실행
@@ -62,7 +62,7 @@ export const useGetCounselList = (targetTime: any) => {
     "getCounsel",
     () => {
       return axios.get(
-        `http://localhost:3001/qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
       );
     },
     {
@@ -79,7 +79,10 @@ export const useGetCounselList = (targetTime: any) => {
 // 상담 게시글 수정
 
 const editCounsel = (newCounsel: any) => {
-  return axios.patch(`http://localhost:3001/qna/${newCounsel.id}`, newCounsel);
+  return axios.patch(
+    `https://swift-flash-alfalfa.glitch.me/posts/${newCounsel.id}`,
+    newCounsel,
+  );
 };
 
 export const useEditCounsel = () => {
@@ -111,7 +114,9 @@ export const useEditCounsel = () => {
 // 상담 게시글 삭제
 
 const deleteCounsel = (targetId: any) => {
-  return axios.delete(`http://localhost:3001/qna/${targetId}`);
+  return axios.delete(
+    `https://swift-flash-alfalfa.glitch.me/posts/${targetId}`,
+  );
 };
 
 export const useDeletCounsel = () => {

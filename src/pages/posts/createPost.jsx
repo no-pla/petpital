@@ -176,23 +176,26 @@ const NewPost = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3001/posts", {
-        title,
-        contents,
-        totalCost,
-        rating: starRating,
-        selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
-        downloadUrl,
-        date: timestamp,
-        displayName: authService.currentUser?.displayName,
-        userId: authService.currentUser?.uid,
-        profileImage: authService.currentUser?.photoURL,
-        hospitalId: placesData.id,
-        isEdit: false,
-        id: createdAt,
-        hospitalAddress: placesData.address_name,
-        hospitalName: placesData.place_name,
-      });
+      const response = await axios.post(
+        "https://humble-summer-ballcap.glitch.me/posts",
+        {
+          title,
+          contents,
+          totalCost,
+          rating: starRating,
+          selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
+          downloadUrl,
+          date: timestamp,
+          displayName: authService.currentUser?.displayName,
+          userId: authService.currentUser?.uid,
+          profileImage: authService.currentUser?.photoURL,
+          hospitalId: placesData.id,
+          isEdit: false,
+          id: createdAt,
+          hospitalAddress: placesData.address_name,
+          hospitalName: placesData.place_name,
+        },
+      );
       localStorage.removeItem("Photo");
       router.push({
         pathname: "/searchMap",

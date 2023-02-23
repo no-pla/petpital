@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import styled from "@emotion/styled";
@@ -242,7 +242,7 @@ function Posts() {
     ["posts", page],
     async (key, page) => {
       const response = await axios.get(
-        `http://localhost:3001/posts?page=${page}&limit=10`,
+        `https://humble-summer-ballcap.glitch.me/posts?page=${page}&limit=10`,
       );
       return response.data.reverse();
     },
@@ -265,7 +265,7 @@ function Posts() {
   const { mutate: updateMutate } = useMutation(
     (data) =>
       axios
-        .put(`http://localhost:3001/posts/${data.id}`, data)
+        .put(`https://humble-summer-ballcap.glitch.me/posts/${data.id}`, data)
         .then((res) => res.data),
     {
       onSuccess: () => {
@@ -309,10 +309,21 @@ function Posts() {
     refetchPost();
   };
 
+  useEffect(() => {
+    const container = document.getElementById("myMap");
+    const options = {
+      center: new window.kakao.maps.LatLng(37.506502, 127.053617),
+      level: 3,
+    };
+    const map = new window.kakao.maps.Map(container, options);
+  }, []);
+
   // 게시글 삭제
   const { mutate: deleteMutate } = useMutation(
     (id) =>
-      axios.delete(`http://localhost:3001/posts/${id}`).then((res) => res.data),
+      axios
+        .delete(`https://humble-summer-ballcap.glitch.me/posts/${id}`)
+        .then((res) => res.data),
     {
       onSuccess: () => {
         refetchPost();
@@ -352,6 +363,8 @@ function Posts() {
     setPostEdit(false);
   };
 
+  console.log("placesData", placesData);
+
   return (
     <Container>
       {postEdit && (
@@ -375,6 +388,7 @@ function Posts() {
           <button onClick={CloseCreatePost}>close</button>
         </CreateAddModal>
       )}
+      <div id="myMap" style={{ width: "500px", height: "400px" }}></div>
       <InfoContainer>
         <InformationBox>
           <div>
