@@ -10,6 +10,7 @@ interface INewPetsult {
     nickname: any;
     profileImg: any;
     createdAt: number;
+    uid: any;
   }[];
 }
 
