@@ -33,7 +33,7 @@ const ImageBox = styled.label`
   /* border-radius: 100%; */
   overflow: hidden;
   cursor: pointer;
-  width: 1000px;
+  width: 100%;
   height: 400px;
   margin: auto;
   > img {
