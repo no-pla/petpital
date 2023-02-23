@@ -1,3 +1,4 @@
+import { authService } from "@/firebase/firebase";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useRef } from "react";
@@ -40,10 +41,22 @@ export default function Header() {
         <HeaderForm onSubmit={onSubmit}>
           <Input />
         </HeaderForm>
-        <HeaderItem onClick={() => router.push("/searchMap")}>
+        <HeaderItem
+          onClick={() =>
+            authService.currentUser === null
+              ? router.push("/login")
+              : router.push("/searchMap")
+          }
+        >
           리뷰 쓰기
         </HeaderItem>
-        <GoToMyPage onClick={() => router.push("/mypage")} />
+        <GoToMyPage
+          onClick={() =>
+            authService.currentUser === null
+              ? router.push("/login")
+              : router.push("/mypage")
+          }
+        />
       </HeaderItems>
     </HeaderContainer>
   );

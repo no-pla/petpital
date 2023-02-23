@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { HeaderTitle } from "@/components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "@/components/MainBanner";
+import { authService } from "@/firebase/firebase";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -202,7 +203,13 @@ export default function Home() {
         <HeaderContainer>
           <HeaderTitle>고민있음 털어놔보개!</HeaderTitle>
           <div>
-            <HeaderButton onClick={() => router.push("/petconsult/new")}>
+            <HeaderButton
+              onClick={() =>
+                authService.currentUser === null
+                  ? router.push("/login")
+                  : router.push("/petconsult/new")
+              }
+            >
               질문하기
             </HeaderButton>
             <HeaderButton onClick={() => router.push("/petconsult")}>
