@@ -834,7 +834,7 @@ const Review = styled.div`
 const ReviewImg = styled.img`
   width: 40%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   border-radius: 4px 0px 0px 4px;
 `;
 
