@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useAddCounsel } from "@/hooks/usePetsult";
+import { useAddCounsel } from "../../hooks/usePetsult";
 import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import { useRouter } from "next/router";
-import { authService } from "@/firebase/firebase";
+import { authService } from "../../firebase/firebase";
 import {
   BackButton,
   CustomHeader,
   HeaderButton,
-} from "@/components/custom/CustomHeader";
+} from "../../components/custom/CustomHeader";
 import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "./[id]";
 import styled from "@emotion/styled";
-import { SubBanner } from "@/components/SubBanner";
+import { SubBanner } from "../../components/SubBanner";
 const short = require("short-uuid");
 
 export interface INewPetsult {

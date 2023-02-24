@@ -15,7 +15,7 @@ import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
 import Join from "./signup";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { currentUserUid, hospitalData } from "@/share/atom";
+import { currentUserUid, hospitalData } from "../share/atom";
 import { useSetRecoilState } from "recoil";
 import Image from "next/image";
 import loginLogo from "../../public/loginLogo.jpg";

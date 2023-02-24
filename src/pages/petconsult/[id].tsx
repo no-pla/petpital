@@ -2,21 +2,21 @@ import {
   useDeletCounsel,
   useGetCounselList,
   useGetCounselTarget,
-} from "@/hooks/usePetsult";
+} from "../../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import CounselComments, {
   ManageButtonContainer,
-} from "@/components/CounselComments";
+} from "../../components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
-import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import {
   BackButton,
   CustomHeader,
   HeaderButton,
-} from "@/components/custom/CustomHeader";
+} from "../../components/custom/CustomHeader";
 import { authService } from "../../firebase/firebase";
 
 interface INewPetsult {

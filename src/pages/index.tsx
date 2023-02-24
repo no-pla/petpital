@@ -9,12 +9,12 @@ import {
 import styled from "@emotion/styled";
 import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
-import { useGetMainHospital } from "@/components/api/getMainHosiptal";
+import { useGetMainHospital } from "../components/api/getMainHosiptal";
 import { useEffect, useState } from "react";
-import { HeaderTitle } from "@/components/custom/CustomHeader";
+import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
-import { MainBannerContiner } from "@/components/MainBanner";
-import { authService } from "@/firebase/firebase";
+import { MainBannerContiner } from "../components/MainBanner";
+import { authService } from "../firebase/firebase";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
