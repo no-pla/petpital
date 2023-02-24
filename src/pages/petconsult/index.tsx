@@ -7,11 +7,11 @@ import {
   CustomHeader,
   HeaderButton,
   HeaderTitle,
-} from "@/components/custom/CustomHeader";
-import { MainBannerContiner } from "@/components/MainBanner";
+} from "../../components/custom/CustomHeader";
+import { MainBannerContiner } from "../../components/MainBanner";
 import { MainCustomButton } from "..";
-import { authService } from "@/firebase/firebase";
-import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import { authService } from "../../firebase/firebase";
+import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`

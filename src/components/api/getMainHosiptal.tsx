@@ -1,4 +1,4 @@
-import { mainPetpitalList } from "@/share/atom";
+import { mainPetpitalList } from "../../share/atom";
 import axios from "axios";
 import { useQuery } from "react-query";
 import { useRecoilValue } from "recoil";

@@ -1,15 +1,20 @@
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
-import { useEditCounsel } from "@/hooks/usePetsult";
+import { useEditCounsel } from "../../../hooks/usePetsult";
 import { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "../[id]";
-import { authService } from "@/firebase/firebase";
-import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
-import { HeaderButton } from "@/pages";
-import { BackButton, CustomHeader } from "@/components/custom/CustomHeader";
-import { SubBanner } from "@/components/SubBanner";
+import { authService } from "../../../firebase/firebase";
+import CustomModal, {
+  ModalButton,
+} from "../../../components/custom/CustomModal";
+import { HeaderButton } from "../../../pages";
+import {
+  BackButton,
+  CustomHeader,
+} from "../../../components/custom/CustomHeader";
+import { SubBanner } from "../../../components/SubBanner";
 
 const EditCounsel = () => {
   const router = useRouter();

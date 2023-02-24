@@ -1,4 +1,4 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../../firebase/firebase";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";

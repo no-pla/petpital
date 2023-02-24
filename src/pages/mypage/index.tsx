@@ -5,8 +5,8 @@ import React, { useEffect, useState, ChangeEvent } from "react";
 import Likedpetpital from "./Likedpetpital";
 import styled from "@emotion/styled";
 import Review from "./Review";
-import AuthModal from "@/components/custom/AuthModal";
-import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import AuthModal from "../../components/custom/AuthModal";
+import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import { useRouter } from "next/router";
 
 const Index = () => {

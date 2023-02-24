@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { hospitalData } from "@/share/atom";
+import { hospitalData } from "../share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import {
