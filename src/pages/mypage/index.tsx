@@ -6,7 +6,7 @@ import Likedpetpital from "./Likedpetpital";
 import styled from "@emotion/styled";
 import Review from "./Review";
 import AuthModal from "../../components/custom/AuthModal";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { useRouter } from "next/router";
 
 const Index = () => {
@@ -236,6 +236,7 @@ const Button = styled.button`
 const MyPageBottom = styled.div`
   background-color: white;
   width: 100%;
+  padding-top: 70px;
 `;
 
 const PicContainer = styled.div`

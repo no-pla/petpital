@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -11,7 +11,8 @@ import {
 import { MainBannerContiner } from "../../components/MainBanner";
 import { MainCustomButton } from "..";
 import { authService } from "../../firebase/firebase";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
+import { REVIEW_SERVER } from "@/share/server";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
@@ -27,10 +28,11 @@ const CounselContainer = styled.div`
   }
 `;
 
-export const CounselTitle = styled.h3`
+export const CounselTitle = styled.div`
   margin-bottom: 50px;
   display: flex;
   font-size: 1.1rem;
+  margin-top: 12px;
   &::before {
     content: "Q";
     color: #c5c5c5;
@@ -121,16 +123,26 @@ const DownButton = styled.button`
 
 const DownButtonImage = styled.img``;
 
+interface ICounsel {
+  uid: string;
+  id: string;
+  content: string;
+  nickname: string;
+  profileImg: string;
+  createdAt: number;
+}
+
 function Petconsult() {
   const router = useRouter();
   const targetRef = useRef<HTMLDivElement>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [page, setPage] = useState(1);
+  const [review, setReview] = useState<any>([]);
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
       return axios.get(
-        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {
@@ -191,22 +203,27 @@ function Petconsult() {
         <HeaderButton
           disabled={!authService.currentUser === undefined}
           onClick={goToNewQnAPage}
-          // onClick={() =>}
         >
           질문하기
         </HeaderButton>
       </CustomHeader>
       <CounselContainer ref={targetRef}>
-        {isLoading
-          ? "로딩중"
-          : petConsult?.data.map((counsel: any) => (
-              <Counsel key={counsel.id}>
-                <CounselTitle>{counsel.content}</CounselTitle>
-                <CounselButton onClick={() => onClick(counsel.id)}>
-                  답변하러가기
-                </CounselButton>
-              </Counsel>
-            ))}
+        {!isLoading &&
+          petConsult?.data.map((counsel: any, index: number) => (
+            <Counsel key={counsel.id}>
+              <CounselTitle>{counsel.content}</CounselTitle>
+              <div>
+                {/* {review[index].length > 0 && 
+                review[index]
+                } */}
+                {/* {review[index].length > 0 &&
+                  review[index].map((review) => console.log(review.content))} */}
+              </div>
+              <CounselButton onClick={() => onClick(counsel.id)}>
+                답변하러가기
+              </CounselButton>
+            </Counsel>
+          ))}
       </CounselContainer>
       <PageButtonContainer>
         <PageButton

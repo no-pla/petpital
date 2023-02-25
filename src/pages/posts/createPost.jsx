@@ -15,6 +15,7 @@ import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
 import { FiEdit3 } from "react-icons/fi";
 import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import { REVIEW_SERVER } from "../../share/server";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
@@ -176,26 +177,23 @@ const NewPost = () => {
     }
 
     try {
-      const response = await axios.post(
-        "https://humble-summer-ballcap.glitch.me/posts",
-        {
-          title,
-          contents,
-          totalCost,
-          rating: starRating,
-          selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
-          downloadUrl,
-          date: timestamp,
-          displayName: authService.currentUser?.displayName,
-          userId: authService.currentUser?.uid,
-          profileImage: authService.currentUser?.photoURL,
-          hospitalId: placesData.id,
-          isEdit: false,
-          id: createdAt,
-          hospitalAddress: placesData.address_name,
-          hospitalName: placesData.place_name,
-        },
-      );
+      const response = await axios.post(`${REVIEW_SERVER}posts`, {
+        title,
+        contents,
+        totalCost,
+        rating: starRating,
+        selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
+        downloadUrl,
+        date: timestamp,
+        displayName: authService.currentUser?.displayName,
+        userId: authService.currentUser?.uid,
+        profileImage: authService.currentUser?.photoURL,
+        hospitalId: placesData.id,
+        isEdit: false,
+        id: createdAt,
+        hospitalAddress: placesData.address_name,
+        hospitalName: placesData.place_name,
+      });
       localStorage.removeItem("Photo");
       router.push({
         pathname: "/searchMap",

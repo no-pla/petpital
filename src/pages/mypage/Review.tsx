@@ -27,8 +27,12 @@ const Review = () => {
                     <ReviewInfo>
                       <ReviewTitle>{review.title}</ReviewTitle>
                       <PetpitalInfo>
-                        <PetpitalAddressName>병원 이름</PetpitalAddressName>
-                        <PetpitalAddress>병원 주소입니다.</PetpitalAddress>
+                        <PetpitalAddressName>
+                          {review.hospitalName}
+                        </PetpitalAddressName>
+                        <PetpitalAddress>
+                          {review.hospitalAddress}
+                        </PetpitalAddress>
                       </PetpitalInfo>
                       <ReviewDesc>{review.contents}</ReviewDesc>
                       {/* <div>별점 : {review.rating} / 5</div> */}

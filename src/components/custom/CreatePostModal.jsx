@@ -8,6 +8,7 @@ import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
+import { REVIEW_SERVER } from "../../share/server";
 
 const CreatePostModal = ({ isEdit }) => {
   const [title, setTitle] = useState("");
@@ -65,24 +66,21 @@ const CreatePostModal = ({ isEdit }) => {
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
     try {
-      const response = await axios.post(
-        "https://humble-summer-ballcap.glitch.me/posts",
-        {
-          title,
-          contents,
-          totalCost,
-          rating: starRating,
-          selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
-          downloadUrl,
-          date: timestamp,
-          displayName: authService.currentUser?.displayName,
-          userId: authService.currentUser?.uid,
-          profileImage: authService.currentUser?.photoURL,
-          hospitalId: placesData.id,
-          isEdit: false,
-          id: createdAt,
-        },
-      );
+      const response = await axios.post(`${REVIEW_SERVER}posts`, {
+        title,
+        contents,
+        totalCost,
+        rating: starRating,
+        selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
+        downloadUrl,
+        date: timestamp,
+        displayName: authService.currentUser?.displayName,
+        userId: authService.currentUser?.uid,
+        profileImage: authService.currentUser?.photoURL,
+        hospitalId: placesData.id,
+        isEdit: false,
+        id: createdAt,
+      });
       console.log("response", response);
       localStorage.removeItem("Photo");
       router.push(`/searchMap`);

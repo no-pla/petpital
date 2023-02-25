@@ -8,7 +8,7 @@ import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "../[id]";
 import { authService } from "../../../firebase/firebase";
 import CustomModal, {
   ModalButton,
-} from "../../../components/custom/CustomModal";
+} from "../../../components/custom/ErrorModal";
 import { HeaderButton } from "../../../pages";
 import {
   BackButton,

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAddCounsel } from "../../hooks/usePetsult";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { useRouter } from "next/router";
 import { authService } from "../../firebase/firebase";
 import {

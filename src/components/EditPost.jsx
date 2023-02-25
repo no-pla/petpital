@@ -9,6 +9,7 @@ import { authService, storageService } from "../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../share/atom";
 import { useMutation } from "react-query";
+import { REIVEW_SERVER } from "../share/server";
 
 const Container = styled.div``;
 const FormWrap = styled.form`
@@ -124,9 +125,7 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
   // 게시글 업데이트
   const { mutate: updateMutate } = useMutation(
     (data) =>
-      axios
-        .put(`https://humble-summer-ballcap.glitch.me/posts/${id}`, data)
-        .then((res) => res.data),
+      axios.put(`${REIVEW_SERVER}posts/${id}`, data).then((res) => res.data),
     {
       onSuccess: () => {
         refetchPost();

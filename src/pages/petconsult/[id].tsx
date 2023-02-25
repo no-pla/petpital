@@ -11,13 +11,14 @@ import CounselComments, {
 } from "../../components/CounselComments";
 import { useQuery } from "react-query";
 import axios from "axios";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import {
   BackButton,
   CustomHeader,
   HeaderButton,
 } from "../../components/custom/CustomHeader";
 import { authService } from "../../firebase/firebase";
+import { REVIEW_SERVER } from "@/share/server";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -50,7 +51,7 @@ const PetconsultDetail = () => {
 
   const fetchInfiniteComment = async (targetTime: any) => {
     return await axios.get(
-      `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+      `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
     );
   };
 
@@ -191,10 +192,12 @@ const CounselText = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 1.2rem;
   color: #ffffff;
   border-radius: 4px;
   margin: 40px auto;
+  text-align: center;
+  padding: 0 10px;
 `;
 
 export default PetconsultDetail;

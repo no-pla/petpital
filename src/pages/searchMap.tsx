@@ -422,15 +422,13 @@ export default function SearchMap(props: any) {
               <span> ${places.address_name}</span>
               </div>
               <br>
-              
-      
-              <p>
+              <div>
               <a href="${places.place_url}" target="_blank"
               class="detailButton" >상세정보 및 공유, 데이터 보기</a>
-              </p>  
-              <p style="margin-top:40px">
+              </div>  
+              <div style="margin-top:10px">
               <a class="reviewButton" href="/posts/createPost">리뷰 참여하기</a>
-              </p>
+              </div>
               
               <div id="reviewList"></div>          
         </div>
@@ -680,7 +678,7 @@ export const MapSection = styled.div`
     border-radius: 20px;
     overflow-y: scroll;
     background: rgba(255, 255, 255, 0.7);
-    display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")};
+    /* display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")}; */
   }
 
   #menu_wrap1 {
@@ -690,7 +688,7 @@ export const MapSection = styled.div`
     border-radius: 20px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
-    display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")};
+    /* display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")}; */
   }
 
   #map_title {
@@ -788,25 +786,25 @@ export const MapSection = styled.div`
     cursor: pointer;
   }
   .reviewButton {
+    display: flex;
     font-size: 15px;
     color: #fff;
     bottom: 0px;
     cursor: pointer;
     background: #15b5bf;
     padding: 15px 145px 15px 145px;
-    width: 200px;
     text-align: center;
-    margin-top: 30px;
+    width: 100%;
   }
   .detailButton {
+    display: flex;
     font-size: 15px;
     color: #fff;
     bottom: 0px;
     cursor: pointer;
     background: #1182ce;
-    padding: 15px 100px 15px 95px;
+    padding: 15px 80px 15px 80px;
     text-align: center;
-    margin-top: 30px;
     width: 100%;
   }
   .tel {

@@ -27,7 +27,6 @@ export default function Home() {
   });
 
   const [page, setPage] = useState(1);
-  const [hospitaList, setHospitalList] = useState<string[]>([]);
   const [hospitaListImage, setHospitalImageList] = useState<string[]>([]);
   const { data: mainPetpial, refetch } = useGetMainHospital(page);
 
@@ -68,7 +67,7 @@ export default function Home() {
       });
     }
     // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
-  }, [mainPetpial, page, KAKAO_API_KEY, hospitaList]);
+  }, [mainPetpial, page, KAKAO_API_KEY]);
 
   const previousPage = () => {
     const emptyArray: string[] = [];
@@ -124,12 +123,12 @@ export default function Home() {
             return (
               <BestPetpitalItem
                 key={petpital.id}
-                // onClick={() =>
-                //   router.push({
-                //     pathname: "/searchMap",
-                //     query: { target: petpital.place_name },
-                //   })
-                // }
+                onClick={() =>
+                  router.push({
+                    pathname: "/searchMap",
+                    query: { target: petpital.place_name },
+                  })
+                }
               >
                 <BestPetpitalImage
                   ImgSrc={
