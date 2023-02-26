@@ -41,7 +41,7 @@ export const useAddCounsel = () => {
 // 상담 게시글 불러오기
 
 export const useGetCounselTarget = (id: any) => {
-  const { data } = useQuery(
+  const { data: targetTime } = useQuery(
     ["getCounsels", id],
     () => {
       return axios.get(`${REVIEW_SERVER}qna/${id}`);
@@ -55,8 +55,39 @@ export const useGetCounselTarget = (id: any) => {
       select: (data) => data?.data.createdAt,
     },
   );
-  return { data };
+
+  const { data: CounselList } = useQuery(
+    ["infiniteComments", targetTime],
+    async () =>
+      await axios.get(
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+      ),
+    {
+      enabled: !!targetTime,
+      select: data => data?.data
+    },
+  );
+
+  return { CounselList };
 };
+
+// export const useGetCounselTarget = (id: any) => {
+//   const { data, isLoading } = useQuery(
+//     ["getCounsels", id],
+//     () => {
+//       return axios.get(`${REVIEW_SERVER}qna/${id}`);
+//     },
+//     {
+//       // id가 존재할 때만 실행
+//       enabled: !!id,
+//       refetchOnWindowFocus: true,
+//       refetchOnMount: true,
+//       cacheTime: 0,
+//       select: (data) => data?.data.createdAt,
+//     },
+//   );
+//   return { data, isLoading };
+// };
 
 export const useGetCounselList = (targetTime: any) => {
   const { data, isLoading } = useQuery(

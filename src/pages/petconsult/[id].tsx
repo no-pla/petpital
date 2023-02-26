@@ -1,24 +1,14 @@
-import {
-  useDeletCounsel,
-  useGetCounselList,
-  useGetCounselTarget,
-} from "../../hooks/usePetsult";
+import { useDeletCounsel } from "../../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import CounselComments, {
-  ManageButtonContainer,
-} from "../../components/CounselComments";
-import { useQuery } from "react-query";
-import axios from "axios";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import {
   BackButton,
   CustomHeader,
   HeaderButton,
 } from "../../components/custom/CustomHeader";
-import { authService } from "../../firebase/firebase";
-import { REVIEW_SERVER } from "@/share/server";
+import CounselPost from "../../components/CounselPost";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -45,19 +35,8 @@ const PetconsultDetail = () => {
   const router = useRouter();
   const id = router.query.id;
   const { mutate: deleteCounsel } = useDeletCounsel();
-  const { data: targetTime } = useGetCounselTarget(id);
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
-
-  const fetchInfiniteComment = async (targetTime: any) => {
-    return await axios.get(
-      `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
-    );
-  };
-
-  const { data } = useQuery(["infiniteComments", targetTime], () =>
-    fetchInfiniteComment(targetTime),
-  );
 
   const onDelete = (id: any) => {
     setOpenModal((prev: any) => !prev);
@@ -76,34 +55,7 @@ const PetconsultDetail = () => {
     router.push(`/petconsult/edit/${targetId}`);
   };
 
-  function Components(this: any, { counselData }: any) {
-    return (
-      <Counsel key={counselData.id}>
-        <CounselHeader>
-          <CounselInfo>
-            <UserProfileImg
-              src={counselData.profileImg}
-              alt={counselData.nickname + " 유저의 프로필 사진입니다."}
-            />
-            <UserInfo>
-              <div>{counselData.nickname}</div>
-              <div>
-                {new Date(counselData.createdAt).toLocaleDateString("ko-Kr")}
-              </div>
-            </UserInfo>
-          </CounselInfo>
-          {counselData.uid === authService.currentUser?.uid && (
-            <ManageButtonContainer>
-              <button onClick={() => onDelete(counselData.id)}>삭제</button>
-              <button onClick={() => onOpenInput(counselData.id)}>수정</button>
-            </ManageButtonContainer>
-          )}
-        </CounselHeader>
-        <CounselText>{String(counselData.content)}</CounselText>
-        <CounselComments target={counselData.id} />
-      </Counsel>
-    );
-  }
+  console.log("전체페이지 리렌더");
 
   return (
     <CounselContainer>
@@ -115,9 +67,7 @@ const PetconsultDetail = () => {
           질문하기
         </HeaderButton>
       </CustomHeader>
-      {data?.data?.map((counselData: any) => {
-        return <Components key={counselData.id} counselData={counselData} />;
-      })}
+      <CounselPost />
       {openModal && (
         <CustomModal
           modalText1={"입력하신 게시글을"}

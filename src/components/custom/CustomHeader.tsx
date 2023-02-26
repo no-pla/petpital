@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import React, { memo } from "react";
 
 const HeaderContainer = styled.div`
   padding: 20px 0;
@@ -58,6 +59,7 @@ export const HeaderButton = styled.button`
   }
 `;
 
-export const CustomHeader = ({ children }: any) => {
+export const CustomHeader = React.memo(({ children }: any) => {
   return <HeaderContainer>{children}</HeaderContainer>;
-};
+});
+CustomHeader.displayName = "CustomHeader";

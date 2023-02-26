@@ -25,7 +25,7 @@ const Likedpetpital = () => {
         petConsult?.data
           .filter((counsel) => myId === counsel.uid)
           .map((counsel) => (
-            <CounselList key={counsel.uid}>
+            <CounselList key={counsel.id}>
               <Counsel onClick={() => router.push(`petconsult/${counsel.id}`)}>
                 <CounselTitle>{counsel.content}</CounselTitle>
               </Counsel>

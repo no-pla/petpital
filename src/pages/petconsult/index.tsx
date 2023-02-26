@@ -212,13 +212,6 @@ function Petconsult() {
           petConsult?.data.map((counsel: any, index: number) => (
             <Counsel key={counsel.id}>
               <CounselTitle>{counsel.content}</CounselTitle>
-              <div>
-                {/* {review[index].length > 0 && 
-                review[index]
-                } */}
-                {/* {review[index].length > 0 &&
-                  review[index].map((review) => console.log(review.content))} */}
-              </div>
               <CounselButton onClick={() => onClick(counsel.id)}>
                 답변하러가기
               </CounselButton>

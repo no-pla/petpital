@@ -26,6 +26,8 @@ export default function Home() {
     limit: "&_limit=3",
   });
 
+  console.log(recentlyReview?.data);
+
   const [page, setPage] = useState(1);
   const [hospitaListImage, setHospitalImageList] = useState<string[]>([]);
   const { data: mainPetpial, refetch } = useGetMainHospital(page);

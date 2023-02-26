@@ -11,6 +11,45 @@ import CustomModal, { ModalButton } from "./custom/ErrorModal";
 
 const short = require("short-uuid");
 
+const CoComent = ({ cocoment, comment, index }: any) => {
+  const { mutate: editComment } = useEditCounselComment();
+
+  const DeleteCoComent = (comment: any, cocomment: any) => {
+    const newCommentObj = {
+      ...comment,
+      cocoment: comment.cocoment.filter(
+        (target: any) => target.commentId !== cocomment.commentId,
+      ),
+    };
+    editComment(newCommentObj);
+  };
+  return (
+    <>
+      <CocomentItem key={cocoment.commentId}>
+        <UserProfileImg src={cocoment.profileImage} />
+        <UserInfo>
+          <div>
+            <div>{cocoment.nickname}</div>
+            <div>{cocoment.createdAt}</div>
+          </div>
+          <div>
+            {authService.currentUser?.displayName !== cocoment.targetNickname &&
+              "@" + cocoment.targetNickname + " "}
+            {cocoment.content}
+          </div>
+        </UserInfo>
+      </CocomentItem>
+      {cocoment.uid === authService.currentUser?.uid && (
+        <ManageButtonContainer>
+          <button onClick={() => DeleteCoComent(comment, cocoment)}>
+            삭제
+          </button>
+        </ManageButtonContainer>
+      )}
+    </>
+  );
+};
+
 const CounselComments = ({ target }: any) => {
   const [isOpen, setIsOpen] = useState<boolean[]>([]);
   const [isOpenComment, setIsOpenComment] = useState<boolean[]>([]);
@@ -169,16 +208,6 @@ const CounselComments = ({ target }: any) => {
     }
   };
 
-  const DeleteCoComent = (comment: any, cocomment: any) => {
-    const newCommentObj = {
-      ...comment,
-      cocoment: comment.cocoment.filter(
-        (target: any) => target.commentId !== cocomment.commentId,
-      ),
-    };
-    editComment(newCommentObj);
-  };
-
   // const EditCoComent = (
   //   comment: any,
   //   targetCocoment: any,
@@ -198,34 +227,6 @@ const CounselComments = ({ target }: any) => {
   //   };
   //   editComment(newCommentObj);
   // };
-
-  const CoComent = ({ cocoment, comment, index }: any) => {
-    return (
-      <>
-        <CocomentItem key={cocoment.commentId}>
-          <UserProfileImg src={cocoment.profileImage} />
-          <UserInfo>
-            <div>
-              <div>{cocoment.nickname}</div>
-              <div>{cocoment.createdAt}</div>
-            </div>
-            <div>
-              {authService.currentUser?.displayName !==
-                cocoment.targetNickname && "@" + cocoment.targetNickname + " "}
-              {cocoment.content}
-            </div>
-          </UserInfo>
-        </CocomentItem>
-        {cocoment.uid === authService.currentUser?.uid && (
-          <ManageButtonContainer>
-            <button onClick={() => DeleteCoComent(comment, cocoment)}>
-              삭제
-            </button>
-          </ManageButtonContainer>
-        )}
-      </>
-    );
-  };
 
   return (
     <CounselCommentContainer>
@@ -460,6 +461,7 @@ const CounselItem = styled.li`
 
 const CounselCommentContainer = styled.div`
   width: 80vw;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 0;
 `;
