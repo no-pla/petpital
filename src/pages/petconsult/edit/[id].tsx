@@ -15,6 +15,7 @@ import {
   CustomHeader,
 } from "../../../components/custom/CustomHeader";
 import { SubBanner } from "../../../components/SubBanner";
+import { REVIEW_SERVER } from "@/share/server";
 
 const EditCounsel = () => {
   const router = useRouter();
@@ -31,7 +32,7 @@ const EditCounsel = () => {
   const { data } = useQuery(
     ["getEditCounsels", id],
     () => {
-      return axios.get(`https://swift-flash-alfalfa.glitch.me/posts/${id}`);
+      return axios.get(`${REVIEW_SERVER}/qna/${id}`);
     },
     {
       enabled: !!id,

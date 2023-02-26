@@ -46,13 +46,9 @@ const PetconsultDetail = () => {
   const deleteCounselPost = () => {
     deleteCounsel(targetId);
     if (id === targetId) {
-      router.push(`/petconsult`);
+      router.push(`/petconsult`, undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
-  };
-
-  const onOpenInput = (targetId: string) => {
-    router.push(`/petconsult/edit/${targetId}`);
   };
 
   console.log("전체페이지 리렌더");

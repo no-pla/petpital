@@ -64,50 +64,13 @@ export const useGetCounselTarget = (id: any) => {
       ),
     {
       enabled: !!targetTime,
-      select: data => data?.data
+      select: (data) => data?.data,
     },
   );
 
   return { CounselList };
 };
 
-// export const useGetCounselTarget = (id: any) => {
-//   const { data, isLoading } = useQuery(
-//     ["getCounsels", id],
-//     () => {
-//       return axios.get(`${REVIEW_SERVER}qna/${id}`);
-//     },
-//     {
-//       // id가 존재할 때만 실행
-//       enabled: !!id,
-//       refetchOnWindowFocus: true,
-//       refetchOnMount: true,
-//       cacheTime: 0,
-//       select: (data) => data?.data.createdAt,
-//     },
-//   );
-//   return { data, isLoading };
-// };
-
-export const useGetCounselList = (targetTime: any) => {
-  const { data, isLoading } = useQuery(
-    "getCounsel",
-    () => {
-      return axios.get(
-        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
-      );
-    },
-    {
-      // targetTime이 존재할 때만 실행
-      enabled: !!targetTime,
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      cacheTime: 0,
-    },
-  );
-
-  return { data, isLoading };
-};
 // 상담 게시글 수정
 
 const editCounsel = (newCounsel: any) => {
@@ -135,7 +98,7 @@ export const useEditCounsel = () => {
       console.log(error);
     },
     onSettled() {
-      queryClient.invalidateQueries({ queryKey: ["getCounsel"] });
+      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
     },
   });
 };

@@ -1,10 +1,15 @@
 import { authService } from "@/firebase/firebase";
-import { useDeletCounsel, useGetCounselTarget } from "@/hooks/usePetsult";
+import {
+  useDeletCounsel,
+  useGetCounselTarget,
+  useEditCounsel,
+} from "@/hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import CounselComments, { ManageButtonContainer } from "./CounselComments";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 export function getServerSideProps({ query }: any) {
   // if query object was received, return it as a router prop:
@@ -23,7 +28,7 @@ const CounselPost = () => {
   const [targetId, setTargetId] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const { mutate: deleteCounsel } = useDeletCounsel();
-
+  const { mutate: editCounsel } = useEditCounsel();
   console.log("포스트 리렌더");
 
   const onOpenInput = (targetId: string) => {
@@ -38,9 +43,29 @@ const CounselPost = () => {
   const deleteCounselPost = () => {
     deleteCounsel(targetId);
     if (id === targetId) {
-      router.push(`/petconsult`);
+      router.push(`/petconsult`, undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
+  };
+
+  const addLike = (linkedUser: string[], counselData: any) => {
+    const newCounselData = {
+      ...counselData,
+      linkedUser: [...linkedUser, authService.currentUser?.uid],
+    };
+    editCounsel(newCounselData);
+  };
+
+  const removeLike = (linkedUser: string[], counselData: any) => {
+    const removeUser = linkedUser.filter(
+      (target) => target !== authService.currentUser?.uid,
+    );
+    const newCounselData = {
+      ...counselData,
+      linkedUser: [...removeUser],
+    };
+
+    editCounsel(newCounselData);
   };
 
   return (
@@ -48,6 +73,11 @@ const CounselPost = () => {
       {CounselList?.map((counselData: any) => {
         return (
           <Counsel key={counselData.id}>
+            <CopyToClipboard
+              text={`http://localhost:3000/petconsult/${counselData.id}`}
+            >
+              <button>클릭해서 공유</button>
+            </CopyToClipboard>
             <CounselHeader>
               <CounselInfo>
                 {/* <UserProfileImg counselData={counselData.profileImg} /> */}
@@ -60,6 +90,7 @@ const CounselPost = () => {
                   </div>
                 </UserInfo>
               </CounselInfo>
+              {/* <div>{counselData?.linkedUser?.includes{authService?.currentUser?.uid}}</div> */}
               {counselData.uid === authService.currentUser?.uid && (
                 <ManageButtonContainer>
                   <button onClick={() => onDelete(counselData.id)}>삭제</button>
@@ -69,6 +100,30 @@ const CounselPost = () => {
                 </ManageButtonContainer>
               )}
             </CounselHeader>
+            <div>{counselData?.linkedUser?.length}</div>
+            <div>
+              {counselData?.linkedUser?.includes(
+                authService?.currentUser?.uid,
+              ) ? (
+                <button
+                  disabled={authService.currentUser === null}
+                  onClick={() =>
+                    removeLike(counselData?.linkedUser, counselData)
+                  }
+                >
+                  이미 좋아요 누름
+                </button>
+              ) : (
+                <button
+                  disabled={authService.currentUser === null}
+                  onClick={() => addLike(counselData?.linkedUser, counselData)}
+                >
+                  {authService?.currentUser === null
+                    ? "가입하고 좋아요를 남겨보세요"
+                    : "좋와요"}
+                </button>
+              )}
+            </div>
             <CounselText>{String(counselData.content)}</CounselText>
             <CounselComments target={counselData.id} />
           </Counsel>
