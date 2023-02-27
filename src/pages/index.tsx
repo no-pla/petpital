@@ -15,7 +15,6 @@ import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
-import { REVIEW_SERVER } from "@/share/server";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -134,7 +133,7 @@ export default function Home() {
             <br />
             리뷰도 확인해보세요
           </PetpitalSubTitle>
-          <MainCustomButton onClick={() => router.push("/searchMap")}>
+          <MainCustomButton onClick={() => router.push("/searchHospital")}>
             병원검색 하러가기
           </MainCustomButton>
         </MainBanner>
@@ -164,8 +163,8 @@ export default function Home() {
                 key={petpital.id}
                 onClick={() =>
                   router.push({
-                    pathname: "/searchMap",
-                    query: { target: petpital.place_name },
+                    pathname: "/searchHospital",
+                    query: { hospitalName: petpital.place_name },
                   })
                 }
               >
@@ -208,7 +207,12 @@ export default function Home() {
           {recentlyReview?.data.map((review) => {
             return (
               <CurrentReview
-                onClick={() => router.push("/searchMap")}
+                onClick={() =>
+                  router.push({
+                    pathname: "/searchHospital",
+                    query: { hospitalName: review.hospitalName },
+                  })
+                }
                 key={review.id}
               >
                 <CurrentImageContainer>

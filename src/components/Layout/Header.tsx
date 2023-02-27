@@ -13,8 +13,8 @@ export default function Header() {
     event.preventDefault();
     if (targetHospital.current?.value !== "") {
       router.push({
-        pathname: "/searchMap",
-        query: { target: targetHospital.current?.value },
+        pathname: "/searchHospital",
+        query: { target: targetHospital.current?.value + " 동물병원" },
       });
       return;
     }
@@ -52,7 +52,7 @@ export default function Header() {
             src="https://user-images.githubusercontent.com/88391843/220821556-46417499-4c61-47b8-b5a3-e0ffc41f1df1.png"
             onClick={() => router.push("/")}
           />
-          <HeaderItem onClick={() => router.push("/searchMap")}>
+          <HeaderItem onClick={() => router.push("/searchHospital")}>
             병원리스트
           </HeaderItem>
           <HeaderItem onClick={() => router.push("/petconsult")}>
