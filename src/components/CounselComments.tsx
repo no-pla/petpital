@@ -1,18 +1,59 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../firebase/firebase";
 import {
   useAddCounselComment,
   useDeletCounselComment,
   useEditCounselComment,
   useGetPetConsultComment,
-} from "@/hooks/usePetsultReview";
+} from "../hooks/usePetsultReview";
 import styled from "@emotion/styled";
 import { useEffect, useRef, useState } from "react";
-import CustomModal, { ModalButton } from "./custom/CustomModal";
+import CustomModal, { ModalButton } from "./custom/ErrorModal";
+import { UserProfile } from "./CounselPost";
 
 const short = require("short-uuid");
 
+const CoComent = ({ cocoment, comment, index }: any) => {
+  const { mutate: editComment } = useEditCounselComment();
+
+  const DeleteCoComent = (comment: any, cocomment: any) => {
+    const newCommentObj = {
+      ...comment,
+      cocoment: comment.cocoment.filter(
+        (target: any) => target.commentId !== cocomment.commentId,
+      ),
+    };
+    editComment(newCommentObj);
+  };
+  return (
+    <>
+      <CocomentItem key={cocoment.commentId}>
+        <UserProfileImg src={cocoment.profileImage} />
+        <UserInfo>
+          <div>
+            <div>{cocoment.nickname}</div>
+            <div>{cocoment.createdAt}</div>
+          </div>
+          <div>
+            {authService.currentUser?.displayName !== cocoment.targetNickname &&
+              "@" + cocoment.targetNickname + " "}
+            {cocoment.content}
+          </div>
+        </UserInfo>
+      </CocomentItem>
+      {cocoment.uid === authService.currentUser?.uid && (
+        <ManageButtonContainer>
+          <button onClick={() => DeleteCoComent(comment, cocoment)}>
+            삭제
+          </button>
+        </ManageButtonContainer>
+      )}
+    </>
+  );
+};
+
 const CounselComments = ({ target }: any) => {
   const [isOpen, setIsOpen] = useState<boolean[]>([]);
+  const [isOpenComment, setIsOpenComment] = useState<boolean[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
   const [emptyComment, setEmptyComment] = useState(false);
@@ -22,12 +63,14 @@ const CounselComments = ({ target }: any) => {
   const { mutate: deleteComment } = useDeletCounselComment();
   const newCommentRef = useRef<HTMLInputElement>(null);
   const newEditCommentRef = useRef<HTMLInputElement>(null);
+  const newCoCommentRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 리뷰 개별 수정 가능하기 위해 추가
     if (commentList?.data) {
       for (let i = 0; i < commentList.data.length; i++) {
         setIsOpen((prev) => [...prev, false]);
+        setIsOpenComment((prev) => [...prev, false]);
       }
     }
   }, [commentList]);
@@ -49,6 +92,7 @@ const CounselComments = ({ target }: any) => {
           authService.currentUser?.photoURL ||
           "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
         createdAt: Date.now(),
+        cocoment: [],
       };
       addNewComment(newComment);
     }
@@ -92,6 +136,18 @@ const CounselComments = ({ target }: any) => {
     setIsOpen(newArray);
   };
 
+  const openCoComentIpt = (index: any) => {
+    const newArray = [...isOpen];
+    newArray[index] = true;
+    setIsOpenComment(newArray);
+  };
+
+  const closeCoComentIpt = (index: any) => {
+    const newArray = [...isOpen];
+    newArray[index] = false;
+    setIsOpenComment(newArray);
+  };
+
   const NewCommentInput = () => {
     return (
       <CounselInput
@@ -110,11 +166,74 @@ const CounselComments = ({ target }: any) => {
     return <CounselEditInput ref={newEditCommentRef} placeholder={comment} />;
   };
 
+  const CoCommentInput = () => {
+    return (
+      <CounselEditInput
+        placeholder="답글을 입력해 주세요."
+        ref={newCoCommentRef}
+      />
+    );
+  };
+
+  const onSubmitCoComent = (
+    event: React.FormEvent<HTMLFormElement>,
+    comment: any,
+    index: number,
+  ) => {
+    event.preventDefault();
+
+    const cocomentObj = {
+      ...comment,
+      cocoment: [
+        ...comment.cocoment,
+        {
+          commentId: short.generate(),
+          id: comment.id,
+          uid: authService.currentUser?.uid,
+          content: newCoCommentRef.current?.value,
+          targetNickname: comment.nickname,
+          nickname: authService.currentUser?.displayName,
+          profileImage:
+            authService.currentUser?.photoURL ||
+            "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
+          createdAt: new Date().toLocaleString("ko-KR"),
+        },
+      ],
+    };
+    if (newCoCommentRef.current?.value === "") {
+      setEmptyComment((prev) => !prev);
+      return;
+    } else {
+      editComment(cocomentObj);
+      isOpenComment[index] = false;
+    }
+  };
+
+  // const EditCoComent = (
+  //   comment: any,
+  //   targetCocoment: any,
+  //   newComment: string,
+  // ) => {
+  //   const newCommentObj = {
+  //     ...comment,
+  //     cocoment: [
+  //       ...comment.cocoment.filter(
+  //         (a: any) => a.commentId !== targetCocoment.commentId,
+  //       ),
+  //       {
+  //         ...targetCocoment,
+  //         content: newComment,
+  //       },
+  //     ],
+  //   };
+  //   editComment(newCommentObj);
+  // };
+
   return (
     <CounselCommentContainer>
       <CounselCommentForm onSubmit={onSubmit}>
-        <UserProfileImg
-          src={
+        <UserProfile
+          profileLink={
             authService?.currentUser?.photoURL
               ? authService?.currentUser.photoURL
               : "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606"
@@ -128,47 +247,90 @@ const CounselComments = ({ target }: any) => {
             comment.counselId === target && (
               <CounselItem key={comment.id}>
                 <CounselInfo>
-                  <UserProfileImg src={comment.profileImg} />
-                  <UserInfo>
-                    <div>
-                      <div>{comment.nickname}</div>
+                  <div style={{ display: "flex" }}>
+                    <UserProfile profileLink={comment.profileImg} />
+                    <UserInfo>
                       <div>
-                        {new Date(comment.createdAt).toLocaleDateString(
-                          "ko-Kr",
+                        <div>{comment.nickname}</div>
+                        <div>
+                          {new Date(comment.createdAt).toLocaleDateString(
+                            "ko-Kr",
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        {!isOpen[index] ? (
+                          <div>{comment.content}</div>
+                        ) : (
+                          <CounselCommentForm
+                            onSubmit={(event) =>
+                              onSumbitNewComment(event, index, comment)
+                            }
+                          >
+                            <EditCommentInput comment={comment.content} />
+                            <button type="submit">등록하기</button>
+                            <button
+                              type="button"
+                              onClick={() => closeIpt(index)}
+                            >
+                              취소하기
+                            </button>
+                          </CounselCommentForm>
                         )}
                       </div>
-                    </div>
-                    <div>
-                      {!isOpen[index] ? (
-                        <div>{comment.content}</div>
-                      ) : (
-                        <CounselCommentForm
-                          onSubmit={(event) =>
-                            onSumbitNewComment(event, index, comment)
-                          }
-                        >
-                          <EditCommentInput comment={comment.content} />
-                          <button type="submit">등록하기</button>
-                          <button type="button" onClick={() => closeIpt(index)}>
-                            취소하기
+                    </UserInfo>
+                  </div>
+                  {comment.uid === authService.currentUser?.uid && (
+                    <ManageButtonContainer>
+                      {!isOpen[index] && (
+                        <>
+                          <button onClick={() => onDelete(comment.id)}>
+                            삭제
                           </button>
-                        </CounselCommentForm>
+                          <button onClick={() => openIpt(index)}>수정</button>
+                        </>
                       )}
-                    </div>
-                  </UserInfo>
+                    </ManageButtonContainer>
+                  )}
                 </CounselInfo>
-                {comment.uid === authService.currentUser?.uid && (
-                  <ManageButtonContainer>
-                    {!isOpen[index] && (
-                      <>
-                        <button onClick={() => onDelete(comment.id)}>
-                          삭제
-                        </button>
-                        <button onClick={() => openIpt(index)}>수정</button>
-                      </>
-                    )}
-                  </ManageButtonContainer>
-                )}
+                <div style={{ display: "flex", gap: "12px" }}>
+                  {!isOpenComment[index] && (
+                    <CoComentButton onClick={() => openCoComentIpt([index])}>
+                      답글
+                    </CoComentButton>
+                  )}
+                </div>
+                <div>
+                  {isOpenComment[index] && (
+                    <CounselCommentForm
+                      onSubmit={(event) =>
+                        onSubmitCoComent(event, comment, index)
+                      }
+                    >
+                      <CoCommentInput />
+                      <button type="submit">등록하기</button>
+                      <button
+                        type="button"
+                        onClick={() => closeCoComentIpt(index)}
+                      >
+                        취소하기
+                      </button>
+                    </CounselCommentForm>
+                  )}
+                </div>
+                <CocomentContainer>
+                  {comment?.cocoment?.length > 0 &&
+                    comment?.cocoment?.map((cocoment: any) => {
+                      return (
+                        <CoComent
+                          key={cocoment.commentId}
+                          cocoment={cocoment}
+                          comment={comment}
+                          index={index}
+                        />
+                      );
+                    })}
+                </CocomentContainer>
               </CounselItem>
             )
           );
@@ -199,6 +361,38 @@ const CounselComments = ({ target }: any) => {
   );
 };
 
+const CoComentButton = styled.button`
+  font-weight: 400;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: right;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 14px;
+  background: rgba(101, 216, 223, 0.3);
+  border-radius: 999px;
+  color: #15b5bf;
+  border: none;
+  width: 100px;
+`;
+
+const CocomentContainer = styled.div`
+  padding: 12px 0;
+  margin: 20px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+
+const CocomentItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  align-content: right;
+  margin: 10px 0;
+`;
+
 export const ManageButtonContainer = styled.div`
   & button {
     background-color: transparent;
@@ -222,7 +416,7 @@ export const ManageButtonContainer = styled.div`
 const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  padding: 10px 0;
   & div:nth-of-type(1) {
     display: flex;
     & div:nth-of-type(1) {
@@ -248,7 +442,9 @@ const UserInfo = styled.div`
 `;
 
 const CounselInfo = styled.div`
+  padding: 10px 0;
   display: flex;
+  justify-content: space-between;
 `;
 
 const CounselLists = styled.ul`
@@ -261,10 +457,12 @@ const CounselItem = styled.li`
   display: flex;
   justify-content: space-between;
   margin: 16px 0;
+  flex-direction: column;
 `;
 
 const CounselCommentContainer = styled.div`
   width: 80vw;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 0;
 `;

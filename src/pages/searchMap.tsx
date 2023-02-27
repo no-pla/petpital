@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { hospitalData } from "@/share/atom";
+import { hospitalData } from "../share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import {
@@ -678,7 +678,7 @@ export const MapSection = styled.div`
     border-radius: 20px;
     overflow-y: scroll;
     background: rgba(255, 255, 255, 0.7);
-    display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")};
+    /* display: ${(props: ISearchBarOpen) => (props.isOpen ? "" : "none")}; */
   }
 
   #menu_wrap1 {
@@ -688,7 +688,7 @@ export const MapSection = styled.div`
     border-radius: 20px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.7);
-    display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")};
+    /* display: ${(props: ISearchBarOpen) => (props.isOpen1 ? "" : "none")}; */
   }
 
   #map_title {

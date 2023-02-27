@@ -1,8 +1,8 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../../firebase/firebase";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
-import CustomModal, { ModalButton } from "../custom/CustomModal";
+import CustomModal, { ModalButton } from "../custom/ErrorModal";
 
 export default function Header() {
   const [openModalLogout, setOpenModalLogout] = useState(false);
@@ -58,7 +58,9 @@ export default function Header() {
           <HeaderItem onClick={() => router.push("/petconsult")}>
             질문 광장
           </HeaderItem>
-          <HeaderForm onSubmit={onSubmit}>{/* <Input /> */}</HeaderForm>
+          <HeaderForm onSubmit={onSubmit}>
+            <Input />
+          </HeaderForm>
           <HeaderItem
             onClick={() =>
               authService.currentUser === null

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -7,11 +7,13 @@ import {
   CustomHeader,
   HeaderButton,
   HeaderTitle,
-} from "@/components/custom/CustomHeader";
-import { MainBannerContiner } from "@/components/MainBanner";
+} from "../../components/custom/CustomHeader";
+import { MainBannerContiner } from "../../components/MainBanner";
 import { MainCustomButton } from "..";
-import { authService } from "@/firebase/firebase";
-import CustomModal, { ModalButton } from "@/components/custom/CustomModal";
+import { authService } from "../../firebase/firebase";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
+import { REVIEW_SERVER } from "@/share/server";
+import Head from "next/head";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
@@ -27,10 +29,11 @@ const CounselContainer = styled.div`
   }
 `;
 
-export const CounselTitle = styled.h3`
+export const CounselTitle = styled.div`
   margin-bottom: 50px;
   display: flex;
   font-size: 1.1rem;
+  margin-top: 12px;
   &::before {
     content: "Q";
     color: #c5c5c5;
@@ -121,22 +124,56 @@ const DownButton = styled.button`
 
 const DownButtonImage = styled.img``;
 
+interface ICounsel {
+  uid: string;
+  id: string;
+  content: string;
+  nickname: string;
+  profileImg: string;
+  createdAt: number;
+}
+
 function Petconsult() {
   const router = useRouter();
   const targetRef = useRef<HTMLDivElement>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [page, setPage] = useState(1);
+  const [counselList, setCounselList] = useState<string[]>([]);
+  const [commentList, setCommentList] = useState<string[][]>([]);
+
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
       return axios.get(
-        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {
       keepPreviousData: true,
+      select: (data) => data?.data,
     },
   );
+
+  useEffect(() => {
+    // forEach를 사용하면 이전 작업이 끝나는 것을 기다리고 실행되지 않기 때문에 Promise.all을 사용해주어야 한다.
+    const tempArray: string[] = [];
+
+    if (petConsult) {
+      petConsult.map((counsel: any) => tempArray.push(counsel.id));
+    }
+
+    const promises = tempArray.map(async (counselId) => {
+      return await axios
+        .get(
+          `${REVIEW_SERVER}qnaReview?_sort=createdAt&_order=desc&counselId=${counselId}`,
+        )
+        .then((res) => res.data.slice(0, 2));
+    });
+
+    Promise.all(promises).then((results) => {
+      setCommentList(results);
+    });
+  }, [page, petConsult]);
 
   const onClick = (id: string) => {
     router.push(`petconsult/${id}`);
@@ -191,22 +228,26 @@ function Petconsult() {
         <HeaderButton
           disabled={!authService.currentUser === undefined}
           onClick={goToNewQnAPage}
-          // onClick={() =>}
         >
           질문하기
         </HeaderButton>
       </CustomHeader>
       <CounselContainer ref={targetRef}>
-        {isLoading
-          ? "로딩중"
-          : petConsult?.data.map((counsel: any) => (
-              <Counsel key={counsel.id}>
-                <CounselTitle>{counsel.content}</CounselTitle>
-                <CounselButton onClick={() => onClick(counsel.id)}>
-                  답변하러가기
-                </CounselButton>
-              </Counsel>
-            ))}
+        {!isLoading &&
+          petConsult?.map((counsel: any, index: number) => (
+            <Counsel key={counsel.id}>
+              <CounselTitle>{counsel.content}</CounselTitle>
+              <ul>
+                {commentList[index]?.length > 0 &&
+                  commentList[index]?.map((comment: any) => {
+                    return <li key={comment.content}>{comment.content}</li>;
+                  })}
+              </ul>
+              <CounselButton onClick={() => onClick(counsel.id)}>
+                답변하러가기
+              </CounselButton>
+            </Counsel>
+          ))}
       </CounselContainer>
       <PageButtonContainer>
         <PageButton
@@ -216,7 +257,7 @@ function Petconsult() {
           &larr;
         </PageButton>
         <PageButton
-          disabled={petConsult?.data.length !== 10 && true}
+          disabled={petConsult?.length !== 10 && true}
           onClick={() => setPage((prev) => prev + 1)}
         >
           &rarr;

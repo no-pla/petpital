@@ -24,7 +24,6 @@ export const currentUserUid = atom({
 export const isModalOpenState = atom({
   key: "isModalOpenState",
   default: false,
-  effects_UNSTABLE: [persistAtom],
 });
 
 // 모달을 전역으로 관리해라!

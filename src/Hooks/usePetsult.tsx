@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { REVIEW_SERVER } from "../share/server";
 
 // 타입 지정
 interface INewPetsult {
@@ -22,7 +23,7 @@ export const useGetPetConsult = ({ limit }: any) => {
       queryKey: ["getCounsel", limit],
       queryFn: () => {
         return axios.get(
-          `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc${limit}`,
+          `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc${limit}`,
         );
       },
     });
@@ -30,7 +31,7 @@ export const useGetPetConsult = ({ limit }: any) => {
 };
 
 const addCounsel = (newCounsult: any) => {
-  return axios.post("https://swift-flash-alfalfa.glitch.me/posts", newCounsult);
+  return axios.post(`${REVIEW_SERVER}qna`, newCounsult);
 };
 
 export const useAddCounsel = () => {
@@ -40,10 +41,10 @@ export const useAddCounsel = () => {
 // 상담 게시글 불러오기
 
 export const useGetCounselTarget = (id: any) => {
-  const { data } = useQuery(
+  const { data: targetTime } = useQuery(
     ["getCounsels", id],
     () => {
-      return axios.get(`https://swift-flash-alfalfa.glitch.me/posts/${id}`);
+      return axios.get(`${REVIEW_SERVER}qna/${id}`);
     },
     {
       // id가 존재할 때만 실행
@@ -54,35 +55,26 @@ export const useGetCounselTarget = (id: any) => {
       select: (data) => data?.data.createdAt,
     },
   );
-  return { data };
-};
 
-export const useGetCounselList = (targetTime: any) => {
-  const { data, isLoading } = useQuery(
-    "getCounsel",
-    () => {
-      return axios.get(
-        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
-      );
-    },
+  const { data: CounselList } = useQuery(
+    ["infiniteComments", targetTime],
+    async () =>
+      await axios.get(
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+      ),
     {
-      // targetTime이 존재할 때만 실행
       enabled: !!targetTime,
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      cacheTime: 0,
+      select: (data) => data?.data,
     },
   );
 
-  return { data, isLoading };
+  return { CounselList };
 };
+
 // 상담 게시글 수정
 
 const editCounsel = (newCounsel: any) => {
-  return axios.patch(
-    `https://swift-flash-alfalfa.glitch.me/posts/${newCounsel.id}`,
-    newCounsel,
-  );
+  return axios.patch(`${REVIEW_SERVER}qna/${newCounsel.id}`, newCounsel);
 };
 
 export const useEditCounsel = () => {
@@ -106,7 +98,7 @@ export const useEditCounsel = () => {
       console.log(error);
     },
     onSettled() {
-      queryClient.invalidateQueries({ queryKey: ["getCounsel"] });
+      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
     },
   });
 };
@@ -114,9 +106,7 @@ export const useEditCounsel = () => {
 // 상담 게시글 삭제
 
 const deleteCounsel = (targetId: any) => {
-  return axios.delete(
-    `https://swift-flash-alfalfa.glitch.me/posts/${targetId}`,
-  );
+  return axios.delete(`${REVIEW_SERVER}qna/${targetId}`);
 };
 
 export const useDeletCounsel = () => {

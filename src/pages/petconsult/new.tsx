@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useAddCounsel } from "@/hooks/usePetsult";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import { useAddCounsel } from "../../hooks/usePetsult";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { useRouter } from "next/router";
-import { authService } from "@/firebase/firebase";
+import { authService } from "../../firebase/firebase";
 import {
   BackButton,
   CustomHeader,
   HeaderButton,
-} from "@/components/custom/CustomHeader";
+} from "../../components/custom/CustomHeader";
 import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "./[id]";
 import styled from "@emotion/styled";
-import { SubBanner } from "@/components/SubBanner";
+import { SubBanner } from "../../components/SubBanner";
 const short = require("short-uuid");
 
 export interface INewPetsult {
@@ -20,6 +20,7 @@ export interface INewPetsult {
   nickname: any;
   profileImg: any;
   createdAt: number;
+  linkedUser: string[];
 }
 
 const NewPetsult = () => {
@@ -53,6 +54,7 @@ const NewPetsult = () => {
           authService.currentUser?.photoURL ||
           "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
         createdAt: Date.now(),
+        linkedUser: [],
       };
       addCounsel(newCounsel);
 

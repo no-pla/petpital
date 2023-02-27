@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
+import { REVIEW_SERVER } from "../share/server";
 
 interface IReview {
   data: {
@@ -24,7 +25,7 @@ export const useGetReviews = (limit: string) => {
   const { isLoading, data: recentlyReview } = useQuery<IReview>(
     "getrecentlyReview",
     () => {
-      return axios.get(`https://humble-summer-ballcap.glitch.me/posts${limit}`);
+      return axios.get(`${REVIEW_SERVER}posts${limit}`);
     },
   );
   return { recentlyReview, isLoading };

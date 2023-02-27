@@ -12,6 +12,7 @@ import CreateAddModal from "../../components/custom/CreateAddModal";
 import CreatePost from "../../components/CreatePost";
 import EditPost from "../../components/EditPost";
 import { hospitalData } from "../../share/atom";
+import { REVIEW_SERVER } from "../../share/server";
 
 const Container = styled.div`
   width: 1200px;
@@ -242,7 +243,7 @@ function Posts() {
     ["posts", page],
     async (key, page) => {
       const response = await axios.get(
-        `https://humble-summer-ballcap.glitch.me/posts?page=${page}&limit=10`,
+        `${REVIEW_SERVER}posts?page=${page}&limit=10`,
       );
       return response.data.reverse();
     },
@@ -265,7 +266,7 @@ function Posts() {
   const { mutate: updateMutate } = useMutation(
     (data) =>
       axios
-        .put(`https://humble-summer-ballcap.glitch.me/posts/${data.id}`, data)
+        .put(`${REVIEW_SERVER}posts/${data.id}`, data)
         .then((res) => res.data),
     {
       onSuccess: () => {
@@ -321,9 +322,7 @@ function Posts() {
   // 게시글 삭제
   const { mutate: deleteMutate } = useMutation(
     (id) =>
-      axios
-        .delete(`https://humble-summer-ballcap.glitch.me/posts/${id}`)
-        .then((res) => res.data),
+      axios.delete(`${REVIEW_SERVER}/posts/${id}`).then((res) => res.data),
     {
       onSuccess: () => {
         refetchPost();

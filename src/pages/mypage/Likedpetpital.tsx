@@ -5,7 +5,7 @@ import {
   useGetCounselList,
   useGetCounselTarget,
   useGetPetConsult,
-} from "@/hooks/usePetsult";
+} from "../../hooks/usePetsult";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { authService } from "../../firebase/firebase";
@@ -25,7 +25,7 @@ const Likedpetpital = () => {
         petConsult?.data
           .filter((counsel) => myId === counsel.uid)
           .map((counsel) => (
-            <CounselList key={counsel.uid}>
+            <CounselList key={counsel.id}>
               <Counsel onClick={() => router.push(`petconsult/${counsel.id}`)}>
                 <CounselTitle>{counsel.content}</CounselTitle>
               </Counsel>
