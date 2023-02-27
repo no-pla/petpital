@@ -13,6 +13,7 @@ import { MainCustomButton } from "..";
 import { authService } from "../../firebase/firebase";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { REVIEW_SERVER } from "@/share/server";
+import Head from "next/head";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
@@ -137,7 +138,9 @@ function Petconsult() {
   const targetRef = useRef<HTMLDivElement>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [page, setPage] = useState(1);
-  const [review, setReview] = useState<any>([]);
+  const [counselList, setCounselList] = useState<string[]>([]);
+  const [commentList, setCommentList] = useState<string[][]>([]);
+
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
@@ -147,8 +150,30 @@ function Petconsult() {
     },
     {
       keepPreviousData: true,
+      select: (data) => data?.data,
     },
   );
+
+  useEffect(() => {
+    // forEach를 사용하면 이전 작업이 끝나는 것을 기다리고 실행되지 않기 때문에 Promise.all을 사용해주어야 한다.
+    const tempArray: string[] = [];
+
+    if (petConsult) {
+      petConsult.map((counsel: any) => tempArray.push(counsel.id));
+    }
+
+    const promises = tempArray.map(async (counselId) => {
+      return await axios
+        .get(
+          `${REVIEW_SERVER}qnaReview?_sort=createdAt&_order=desc&counselId=${counselId}`,
+        )
+        .then((res) => res.data.slice(0, 2));
+    });
+
+    Promise.all(promises).then((results) => {
+      setCommentList(results);
+    });
+  }, [page, petConsult]);
 
   const onClick = (id: string) => {
     router.push(`petconsult/${id}`);
@@ -209,9 +234,15 @@ function Petconsult() {
       </CustomHeader>
       <CounselContainer ref={targetRef}>
         {!isLoading &&
-          petConsult?.data.map((counsel: any, index: number) => (
+          petConsult?.map((counsel: any, index: number) => (
             <Counsel key={counsel.id}>
               <CounselTitle>{counsel.content}</CounselTitle>
+              <ul>
+                {commentList[index]?.length > 0 &&
+                  commentList[index]?.map((comment: any) => {
+                    return <li key={comment.content}>{comment.content}</li>;
+                  })}
+              </ul>
               <CounselButton onClick={() => onClick(counsel.id)}>
                 답변하러가기
               </CounselButton>
@@ -226,7 +257,7 @@ function Petconsult() {
           &larr;
         </PageButton>
         <PageButton
-          disabled={petConsult?.data.length !== 10 && true}
+          disabled={petConsult?.length !== 10 && true}
           onClick={() => setPage((prev) => prev + 1)}
         >
           &rarr;

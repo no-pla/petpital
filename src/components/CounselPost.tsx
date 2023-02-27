@@ -10,6 +10,23 @@ import React, { useState } from "react";
 import CounselComments, { ManageButtonContainer } from "./CounselComments";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import Image from "next/image";
+
+export const UserProfile = ({ profileLink }: any) => {
+  return (
+    <UserProfileImg>
+      <Image
+        src={profileLink}
+        width={64}
+        height={64}
+        alt={""}
+        loading={"lazy"}
+        sizes="(max-width: 768px) 64px,
+        (max-width: 1200px) 64px"
+      />
+    </UserProfileImg>
+  );
+};
 
 export function getServerSideProps({ query }: any) {
   // if query object was received, return it as a router prop:
@@ -29,6 +46,7 @@ const CounselPost = () => {
   const [openModal, setOpenModal] = useState(false);
   const { mutate: deleteCounsel } = useDeletCounsel();
   const { mutate: editCounsel } = useEditCounsel();
+
   console.log("포스트 리렌더");
 
   const onOpenInput = (targetId: string) => {
@@ -80,7 +98,7 @@ const CounselPost = () => {
             </CopyToClipboard>
             <CounselHeader>
               <CounselInfo>
-                {/* <UserProfileImg counselData={counselData.profileImg} /> */}
+                <UserProfile profileLink={counselData.profileImg} />
                 <UserInfo>
                   <div>{counselData.nickname}</div>
                   <div>
@@ -179,12 +197,12 @@ export const UserInfo = styled.div`
   }
 `;
 
-export const UserProfileImg = styled.img`
+export const UserProfileImg = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  object-fit: cover;
   margin-right: 10px;
+  overflow: hidden;
 `;
 
 const Counsel = styled.div`

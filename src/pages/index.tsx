@@ -26,17 +26,15 @@ export default function Home() {
     limit: "&_limit=3",
   });
 
-  console.log(recentlyReview?.data);
-
   const [page, setPage] = useState(1);
-  const [hospitaListImage, setHospitalImageList] = useState<string[]>([]);
+  const [hospitaListImage, setHospitalImageList] = useState<any>([]);
   const { data: mainPetpial, refetch } = useGetMainHospital(page);
 
   useEffect(() => {
     // 메인 사진을 불러오기 위해 배열에 병원 이름을 저장합니다.
     // 지역명 + 병원 이름이 담긴 배열을 만든다.
-    const tempArray: any[] = [];
-    const newArray: string[] = [];
+
+    const tempArray: string[] = [];
 
     if (mainPetpial?.documents) {
       mainPetpial?.documents.map((place: any) => {
@@ -48,26 +46,24 @@ export default function Home() {
           place.place_name;
         tempArray.push(temp);
       });
-
-      tempArray.forEach((hospital: string) => {
-        axios
-          .get(
-            `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=1&query=${hospital}`,
-            {
-              headers: {
-                Authorization: `KakaoAK ${KAKAO_API_KEY}`,
-              },
-            },
-          )
-          .then((res) => {
-            const link =
-              res?.data.documents[0]?.thumbnail_url === undefined
-                ? "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fno_image_info.svg?alt=media&token=c770159e-01d1-443e-89d9-0e14dea7ebdd"
-                : res?.data.documents[0]?.thumbnail_url;
-            setHospitalImageList((prev) => [...prev, link]);
-          });
-      });
     }
+
+    const promises = tempArray.map(async (hospital) => {
+      const res = await axios.get(
+        `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=1&query=${hospital}`,
+        {
+          headers: {
+            Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+          },
+        },
+      );
+      return res?.data.documents[0]?.thumbnail_url;
+    });
+
+    Promise.all(promises).then((results) => {
+      setHospitalImageList(results);
+    });
+
     // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
   }, [mainPetpial, page, KAKAO_API_KEY]);
 

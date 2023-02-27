@@ -8,6 +8,7 @@ import {
 import styled from "@emotion/styled";
 import { useEffect, useRef, useState } from "react";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
+import { UserProfile } from "./CounselPost";
 
 const short = require("short-uuid");
 
@@ -231,8 +232,8 @@ const CounselComments = ({ target }: any) => {
   return (
     <CounselCommentContainer>
       <CounselCommentForm onSubmit={onSubmit}>
-        <UserProfileImg
-          src={
+        <UserProfile
+          profileLink={
             authService?.currentUser?.photoURL
               ? authService?.currentUser.photoURL
               : "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606"
@@ -247,7 +248,7 @@ const CounselComments = ({ target }: any) => {
               <CounselItem key={comment.id}>
                 <CounselInfo>
                   <div style={{ display: "flex" }}>
-                    <UserProfileImg src={comment.profileImg} />
+                    <UserProfile profileLink={comment.profileImg} />
                     <UserInfo>
                       <div>
                         <div>{comment.nickname}</div>

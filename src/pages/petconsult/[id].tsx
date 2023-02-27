@@ -9,6 +9,7 @@ import {
   HeaderButton,
 } from "../../components/custom/CustomHeader";
 import CounselPost from "../../components/CounselPost";
+import { authService } from "@/firebase/firebase";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -37,10 +38,19 @@ const PetconsultDetail = () => {
   const { mutate: deleteCounsel } = useDeletCounsel();
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
 
-  const onDelete = (id: any) => {
-    setOpenModal((prev: any) => !prev);
-    setTargetId(id);
+  // const onDelete = (id: any) => {
+  //   setOpenModal((prev: any) => !prev);
+  //   setTargetId(id);
+  // };
+
+  const goToNewQnAPage = () => {
+    if (authService.currentUser !== null) {
+      router.push("/petconsult/new");
+    } else {
+      setIsLogin(true);
+    }
   };
 
   const deleteCounselPost = () => {
@@ -54,28 +64,39 @@ const PetconsultDetail = () => {
   console.log("전체페이지 리렌더");
 
   return (
-    <CounselContainer>
-      <CustomHeader>
-        <BackButton onClick={() => router.push("/petconsult")}>
-          &larr; 이전으로
-        </BackButton>
-        <HeaderButton onClick={() => router.push("/petconsult/new")}>
-          질문하기
-        </HeaderButton>
-      </CustomHeader>
-      <CounselPost />
-      {openModal && (
+    <>
+      <CounselContainer>
+        <CustomHeader>
+          <BackButton onClick={() => router.push("/petconsult")}>
+            &larr; 이전으로
+          </BackButton>
+          <HeaderButton onClick={goToNewQnAPage}>질문하기</HeaderButton>
+        </CustomHeader>
+        <CounselPost />
+        {openModal && (
+          <CustomModal
+            modalText1={"입력하신 게시글을"}
+            modalText2={"삭제 하시겠습니까?"}
+          >
+            <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
+              취소
+            </ModalButton>
+            <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
+          </CustomModal>
+        )}
+      </CounselContainer>
+      {isLogin && (
         <CustomModal
-          modalText1={"입력하신 게시글을"}
-          modalText2={"삭제 하시겠습니까?"}
+          modalText1={"회원가입 후"}
+          modalText2={"질문을 남겨보세요!"}
         >
-          <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
-            취소
+          <ModalButton onClick={() => setIsLogin(false)}>취소</ModalButton>
+          <ModalButton onClick={() => router.push("/signup")}>
+            회원가입 하기
           </ModalButton>
-          <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
         </CustomModal>
       )}
-    </CounselContainer>
+    </>
   );
 };
 
