@@ -164,7 +164,13 @@ export default function Home() {
                 onClick={() =>
                   router.push({
                     pathname: "/searchHospital",
-                    query: { hospitalName: petpital.place_name },
+                    // 동일 이름 병원이 많아서 병원 이름 + 주소로 수정
+                    query: {
+                      target:
+                        petpital.place_name +
+                        " " +
+                        petpital.road_address_name.split(" ")[0],
+                    },
                   })
                 }
               >
@@ -210,7 +216,12 @@ export default function Home() {
                 onClick={() =>
                   router.push({
                     pathname: "/searchHospital",
-                    query: { hospitalName: review.hospitalName },
+                    query: {
+                      target:
+                        review.hospitalName +
+                        " " +
+                        review?.hospitalAddress.split(" ")[0],
+                    },
                   })
                 }
                 key={review.id}

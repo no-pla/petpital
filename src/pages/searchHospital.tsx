@@ -1,3 +1,5 @@
+import { useGetReviews } from "@/hooks/useGetReviews";
+import { mainPetpitalList } from "@/share/atom";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import {
@@ -9,7 +11,14 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import {
+  Map,
+  MapMarker,
+  MapTypeControl,
+  Roadview,
+  ZoomControl,
+} from "react-kakao-maps-sdk";
+import { useSetRecoilState } from "recoil";
 
 interface IHospital {
   address_name: string;
@@ -26,6 +35,13 @@ interface IHospital {
   y: string;
 }
 
+/* 
+  1. 로드뷰
+  2. 내 위치 표시
+  3. 스카이뷰 지도 전환 컨트롤
+  4. 페이지네이션
+*/
+
 export function getServerSideProps({ query }: any) {
   // if query object was received, return it as a router prop:
   if (query.id) {
@@ -33,28 +49,32 @@ export function getServerSideProps({ query }: any) {
   }
   // obtain candidateId elsewhere, redirect or fallback to some default value:
   /* ... */
-  return { props: { router: { query: { target: "target", id: "id" } } } };
+  return { props: { router: { query: { target: "target", placeId: "id" } } } };
 }
 
 const SearchHospital = () => {
   const router = useRouter();
   const {
-    query: { target, hospitalName, id },
+    query: { target, hospitalName, placeId },
   } = router;
   const [place, setPlace] = useState<string | string[]>("");
   const [info, setInfo] = useState<any>();
   const [markers, setMarkers] = useState<any>([]);
   const [map, setMap] = useState<any>();
+
   const [hospitalList, setHospitalList] = useState<any>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [targetHospitalData, setTargetHospitalData] = useState<any>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
+  const { recentlyReview, isLoading } = useGetReviews("");
+
+  const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
   const Input = () => {
     return (
       <SearchInput
         ref={targetHospital}
-        placeholder="동물병원을 입력해 보세요."
+        placeholder="찾으실 동물병원의 (시)도 + 구 + 읍(면,동)을 입력하세요"
         type="text"
         autoFocus
         defaultValue={place}
@@ -62,29 +82,27 @@ const SearchHospital = () => {
     );
   };
 
-  // 헤더로 통해 들어가면 2번째 open x
   useEffect(() => {
-    // 최초 1번과 target이 바뀔 때마다 재실행
+    // 상세 페이지 열면 hospitalId => 병원 공유 통해서 들어왔을 때 or 병원 클릭 시
     if (hospitalName) {
       setPlace(hospitalName);
-      setIsDetailOpen(true);
     }
-    if (target !== undefined) {
-      setPlace(target);
-    }
-  }, [target, hospitalName]);
-  // console.log(hospitalName);
+  }, []);
 
   useEffect(() => {
+    if (target) {
+      // 메인 화면 병원 클릭 / 리뷰 클릭 시 / 헤더 통한 검색 / 검색 => target
+      // 검색 데이터가 존재하면 place에 저장
+      setPlace(target);
+    }
     if (!map) return;
     const ps = new kakao.maps.services.Places();
-
+    // 키워드에 맞는 동물병원 표시
     ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
       if (data.length === 0) {
         setHospitalList([]);
         setPlace("");
       }
-      Pagnation(pagination);
 
       if (status === kakao.maps.services.Status.OK) {
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
@@ -99,7 +117,6 @@ const SearchHospital = () => {
 
         data.forEach((marker) => {
           tempArray.push(marker);
-          // setHospitalList((prev: any) => [...prev, marker]);
           markers.push({
             position: {
               lat: marker.y,
@@ -117,10 +134,6 @@ const SearchHospital = () => {
     });
   }, [target, place, map]);
 
-  const Pagnation = (pagination: any) => {
-    console.log("pagination", pagination);
-  };
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (targetHospital.current?.value === "") {
@@ -129,18 +142,34 @@ const SearchHospital = () => {
     } else if (targetHospital.current?.value !== undefined) {
       setIsDetailOpen(false);
       setPlace(targetHospital.current?.value);
+      router.push({
+        pathname: "/searchHospital",
+        query: {
+          target: targetHospital.current?.value,
+        },
+      });
     }
   };
 
-  const onClick = (id: string, targetHospital: IHospital) => {
+  const onClick = (targetHospital: IHospital) => {
     // 병원 이름만 적으려 했으나 동일 이름의 병원이 존재해 placeName=[병원이름]&id[placeId]로 설정
-    window.history.replaceState(
-      window.history.state,
-      "",
-      window.location.pathname + "?hospitalName=" + id,
+    router.push(
+      {
+        pathname: "/searchHospital",
+        query: {
+          hospitalName: targetHospital.place_name,
+          placeId: targetHospital.id,
+        },
+      },
+      undefined,
+      { shallow: true },
     );
     setIsDetailOpen(true);
     setTargetHospitalData(targetHospital);
+  };
+
+  const onClickWriteButton = () => {
+    console.log(placeId);
   };
 
   return (
@@ -157,37 +186,57 @@ const SearchHospital = () => {
         level={3}
         onCreate={setMap}
       >
-        <>
-          <BoardContainer>
-            <HospitalListContainer>
-              <SearchForm onSubmit={onSubmit}>
-                <Input />
-              </SearchForm>
-              {hospitalList.length > 0
-                ? hospitalList.map((hospital: IHospital) => {
+        <BoardContainer>
+          <DashBoard>
+            <SearchForm onSubmit={onSubmit}>
+              <Input />
+            </SearchForm>
+            {hospitalList.length > 0
+              ? // 1번째 대시보드
+                hospitalList.map((hospital: IHospital) => {
+                  return (
+                    <div key={hospital.id} onClick={() => onClick(hospital)}>
+                      {hospital.place_name}
+                    </div>
+                  );
+                })
+              : "데이터가 없습니다."}
+          </DashBoard>
+          {isDetailOpen && (
+            // 2번째 대시보드
+            <DashBoard>
+              <div>{targetHospitalData.place_name}</div>
+              <Roadview // 로드뷰를 표시할 Container
+                position={{
+                  // 지도의 중심좌표
+                  lat: targetHospitalData.y,
+                  lng: targetHospitalData.x,
+                  radius: 50,
+                }}
+                style={{
+                  // 지도의 크기
+                  width: "100%",
+                  height: "450px",
+                }}
+              />
+              <button onClick={onClickWriteButton}>댓글 달기</button>
+              {!isLoading &&
+                recentlyReview?.data
+                  .filter(
+                    (target) => target.hospitalId === targetHospitalData.id,
+                  )
+                  .map((review) => {
                     return (
-                      <div
-                        key={hospital.id}
-                        onClick={() =>
-                          onClick(
-                            hospital.place_name + "&id=" + hospital.id,
-                            hospital,
-                          )
-                        }
-                      >
-                        {hospital.place_name}
+                      <div key={review.id}>
+                        <div key={review.id}>{review.title}</div>
+                        <div></div>
                       </div>
                     );
-                  })
-                : "데이터가 없습니다."}
-            </HospitalListContainer>
-            {isDetailOpen && (
-              <HospitalDetailListContainer>
-                {targetHospitalData.place_name}
-              </HospitalDetailListContainer>
-            )}
-          </BoardContainer>
-        </>
+                  })}
+            </DashBoard>
+          )}
+        </BoardContainer>
+        {/* 마커 표시 */}
         {markers.map(
           (marker: {
             content:
@@ -217,6 +266,20 @@ const SearchHospital = () => {
   );
 };
 
+const ViewContreoler = styled.div`
+  margin-top: 800px;
+`;
+
+const DashBoard = styled.div`
+  width: 375px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid gray;
+  padding-top: 60px;
+  /* display: none; */
+`;
+
 const BoardContainer = styled.div`
   display: flex;
   position: fixed;
@@ -224,30 +287,8 @@ const BoardContainer = styled.div`
   z-index: 50;
 `;
 
-const HospitalDetailListContainer = styled.div`
-  z-index: 50;
-  width: 33vw;
-  max-width: 375px;
-  height: 100vh;
-  margin: 60px 0 50px 0;
-  background: #ffffff;
-  box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid gray;
-`;
-
 const MapContainer = styled.div`
   position: relative;
-`;
-
-const HospitalListContainer = styled.div`
-  z-index: 50;
-  width: 33vw;
-  max-width: 375px;
-  height: 100vh;
-  top: 0;
-  margin: 60px 0 50px 0;
-  background: #ffffff;
-  box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const SearchForm = styled.form`
