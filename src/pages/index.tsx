@@ -28,6 +28,7 @@ export default function Home() {
 
   const [page, setPage] = useState(1);
   const [hospitaListImage, setHospitalImageList] = useState<any>([]);
+  const [arverageCost, setAverageCost] = useState<any>();
   const { data: mainPetpial, refetch } = useGetMainHospital(page);
 
   useEffect(() => {
@@ -35,6 +36,8 @@ export default function Home() {
     // 지역명 + 병원 이름이 담긴 배열을 만든다.
 
     const tempArray: string[] = [];
+    const idArray: any[] = [];
+    // const tempCostArray: any[] | PromiseLike<any[]> = [];
 
     if (mainPetpial?.documents) {
       mainPetpial?.documents.map((place: any) => {
@@ -44,10 +47,13 @@ export default function Home() {
           place.address_name.split(" ")[1] +
           " " +
           place.place_name;
+        // console.log(temp2.id);
+        idArray.push(place.id);
         tempArray.push(temp);
       });
     }
-
+    // promise.all을 사용해서 전부 실행이 끝난 다음에 실행시킨다.
+    // 지금까지 매번 다른 데이터가 떴던 이유: tempArray에 모든 데이터를 담기 전에 바로 axios를 싱행했기 때문
     const promises = tempArray.map(async (hospital) => {
       const res = await axios.get(
         `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=1&query=${hospital}`,
@@ -60,8 +66,42 @@ export default function Home() {
       return res?.data.documents[0]?.thumbnail_url;
     });
 
-    Promise.all(promises).then((results) => {
+    // 금액 정보 가져오기
+    const promiseCosts = idArray.map(async (hospital) => {
+      const tempCostArray: any[] | PromiseLike<any[]> = [];
+
+      await axios
+        .get(`https://gabby-denim-trout.glitch.me/posts?hospitalId=${hospital}`)
+        .then((res) =>
+          res.data.map((data: any) => {
+            tempCostArray.push(+data.totalCost);
+          }),
+        );
+      return tempCostArray;
+    });
+
+    Promise.all(promises).then(async (results) => {
       setHospitalImageList(results);
+    });
+
+    Promise.all(promiseCosts).then(async (results) => {
+      const tempArray: (string | number)[] = [];
+      results.forEach((cost) => {
+        if (cost.length > 0) {
+          if (Math.max(...cost) === Math.min(...cost)) {
+            tempArray.push(Math.max(...cost).toLocaleString("ko-KR"));
+          } else {
+            tempArray.push(
+              Math.min(...cost).toLocaleString("ko-KR") +
+                "~" +
+                Math.max(...cost).toLocaleString("ko-KR"),
+            );
+          }
+        } else {
+          tempArray.push("정보 없음");
+        }
+      });
+      setAverageCost(tempArray);
     });
 
     // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
@@ -93,7 +133,7 @@ export default function Home() {
             <br />
             리뷰도 확인해보세요
           </PetpitalSubTitle>
-          <MainCustomButton onClick={() => router.push("/searchMap")}>
+          <MainCustomButton onClick={() => router.push("/searchHospital")}>
             병원검색 하러가기
           </MainCustomButton>
         </MainBanner>
@@ -123,8 +163,14 @@ export default function Home() {
                 key={petpital.id}
                 onClick={() =>
                   router.push({
-                    pathname: "/searchMap",
-                    query: { target: petpital.place_name },
+                    pathname: "/searchHospital",
+                    // 동일 이름 병원이 많아서 병원 이름 + 주소로 수정
+                    query: {
+                      target:
+                        petpital.place_name +
+                        " " +
+                        petpital.road_address_name.split(" ")[0],
+                    },
                   })
                 }
               >
@@ -150,9 +196,7 @@ export default function Home() {
                       " " +
                       petpital.road_address_name.split(" ")[1]}
                 </BestPetpitalAddress>
-                <BestPetpitalCost>
-                  {petpital.phone || "정보 없음"}
-                </BestPetpitalCost>
+                <BestPetpitalCost>{arverageCost[index]}</BestPetpitalCost>
               </BestPetpitalItem>
             );
           })}
@@ -169,7 +213,17 @@ export default function Home() {
           {recentlyReview?.data.map((review) => {
             return (
               <CurrentReview
-                onClick={() => router.push("/searchMap")}
+                onClick={() =>
+                  router.push({
+                    pathname: "/searchHospital",
+                    query: {
+                      target:
+                        review.hospitalName +
+                        " " +
+                        review?.hospitalAddress.split(" ")[0],
+                    },
+                  })
+                }
                 key={review.id}
               >
                 <CurrentImageContainer>
@@ -182,9 +236,9 @@ export default function Home() {
                       {review.hospitalName}
                     </CurrentReviewPetpitalName>
                     <CurrentReviewPetpitalAddress>
-                      {/* {review?.hospitalAddress.split(" ")[0] +
+                      {review?.hospitalAddress.split(" ")[0] +
                         " " +
-                        review?.hospitalAddress.split(" ")[1]} */}
+                        review?.hospitalAddress.split(" ")[1]}
                     </CurrentReviewPetpitalAddress>
                   </CurrentReviewPetpitalDesc>
                   <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
@@ -304,6 +358,9 @@ const BestPetpitalAddress = styled.div`
   font-size: 0.8rem;
 `;
 const BestPetpitalCost = styled.div`
+  &::before {
+    content: "진료비 ";
+  }
   padding: 6px;
   font-size: 1rem;
   border-radius: 0 0 4px 4px;
