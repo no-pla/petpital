@@ -387,7 +387,6 @@ function Posts() {
           <button onClick={CloseCreatePost}>close</button>
         </CreateAddModal>
       )}
-      <div id="myMap" style={{ width: "500px", height: "400px" }}></div>
       <InfoContainer>
         <InformationBox>
           <div>

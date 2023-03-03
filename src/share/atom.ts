@@ -21,9 +21,10 @@ export const currentUserUid = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export const isModalOpenState = atom({
-  key: "isModalOpenState",
+export const modalState = atom({
+  key: "modalState",
   default: false,
+  effects_UNSTABLE: [persistAtom],
 });
 
 // 모달을 전역으로 관리해라!

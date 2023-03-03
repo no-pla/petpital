@@ -22,11 +22,12 @@ interface IReview {
 }
 
 export const useGetReviews = (limit: string) => {
-  const { isLoading, data: recentlyReview } = useQuery<IReview>(
-    "getrecentlyReview",
-    () => {
-      return axios.get(`${REVIEW_SERVER}posts${limit}`);
-    },
-  );
-  return { recentlyReview, isLoading };
+  const {
+    isLoading,
+    data: recentlyReview,
+    refetch: recentlyRefetch,
+  } = useQuery<IReview>("getrecentlyReview", () => {
+    return axios.get(`${REVIEW_SERVER}posts${limit}`);
+  });
+  return { recentlyReview, isLoading, recentlyRefetch };
 };
