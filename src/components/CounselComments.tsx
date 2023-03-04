@@ -12,50 +12,31 @@ import { UserProfile } from "./CounselPost";
 
 const short = require("short-uuid");
 
-const CoComent = ({ cocoment, comment, index }: any) => {
-  const { mutate: editComment } = useEditCounselComment();
-
-  const DeleteCoComent = (comment: any, cocomment: any) => {
-    const newCommentObj = {
-      ...comment,
-      cocoment: comment.cocoment.filter(
-        (target: any) => target.commentId !== cocomment.commentId,
-      ),
-    };
-    editComment(newCommentObj);
+interface IComment {
+  comment: {
+    cocoment: {
+      commentId: string;
+      content: string;
+      createdAt: string;
+      id: string;
+      nickname: string;
+      profileImage: string;
+      targetNickname: string;
+      uid: string;
+    }[];
+    content: string;
+    counselId: string;
+    createdAt: number;
+    id: string;
+    nickname: string;
+    profileImg: string;
+    uid: string;
   };
-  return (
-    <>
-      <CocomentItem key={cocoment.commentId}>
-        <UserProfileImg src={cocoment.profileImage} />
-        <UserInfo>
-          <div>
-            <div>{cocoment.nickname}</div>
-            <div>{cocoment.createdAt}</div>
-          </div>
-          <div>
-            {authService.currentUser?.displayName !== cocoment.targetNickname &&
-              "@" + cocoment.targetNickname + " "}
-            {cocoment.content}
-          </div>
-        </UserInfo>
-      </CocomentItem>
-      {cocoment.uid === authService.currentUser?.uid && (
-        <ManageButtonContainer>
-          <button onClick={() => DeleteCoComent(comment, cocoment)}>
-            삭제
-          </button>
-        </ManageButtonContainer>
-      )}
-    </>
-  );
-};
+}
 
 const CounselComments = ({ target }: any) => {
   const [isOpen, setIsOpen] = useState<boolean[]>([]);
   const [isOpenComment, setIsOpenComment] = useState<boolean[]>([]);
-  const [openModal, setOpenModal] = useState(false);
-  const [targetId, setTargetId] = useState("");
   const [emptyComment, setEmptyComment] = useState(false);
   const { mutate: addNewComment } = useAddCounselComment();
   const { mutate: editComment } = useEditCounselComment();
@@ -64,18 +45,20 @@ const CounselComments = ({ target }: any) => {
   const newCommentRef = useRef<HTMLInputElement>(null);
   const newEditCommentRef = useRef<HTMLInputElement>(null);
   const newCoCommentRef = useRef<HTMLInputElement>(null);
+  const newEditCoCommentRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 리뷰 개별 수정 가능하기 위해 추가
-    if (commentList?.data) {
-      for (let i = 0; i < commentList.data.length; i++) {
-        setIsOpen((prev) => [...prev, false]);
-        setIsOpenComment((prev) => [...prev, false]);
-      }
-    }
+    // if (commentList?.data) {
+    //   for (let i = 0; i < commentList.data.length; i++) {
+    //     setIsOpen((prev) => [...prev, false]);
+    //     setIsOpenComment((prev) => [...prev, false]);
+    //   }
+    // }
   }, [commentList]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    // 새로운 코맨트 작성
     event.preventDefault();
 
     if (newCommentRef.current?.value === "") {
@@ -95,32 +78,6 @@ const CounselComments = ({ target }: any) => {
         cocoment: [],
       };
       addNewComment(newComment);
-    }
-  };
-
-  const onDelete = (id: string) => {
-    setOpenModal((prev) => !prev);
-    setTargetId(id);
-  };
-
-  const deleteReview = () => {
-    setOpenModal((prev) => !prev);
-    deleteComment(targetId);
-  };
-
-  const onSumbitNewComment = (
-    event: React.FormEvent<HTMLFormElement>,
-    index: number,
-    comment: any,
-  ) => {
-    event.preventDefault();
-    if (newEditCommentRef?.current?.value === "") {
-      setEmptyComment((prev) => !prev);
-    } else {
-      const newArray = [...isOpen];
-      newArray[index] = false;
-      setIsOpen(newArray);
-      editComment({ ...comment, content: newEditCommentRef?.current?.value });
     }
   };
 
@@ -166,6 +123,10 @@ const CounselComments = ({ target }: any) => {
     return <CounselEditInput ref={newEditCommentRef} placeholder={comment} />;
   };
 
+  const EditCoCommentInput = () => {
+    return <CounselEditInput ref={newEditCoCommentRef} />;
+  };
+
   const CoCommentInput = () => {
     return (
       <CounselEditInput
@@ -178,7 +139,6 @@ const CounselComments = ({ target }: any) => {
   const onSubmitCoComent = (
     event: React.FormEvent<HTMLFormElement>,
     comment: any,
-    index: number,
   ) => {
     event.preventDefault();
 
@@ -205,29 +165,227 @@ const CounselComments = ({ target }: any) => {
       return;
     } else {
       editComment(cocomentObj);
-      isOpenComment[index] = false;
+      // isOpenComment[index] = false;
     }
   };
 
-  // const EditCoComent = (
-  //   comment: any,
-  //   targetCocoment: any,
-  //   newComment: string,
-  // ) => {
-  //   const newCommentObj = {
-  //     ...comment,
-  //     cocoment: [
-  //       ...comment.cocoment.filter(
-  //         (a: any) => a.commentId !== targetCocoment.commentId,
-  //       ),
-  //       {
-  //         ...targetCocoment,
-  //         content: newComment,
-  //       },
-  //     ],
-  //   };
-  //   editComment(newCommentObj);
-  // };
+  const EditCoComent = async (
+    comment: any,
+    targetCocoment: any,
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const idx = comment.cocoment.findIndex(
+      (target: any) => target.commentId === targetCocoment.commentId,
+    );
+    if (newEditCoCommentRef.current?.value !== "") {
+      console.log();
+      // data.findIndex((item) => item.id === idToFind);
+
+      const newCommentObj = {
+        ...comment,
+        cocoment: [
+          ...comment.cocoment.slice(0, idx),
+          {
+            ...targetCocoment,
+            content: newEditCoCommentRef.current?.value,
+          },
+          ...comment.cocoment.slice(idx + 1),
+        ],
+      };
+      // console.log(newCommentObj);
+      await editComment(newCommentObj);
+    }
+  };
+
+  const Comment = ({ comment }: IComment) => {
+    const [isEdit, setIsEdit] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [targetId, setTargetId] = useState("");
+
+    // 삭제
+    const deleteReview = async () => {
+      setOpenModal((prev) => !prev);
+      await deleteComment(targetId);
+    };
+
+    const onDelete = (id: string) => {
+      setOpenModal((prev) => !prev);
+      setTargetId(id);
+    };
+
+    // 수정
+    const onSumbitNewComment = (
+      event: React.FormEvent<HTMLFormElement>,
+      comment: any,
+    ) => {
+      // 코멘트 수정
+      event.preventDefault();
+      if (newEditCommentRef?.current?.value === "") {
+        // setEmptyComment((prev) => !prev);
+      } else {
+        editComment({ ...comment, content: newEditCommentRef?.current?.value });
+      }
+    };
+
+    return (
+      <div>
+        {comment.counselId === target && (
+          <>
+            {isEdit ? (
+              <form onSubmit={(event) => onSumbitNewComment(event, comment)}>
+                <EditCommentInput comment={comment.content} />
+                <button
+                  type="button"
+                  onClick={() => setIsEdit((prev) => !prev)}
+                >
+                  수정 취소
+                </button>
+                <button>작성</button>
+              </form>
+            ) : (
+              <>
+                <div>{comment.content}</div>
+                <button onClick={() => setIsEdit((prev) => !prev)}>
+                  댓글수정
+                </button>
+                <button onClick={() => onDelete(comment.id)}>댓글삭제</button>
+              </>
+            )}
+            <CoComment key={comment.id} comment={comment} />
+            {openModal && (
+              <CustomModal
+                modalText1={"입력하신 댓글을"}
+                modalText2={"삭제 하시겠습니까?"}
+              >
+                <ModalButton onClick={() => setOpenModal((prev) => !prev)}>
+                  취소
+                </ModalButton>
+                <ModalButton onClick={deleteReview}>삭제</ModalButton>
+              </CustomModal>
+            )}
+            {emptyComment && (
+              <CustomModal
+                modalText1={"내용이 비어있습니다."}
+                modalText2={"댓글은 최소 1글자 이상 채워주세요."}
+              >
+                <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
+                  닫기
+                </ModalButton>
+              </CustomModal>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const CoComment = ({ comment }: IComment) => {
+    // 대댓글
+    const [openModal, setOpenModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+    const [target, setTarget] = useState("");
+
+    return (
+      <>
+        {isEdit ? (
+          <>
+            <form onSubmit={(event) => onSubmitCoComent(event, comment)}>
+              <CoCommentInput />
+            </form>
+            <button onClick={() => setIsEdit((prev) => !prev)}>
+              대대댓 등록 닫기
+            </button>
+          </>
+        ) : (
+          <button onClick={() => setIsEdit((prev) => !prev)}>
+            대댓 작성 버튼
+          </button>
+        )}
+
+        {comment.cocoment.map((cocomentItem: any) => {
+          return (
+            <CoComentForm
+              key={cocomentItem.commentId}
+              comment={{ ...comment, cocomentItem }}
+              cocomentItem={cocomentItem}
+            />
+          );
+        })}
+      </>
+    );
+  };
+
+  const CoComentForm = ({ comment, cocomentItem }: any) => {
+    const [isEdit, setIsEdit] = useState(false);
+    const [target, setTarget] = useState("");
+    const [openModal, setOpenModal] = useState(false);
+
+    const deleteCoComent = (comment: any, id: any) => {
+      const newCommentObj = {
+        ...comment,
+        cocoment: comment.cocoment.filter((test: any) => test.commentId !== id),
+      };
+      editComment(newCommentObj);
+    };
+    const onDelete = async (id: string) => {
+      setTarget(id);
+      setOpenModal((prev) => !prev);
+    };
+
+    return (
+      <>
+        {!isEdit ? (
+          <div>
+            <div>대댓입니다 ----- {cocomentItem.content}</div>
+            <button onClick={() => setIsEdit((prev) => !prev)}>
+              대댓수정하기
+            </button>
+            <button onClick={() => onDelete(cocomentItem.commentId)}>
+              삭제대댓삭제
+            </button>
+          </div>
+        ) : (
+          <div>
+            <form
+              onSubmit={(event) => EditCoComent(comment, cocomentItem, event)}
+            >
+              <EditCoCommentInput />
+              {/* <button onClick={() => onDelete(coco.commentId)}>
+                삭제대댓삭제
+              </button>{" "} */}
+            </form>
+            <button onClick={() => setIsEdit((prev) => !prev)}>
+              수정취소하기
+            </button>
+          </div>
+        )}
+        {openModal && (
+          <CustomModal
+            modalText1={"입력하신 댓글을"}
+            modalText2={"삭제 하시겠습니까?"}
+          >
+            <ModalButton onClick={() => setOpenModal((prev) => !prev)}>
+              취소
+            </ModalButton>
+            <ModalButton onClick={() => deleteCoComent(comment, target)}>
+              삭제
+            </ModalButton>
+          </CustomModal>
+        )}
+        {emptyComment && (
+          <CustomModal
+            modalText1={"내용이 비어있습니다."}
+            modalText2={"댓글은 최소 1글자 이상 채워주세요."}
+          >
+            <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
+              닫기
+            </ModalButton>
+          </CustomModal>
+        )}
+      </>
+    );
+  };
 
   return (
     <CounselCommentContainer>
@@ -241,122 +399,11 @@ const CounselComments = ({ target }: any) => {
         />
         <NewCommentInput />
       </CounselCommentForm>
-      <CounselLists>
-        {commentList?.data?.map((comment: any, index: any) => {
-          return (
-            comment.counselId === target && (
-              <CounselItem key={comment.id}>
-                <CounselInfo>
-                  <div style={{ display: "flex" }}>
-                    <UserProfile profileLink={comment.profileImg} />
-                    <UserInfo>
-                      <div>
-                        <div>{comment.nickname}</div>
-                        <div>
-                          {new Date(comment.createdAt).toLocaleDateString(
-                            "ko-Kr",
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        {!isOpen[index] ? (
-                          <div>{comment.content}</div>
-                        ) : (
-                          <CounselCommentForm
-                            onSubmit={(event) =>
-                              onSumbitNewComment(event, index, comment)
-                            }
-                          >
-                            <EditCommentInput comment={comment.content} />
-                            <button type="submit">등록하기</button>
-                            <button
-                              type="button"
-                              onClick={() => closeIpt(index)}
-                            >
-                              취소하기
-                            </button>
-                          </CounselCommentForm>
-                        )}
-                      </div>
-                    </UserInfo>
-                  </div>
-                  {comment.uid === authService.currentUser?.uid && (
-                    <ManageButtonContainer>
-                      {!isOpen[index] && (
-                        <>
-                          <button onClick={() => onDelete(comment.id)}>
-                            삭제
-                          </button>
-                          <button onClick={() => openIpt(index)}>수정</button>
-                        </>
-                      )}
-                    </ManageButtonContainer>
-                  )}
-                </CounselInfo>
-                <div style={{ display: "flex", gap: "12px" }}>
-                  {!isOpenComment[index] && (
-                    <CoComentButton onClick={() => openCoComentIpt([index])}>
-                      답글
-                    </CoComentButton>
-                  )}
-                </div>
-                <div>
-                  {isOpenComment[index] && (
-                    <CounselCommentForm
-                      onSubmit={(event) =>
-                        onSubmitCoComent(event, comment, index)
-                      }
-                    >
-                      <CoCommentInput />
-                      <button type="submit">등록하기</button>
-                      <button
-                        type="button"
-                        onClick={() => closeCoComentIpt(index)}
-                      >
-                        취소하기
-                      </button>
-                    </CounselCommentForm>
-                  )}
-                </div>
-                <CocomentContainer>
-                  {comment?.cocoment?.length > 0 &&
-                    comment?.cocoment?.map((cocoment: any) => {
-                      return (
-                        <CoComent
-                          key={cocoment.commentId}
-                          cocoment={cocoment}
-                          comment={comment}
-                          index={index}
-                        />
-                      );
-                    })}
-                </CocomentContainer>
-              </CounselItem>
-            )
-          );
+      <div>
+        {commentList?.data?.map((comment: any) => {
+          return <Comment key={comment.id} comment={comment} />;
         })}
-      </CounselLists>
-      {openModal && (
-        <CustomModal
-          modalText1={"입력하신 댓글을"}
-          modalText2={"삭제 하시겠습니까?"}
-        >
-          <ModalButton onClick={() => setOpenModal((prev) => !prev)}>
-            취소
-          </ModalButton>
-          <ModalButton onClick={deleteReview}>삭제</ModalButton>
-        </CustomModal>
-      )}
-      {emptyComment && (
-        <CustomModal
-          modalText1={"내용이 비어있습니다."}
-          modalText2={"댓글은 최소 1글자 이상 채워주세요."}
-        >
-          <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
-            닫기
-          </ModalButton>
-        </CustomModal>
-      )}
+      </div>
     </CounselCommentContainer>
   );
 };
