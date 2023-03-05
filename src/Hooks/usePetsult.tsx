@@ -4,7 +4,6 @@ import { REVIEW_SERVER } from "../share/server";
 
 // 타입 지정
 interface INewPetsult {
-  filter(arg0: (log: any) => void): INewPetsult;
   data: {
     id: string;
     content: any;
@@ -106,6 +105,7 @@ export const useEditCounsel = () => {
 // 상담 게시글 삭제
 
 const deleteCounsel = (targetId: any) => {
+  console.log("deleteCOunsel");
   return axios.delete(`${REVIEW_SERVER}qna/${targetId}`);
 };
 
@@ -116,17 +116,18 @@ export const useDeletCounsel = () => {
     mutationFn: deleteCounsel,
     mutationKey: ["getCounsel"],
     onMutate: async (newCounsel) => {
-      // mutation 취소
+      //     // mutation 취소
       await queryClient.cancelQueries({ queryKey: ["getCounsel"] });
       const oldCounsel = queryClient.getQueriesData(["getCounsel"]);
       queryClient.setQueriesData(["getCounsel"], newCounsel);
       return { oldCounsel, newCounsel };
-      // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
-      // 낙관적 업데이트를 통해 캐시 수정
+      //     // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
+      //     // 낙관적 업데이트를 통해 캐시 수정
     },
     onSuccess(data, variables, context) {
       // 성공 시 실행
-      // console.log("성공");
+      console.log("성공");
+      queryClient.invalidateQueries(["pagnationCounsel"]);
     },
     onError: (error, newCounsel, context) => {
       // 실패 시 실행. 롤백을 해주어야 함
@@ -135,7 +136,7 @@ export const useDeletCounsel = () => {
     },
     onSettled: () => {
       // 무조건 실행
-      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
+      queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
     },
   });
 };

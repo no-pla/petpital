@@ -144,12 +144,12 @@ function Petconsult() {
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
+      console.log("pagnationCounsel");
       return axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {
-      keepPreviousData: true,
       select: (data) => data?.data,
     },
   );

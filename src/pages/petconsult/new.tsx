@@ -56,7 +56,7 @@ const NewPetsult = () => {
         createdAt: Date.now(),
         linkedUser: [],
       };
-      addCounsel(newCounsel);
+      await addCounsel(newCounsel);
 
       router.push(`/petconsult/${newCounsel.id}`);
     }
