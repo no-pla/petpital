@@ -1,6 +1,8 @@
 import { useGetReviews } from "@/hooks/useGetReviews";
 import { mainPetpitalList } from "@/share/atom";
+import { REVIEW_SERVER } from "@/share/server";
 import styled from "@emotion/styled";
+import axios from "axios";
 import { useRouter } from "next/router";
 import {
   ReactElement,
@@ -49,13 +51,23 @@ export function getServerSideProps({ query }: any) {
   }
   // obtain candidateId elsewhere, redirect or fallback to some default value:
   /* ... */
-  return { props: { router: { query: { target: "target", placeId: "id" } } } };
+  return {
+    props: {
+      router: {
+        query: {
+          target: "target",
+          placeId: "id",
+          hospitalName: "hospitalName",
+        },
+      },
+    },
+  };
 }
 
 const SearchHospital = () => {
   const router = useRouter();
   const {
-    query: { target, hospitalName, placeId },
+    query: { target, hospitalName, placeId, search },
   } = router;
   const [place, setPlace] = useState<string | string[]>("");
   const [info, setInfo] = useState<any>();
@@ -65,10 +77,51 @@ const SearchHospital = () => {
   const [hospitalList, setHospitalList] = useState<any>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [targetHospitalData, setTargetHospitalData] = useState<any>([]);
+  const [hospitalRate, setHospitalRate] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
   const { recentlyReview, isLoading } = useGetReviews("");
+  const [state, setState] = useState({
+    center: {
+      lat: 33.450701,
+      lng: 126.570667,
+    },
+    errMsg: null,
+    isLoading: true,
+  });
 
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      // GeoLocation을 이용해서 접속 위치를 얻어옵니다
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setState((prev) => ({
+            ...prev,
+            center: {
+              lat: position.coords.latitude, // 위도
+              lng: position.coords.longitude, // 경도
+            },
+            isLoading: false,
+          }));
+        },
+        (err) => {
+          setState((prev: any) => ({
+            ...prev,
+            errMsg: err.message,
+            isLoading: false,
+          }));
+        },
+      );
+    } else {
+      // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
+      setState((prev: any) => ({
+        ...prev,
+        errMsg: "geolocation을 사용할수 없어요..",
+        isLoading: false,
+      }));
+    }
+  }, []);
 
   const Input = () => {
     return (
@@ -84,26 +137,27 @@ const SearchHospital = () => {
 
   useEffect(() => {
     // 상세 페이지 열면 hospitalId => 병원 공유 통해서 들어왔을 때 or 병원 클릭 시
-    if (hospitalName) {
+    if (hospitalName && placeId) {
       setPlace(hospitalName);
+      setIsDetailOpen(true);
     }
-  }, []);
 
-  useEffect(() => {
-    if (target) {
-      // 메인 화면 병원 클릭 / 리뷰 클릭 시 / 헤더 통한 검색 / 검색 => target
-      // 검색 데이터가 존재하면 place에 저장
-      setPlace(target);
-    }
     if (!map) return;
+    if (!hospitalName) return;
     const ps = new kakao.maps.services.Places();
     // 키워드에 맞는 동물병원 표시
-    ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
+    ps.keywordSearch(hospitalName, (data, status, pagination) => {
       if (data.length === 0) {
         setHospitalList([]);
         setPlace("");
+      } else if (data.length === 1) {
+        setTargetHospitalData(data[0]);
+      } else if (data.length > 1) {
+        setTargetHospitalData(
+          data.filter((target: any) => target.id === placeId)[0],
+        );
+        // setTargetHospitalData();
       }
-
       if (status === kakao.maps.services.Status.OK) {
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
         // LatLngBounds 객체에 좌표를 추가합니다
@@ -132,7 +186,102 @@ const SearchHospital = () => {
         map.setBounds(bounds);
       }
     });
+  }, [map]);
+
+  useEffect(() => {
+    // 병원을 검색했을 때 실행
+    if (target) {
+      setPlace(target);
+    }
+    if (!place) return;
+    if (!map) return;
+    const ps = new kakao.maps.services.Places();
+    // 키워드에 맞는 동물병원 표시
+    ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
+      if (data.length === 0) {
+        setHospitalList([]);
+        setPlace("");
+      }
+      if (status === kakao.maps.services.Status.OK) {
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+        // LatLngBounds 객체에 좌표를 추가합니다
+        const bounds = new kakao.maps.LatLngBounds();
+        let markers: {
+          position: { lat: string; lng: string };
+          content: string;
+        }[] = [];
+        const tempArray: any = [];
+        data.forEach((marker) => {
+          tempArray.push(marker);
+          markers.push({
+            position: {
+              lat: marker.y,
+              lng: marker.x,
+            },
+            content: marker.place_name,
+          });
+          bounds.extend(new kakao.maps.LatLng(+marker.y, +marker.x));
+        });
+        setMarkers(markers);
+        setHospitalList(tempArray);
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+        map.setBounds(bounds);
+      }
+    });
   }, [target, place, map]);
+
+  useEffect(() => {
+    const tempArray: any[] = [];
+    const tempDataArray: any[] = [];
+    // 병원 아이디 가져오기
+
+    hospitalList.map((hospital: IHospital) => {
+      tempArray.push(hospital.id);
+    });
+
+    // 병원 데이터 가져오기
+    const promises = tempArray.map(async (hospital) => {
+      const costArray: any[] | PromiseLike<any[]> = [];
+      await axios
+        .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
+        .then((res) => {
+          if (res.data) {
+            costArray.push(...res.data);
+          } else {
+            costArray.push(...[]);
+          }
+        });
+      return costArray;
+    });
+
+    Promise.all(promises).then(async (results) => {
+      const tempArray: any[] = [];
+      const tempCostArray: any[] = [];
+      // console.log(results);
+      results.forEach((hospital: any) => {
+        const tempDataArray: any[] = [];
+        if (hospital.length > 0) {
+          hospital.forEach((element: any) => {
+            tempDataArray.push(element.rating);
+          });
+        } else {
+          tempDataArray.push("데이터없음");
+        }
+        tempArray.push(...tempDataArray);
+      });
+
+      if (!tempArray.includes("데이터없음")) {
+        tempCostArray.push(
+          (
+            tempArray.reduce((acc, cur) => acc + cur, 0) / tempArray.length
+          ).toFixed(2),
+        );
+      } else {
+        tempCostArray.push("데이터없음");
+      }
+      setHospitalRate(tempCostArray);
+    });
+  }, [hospitalList, place]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -193,10 +342,11 @@ const SearchHospital = () => {
             </SearchForm>
             {hospitalList.length > 0
               ? // 1번째 대시보드
-                hospitalList.map((hospital: IHospital) => {
+                hospitalList.map((hospital: IHospital, index: number) => {
                   return (
                     <div key={hospital.id} onClick={() => onClick(hospital)}>
                       {hospital.place_name}
+                      <div>{hospitalRate[index]}</div>
                     </div>
                   );
                 })
@@ -211,12 +361,12 @@ const SearchHospital = () => {
                   // 지도의 중심좌표
                   lat: targetHospitalData.y,
                   lng: targetHospitalData.x,
-                  radius: 50,
+                  radius: 100,
                 }}
                 style={{
                   // 지도의 크기
                   width: "100%",
-                  height: "450px",
+                  height: "250px",
                 }}
               />
               <button onClick={onClickWriteButton}>댓글 달기</button>
@@ -229,7 +379,6 @@ const SearchHospital = () => {
                     return (
                       <div key={review.id}>
                         <div key={review.id}>{review.title}</div>
-                        <div></div>
                       </div>
                     );
                   })}
@@ -260,6 +409,14 @@ const SearchHospital = () => {
               )}
             </MapMarker>
           ),
+        )}
+        {/* 현재 접속 위치 표시 */}
+        {!state.isLoading && (
+          <MapMarker position={state.center}>
+            <div style={{ padding: "5px", color: "#000" }}>
+              {state.errMsg ? state.errMsg : "여기에 계신가요?!"}
+            </div>
+          </MapMarker>
         )}
       </Map>
     </MapContainer>
