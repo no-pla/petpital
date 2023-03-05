@@ -59,11 +59,15 @@ const CounselPost = () => {
   };
 
   const deleteCounselPost = () => {
-    deleteCounsel(targetId);
-    if (id === targetId) {
-      router.push(`/petconsult`, undefined, { shallow: true });
-    }
-    setOpenModal((prev: any) => !prev);
+    // 추후 수정 예정 삭제보다 이동이 먼저 발생하고 있음
+    // deleteCounsel(targetId).then(() => {
+    //   if (id === targetId) {
+    //     console.log("이동");
+    //     // router.back();
+    //     router.push(`/petconsult`);
+    //   }
+    //   setOpenModal((prev: any) => !prev);
+    // });
   };
 
   const addLike = (linkedUser: string[], counselData: any) => {
@@ -108,7 +112,13 @@ const CounselPost = () => {
                   </div>
                 </UserInfo>
               </CounselInfo>
-              {/* <div>{counselData?.linkedUser?.includes{authService?.currentUser?.uid}}</div> */}
+              <div>
+                {String(
+                  counselData?.linkedUser?.includes(
+                    authService?.currentUser?.uid,
+                  ),
+                )}
+              </div>
               {counselData.uid === authService.currentUser?.uid && (
                 <ManageButtonContainer>
                   <button onClick={() => onDelete(counselData.id)}>삭제</button>
@@ -118,6 +128,7 @@ const CounselPost = () => {
                 </ManageButtonContainer>
               )}
             </CounselHeader>
+            {/* 좋아요 */}
             <div>{counselData?.linkedUser?.length}</div>
             <div>
               {counselData?.linkedUser?.includes(
@@ -143,6 +154,7 @@ const CounselPost = () => {
               )}
             </div>
             <CounselText>{String(counselData.content)}</CounselText>
+            {/* 댓글 */}
             <CounselComments target={counselData.id} />
           </Counsel>
         );

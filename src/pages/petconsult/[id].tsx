@@ -53,10 +53,18 @@ const PetconsultDetail = () => {
     }
   };
 
-  const deleteCounselPost = () => {
-    deleteCounsel(targetId);
+  const deleteCounselPost = async () => {
+    await deleteCounsel(targetId);
     if (id === targetId) {
-      router.push(`/petconsult`, undefined, { shallow: true });
+      router.push("/petconsult").then(() => {
+        router.reload();
+      });
+      // router.push("/petconsult").then(() => {
+      //   window.location.reload();
+      // });
+      // router.replace("/petconsult");
+      // router.replace("/petconsult").then(() => router.reload());
+      // router.replace(`/petconsult`, undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
   };
