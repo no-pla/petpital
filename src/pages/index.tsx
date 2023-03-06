@@ -16,6 +16,7 @@ import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
 import { REVIEW_SERVER } from "@/share/server";
+import { BsArrowRightCircle } from "react-icons/bs";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -134,6 +135,10 @@ export default function Home() {
           </PetpitalSubTitle>
           <MainCustomButton onClick={() => router.push("/searchHospital")}>
             병원검색 하러가기
+            <BsArrowRightCircle
+              size={16}
+              style={{ marginTop: 1, marginLeft: 13 }}
+            />
           </MainCustomButton>
         </MainBanner>
       </MainBannerContiner>
@@ -143,7 +148,11 @@ export default function Home() {
           육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
         </SectionSubTitle>
         <PageButtonContainer
-          style={{ justifyContent: "right", marginBottom: "50px" }}
+          style={{
+            justifyContent: "right",
+            marginBottom: "10px",
+            paddingRight: "40px",
+          }}
         >
           <PageButton disabled={page === 1} onClick={previousPage}>
             &larr;
@@ -206,7 +215,21 @@ export default function Home() {
         backgroundMinImg="
       https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fapp_banner.jpg?alt=media&token=1622f93e-970b-4a9d-a521-ada6094668fb"
         backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Freview_banner.jpg?alt=media&token=aa4b416c-5b37-4ca1-afae-9b040631d396"
-      />
+      >
+        <MainCustomButton
+          onClick={() =>
+            authService.currentUser === null
+              ? router.push("/login")
+              : router.push("/searchMap")
+          }
+        >
+          리뷰 남기러가기
+          <BsArrowRightCircle
+            size={16}
+            style={{ marginTop: 1, marginLeft: 13 }}
+          />
+        </MainCustomButton>
+      </ReviewBanner>
       <Section>
         <SectionTitle>내가 한번 가봤다냥</SectionTitle>
         <CurrentReivewContainer>
@@ -393,7 +416,7 @@ const CurrentReview = styled.div`
 `;
 
 const CurrentImageContainer = styled.div`
-  width: 220px;
+  width: 200px;
 `;
 
 const CurrentReviewImage = styled.img`
@@ -506,12 +529,12 @@ const HeaderContainer = styled.header`
 // 커스텀
 const Section = styled.section`
   width: 100%;
-  padding: 0 60px;
+  padding: 20px 120px 100px 100px;
 `;
 
 export const MainCustomButton = styled.button`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.3);
@@ -528,7 +551,7 @@ const SectionTitle = styled.h3`
 `;
 
 const SectionSubTitle = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: -50px;
   color: #c5c5c5;
 `;
 
