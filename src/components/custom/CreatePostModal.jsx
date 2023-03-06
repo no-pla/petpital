@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
@@ -12,18 +12,33 @@ import { REVIEW_SERVER } from "../../share/server";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { modalState } from "../../share/atom";
 import { useGetReviews } from "../../hooks/useGetReviews";
+import { useQueryClient } from "react-query";
+import { GrClose } from "react-icons/gr";
+import CustomModal, { ModalButton } from "./ErrorModal";
 
-const CreatePostModal = () => {
+const CreatePostModal = ({ setCreateModalOpen }) => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
   const [starRating, setStarRating] = useState(0);
   const [selectvalue, setSelectValue] = useState([]);
+  const [openModalTitle, setOpenModalTitle] = useState(false);
+  const [openModalContents, setOpenModalContents] = useState(false);
+  const [openModalTotalCost, setOpenModalTotalCost] = useState(false);
+  const [openModalStarRating, setOpenModalStarRating] = useState(false);
+  const [openModalSelectValue, setOpenModalSelectValue] = useState(false);
+  const [openModalPhoto, setOpenModalPhoto] = useState(false);
+
+  const focusTitle = useRef();
+  const focusContents = useRef();
+  const focusTotalCost = useRef();
 
   const router = useRouter();
 
-  const placesData = useRecoilValue(hospitalData);
+  const queryClient = useQueryClient();
 
+  const placesData = useRecoilValue(hospitalData);
+  // console.log("placesData", placesData);
   const { recentlyRefetch } = useGetReviews("");
 
   const handleBackgroundClick = (e) => {
@@ -36,33 +51,33 @@ const CreatePostModal = () => {
   // const setIsOpenModal = useSetRecoilState(modalState);
 
   const handleClose = () => {
-    setIsOpenModal(false);
+    setCreateModalOpen(false);
   };
 
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
 
-  useEffect(() => {
-    document.body.style.cssText = `
-      position: fixed;
-      top: -${window.scrollY}px;
-      overflow-y: scroll;
-      width: 100%;`;
-    return () => {
-      const scrollY = document.body.style.top;
-      document.body.style.cssText = "";
-      window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
-    };
-  }, []);
+  // useEffect(() => {
+  //   document.body.style.cssText = `
+  //     position: fixed;
+  //     top: -${window.scrollY}px;
+  //     overflow-y: scroll;
+  //     width: 100%;`;
+  //   return () => {
+  //     const scrollY = document.body.style.top;
+  //     document.body.style.cssText = "";
+  //     window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
+  //   };
+  // }, []);
 
   const Star = ({ selected, onClick }) => (
     <div
       style={{
-        color: selected ? "#ffc107" : "#e4e5e9",
+        color: selected ? "#15B5BF" : "#e4e5e9",
       }}
       onClick={onClick}
     >
-      <span style={{ fontSize: "40px" }}>&#9733;</span>
+      <span style={{ fontSize: "50px", padding: "7px" }}>&#9733;</span>
     </div>
   );
 
@@ -77,8 +92,25 @@ const CreatePostModal = () => {
 
   // DB에 저장
   const handleSubmit = async (downloadUrl) => {
+    if (title.replace(/ /g, "") === "") {
+      setOpenModalTitle(true);
+
+      return;
+    } else if (contents.replace(/ /g, "") === "") {
+      setOpenModalContents(true);
+      return;
+    } else if (totalCost.replace(/ /g, "") === "" || !/^\d+$/.test(totalCost)) {
+      setOpenModalTotalCost(true);
+      return;
+    } else if (starRating.length === 0) {
+      setOpenModalStarRating(true);
+      return;
+    } else if (selectvalue.length === 0) {
+      setOpenModalSelectValue(true);
+      return;
+    }
     try {
-      const response = await axios.post(`${REVIEW_SERVER}posts`, {
+      await axios.post(`${REVIEW_SERVER}posts`, {
         title,
         contents,
         totalCost,
@@ -92,12 +124,17 @@ const CreatePostModal = () => {
         hospitalId: placesData.id,
         isEdit: false,
         id: createdAt,
+        hospitalAddress: placesData.address_name,
+        hospitalName: placesData.place_name,
       });
-      console.log("response", response);
+      // console.log("response", response);
       localStorage.removeItem("Photo");
-      setIsOpenModal(false);
+      console.log("포스트완료");
+      // await recentlyRefetch();
+      setCreateModalOpen(false);
+      await queryClient.invalidateQueries(["getrecentlyReview"]);
+      // await refetch();
       // router.push(`/searchMap`);
-      recentlyRefetch();
     } catch (error) {
       console.error(error);
     }
@@ -147,59 +184,178 @@ const CreatePostModal = () => {
     }
   };
 
+  const ModalTitleEmpty = () => {
+    setOpenModalTitle(false);
+    focusTitle.current.focus();
+  };
+
+  const ModalContentsEmpty = () => {
+    setOpenModalContents(false);
+    focusContents.current.focus();
+  };
+
+  const ModalTotalCostEmpty = () => {
+    setOpenModalTotalCost(false);
+    focusTotalCost.current.focus();
+  };
+
+  const ModalStarRatingEmpty = () => {
+    setOpenModalStarRating(false);
+  };
+
+  const ModalSelectValueEmpty = () => {
+    setOpenModalSelectValue(false);
+  };
+
+  const ModalPhotoEmpty = () => {
+    setOpenModalPhoto(false);
+  };
+
   return (
     <>
+      {openModalTitle && (
+        <CustomModal modalText1={"제목을 입력해주세요"}>
+          <ModalButton onClick={ModalTitleEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalContents && (
+        <CustomModal modalText1={"내용을 입력해주세요"}>
+          <ModalButton onClick={ModalContentsEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalTotalCost && (
+        <CustomModal modalText1={"비용을 숫자로 입력해주세요"}>
+          <ModalButton onClick={ModalTotalCostEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalStarRating && (
+        <CustomModal modalText1={"별점평가를 완료해주세요"}>
+          <ModalButton onClick={ModalStarRatingEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalSelectValue && (
+        <CustomModal modalText1={"카테고리를 선택해주세요"}>
+          <ModalButton onClick={ModalSelectValueEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
+      {openModalPhoto && (
+        <CustomModal modalText1={"사진을 업로드해주세요"}>
+          <ModalButton onClick={ModalPhotoEmpty}>확인</ModalButton>
+        </CustomModal>
+      )}
       {/* {isOpenModal && ( */}
       <ContainerBg onClick={handleBackgroundClick}>
         <Container>
           <ModalContainer>
             <Wrap>
               <FormWrap onSubmit={ChangePhoto}>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <div style={{ cursor: "pointer" }} onClick={handleClose}>
+                    <GrClose />
+                  </div>
+                </div>
+                <label style={{ fontSize: "14px", fontWeight: "bold" }}>
+                  사진인증
+                </label>
+                <p style={{ fontSize: "10px", color: "lightgray" }}>
+                  영수증, 병원 등 다른 회원님들에게 도움 될 만한 이미지를
+                  공유해주세요.
+                </p>
                 <ImageBox htmlFor="file">
                   <PostImage
                     id="preview-photo"
-                    src="https://media.istockphoto.com/id/1248723171/vector/camera-photo-upload-icon-on-isolated-white-background-eps-10-vector.jpg?s=612x612&w=0&k=20&c=e-OBJ2jbB-W_vfEwNCip4PW4DqhHGXYMtC3K_mzOac0="
+                    src="https://images.unsplash.com/photo-1648823161626-0e839927401b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
                     alt="게시글사진"
                   />
                 </ImageBox>
                 <input
                   id="file"
                   type="file"
-                  style={{ display: "none" }}
+                  style={{ display: "none", border: "none" }}
                   accept="images/*"
                   onChange={uploadPhoto}
                 />
                 <InputWrap>
-                  <label htmlFor="title">제목쓰기</label>
+                  <label
+                    htmlFor="title"
+                    style={{ fontSize: "14px", fontWeight: "bold" }}
+                  >
+                    제목 쓰기
+                  </label>
+                  <p style={{ fontSize: "10px", color: "lightgray" }}>
+                    눈에 띄는 제목으로 다른 회원님들에게 도움을 주세요.
+                  </p>
                   <TitleBox
                     type="text"
-                    placeholder="Title"
+                    ref={focusTitle}
+                    placeholder="제목을 입력해 주세요."
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                     id="title"
                     rows="1"
                     maxLength="50"
+                    style={{
+                      border: "none",
+                      backgroundColor: "#e8e7e6",
+                      opacity: "0.6",
+                    }}
                   />
-                  <label htmlFor="title">글 작성</label>
+                  <label
+                    htmlFor="title"
+                    style={{ fontSize: "14px", fontWeight: "bold" }}
+                  >
+                    내용 쓰기
+                  </label>
+                  <p style={{ fontSize: "10px", color: "lightgray" }}>
+                    자세한 후기로 회원님들에게 도움을 주세요.
+                  </p>
                   <ContentBox
                     type="text"
-                    placeholder="Contents"
+                    ref={focusContents}
+                    placeholder="내용을 입력해 주세요."
                     value={contents}
                     onChange={(event) => setContents(event.target.value)}
                     rows="8"
                     maxLength="500"
+                    style={{
+                      border: "none",
+                      backgroundColor: "#e8e7e6",
+                      opacity: "0.6",
+                    }}
                   />
-                  <label htmlFor="title">총 진료비</label>
+                  <label
+                    htmlFor="title"
+                    style={{ fontSize: "14px", fontWeight: "bold" }}
+                  >
+                    진료 총액
+                  </label>
+                  <p style={{ fontSize: "10px", color: "lightgray" }}>
+                    진료 총액을 숫자로 입력해 주세요.
+                  </p>
                   <TotalCostBox
                     type="text"
-                    placeholder="TotalCost"
+                    ref={focusTotalCost}
+                    placeholder="금액을 입력해 주세요"
                     value={totalCost}
                     onChange={(event) => setTotalCost(event.target.value)}
-                    rows="3"
-                    maxLength="200"
+                    rows="1"
+                    maxLength="7"
+                    style={{
+                      border: "none",
+                      backgroundColor: "#e8e7e6",
+                      opacity: "0.6",
+                    }}
                   />
                 </InputWrap>
-                <label htmlFor="title">별점남기기</label>
+                <label
+                  htmlFor="title"
+                  style={{ fontSize: "14px", fontWeight: "bold" }}
+                >
+                  별점 평가
+                </label>
+                <p style={{ fontSize: "10px", color: "lightgray" }}>
+                  이 병원을 별점으로 총평해 주세요.
+                </p>
                 <StarRating>
                   {starArray.map((star) => (
                     <Star
@@ -209,7 +365,15 @@ const CreatePostModal = () => {
                     />
                   ))}
                 </StarRating>
-                <label htmlFor="title">이 병원의 좋은점을 남겨주세요</label>
+                <label
+                  htmlFor="title"
+                  style={{ fontSize: "14px", fontWeight: "bold" }}
+                >
+                  카테고리
+                </label>
+                <p style={{ fontSize: "10px", color: "lightgray" }}>
+                  다른 회원님에게 이 병원을 간단하게 설명해 주세요.
+                </p>
                 <PostSelect>
                   <Select
                     value={selectvalue}
@@ -224,7 +388,7 @@ const CreatePostModal = () => {
                     instanceId="selectbox"
                   />
                 </PostSelect>
-                <button onClick={handleClose}>Close</button>
+
                 <CreatePostButton>리뷰남기기</CreatePostButton>
               </FormWrap>
             </Wrap>
@@ -237,19 +401,19 @@ const CreatePostModal = () => {
 };
 
 const ContainerBg = styled.div`
-  width: 400px;
-  height: 1080px;
+  width: 1200px;
+  height: 100vh;
   /* background-color: rgba(0, 0, 0, 0.6); */
-  position: absolute;
-  top: -100px;
-  left: 400px;
-  z-index: 2;
+  position: fixed;
+  top: 0px;
+  /* left: 375px; */
+  z-index: 60;
 `;
 
 const Container = styled.div`
   position: absolute;
   top: 0;
-  left: 0;
+  left: -75px;
   right: 0;
   bottom: 0;
   /* background-color: rgba(0, 0, 0, 0.7); */
@@ -262,13 +426,14 @@ const Container = styled.div`
 
 const ModalContainer = styled.div`
   background-color: white;
-  padding: 20px;
+  /* padding: 30px; */
   border-radius: 10px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-  width: 400px;
+  width: 375px;
   height: 100%;
   overflow-y: auto;
   position: fixed;
+  padding-top: 60px;
 `;
 
 // -------------------
@@ -278,37 +443,37 @@ const Wrap = styled.div`
 `;
 const FormWrap = styled.form`
   align-items: center;
-  padding: 50px;
+  padding: 20px;
 `;
 
 const ImageBox = styled.label`
   display: flex;
   justify-content: center;
-  border-radius: 100%;
+  /* border-radius: 100%; */
   overflow: hidden;
   cursor: pointer;
-  width: 150px;
+  width: 100%;
   height: 150px;
   margin: auto;
   > img {
     width: 100%;
     height: 100%;
     text-align: center;
-    object-fit: cover;
+    object-fit: fill;
   }
 `;
 
 const PostImage = styled.img`
-  border: 0.1px solid lightgray;
-  border-radius: 100%;
-  object-fit: cover;
+  border: 1px solid lightgray;
+  /* border-radius: 100%; */
+  object-fit: fill;
 `;
 
 const InputWrap = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 30px;
+  margin-bottom: 30px;
 `;
 
 const TitleBox = styled.textarea`
@@ -318,6 +483,7 @@ const TitleBox = styled.textarea`
   border-radius: 5px;
   border: 1px solid gray;
   resize: none;
+  margin-bottom: 30px;
 `;
 
 const ContentBox = styled.textarea`
@@ -327,6 +493,7 @@ const ContentBox = styled.textarea`
   border-radius: 5px;
   border: 1px solid gray;
   resize: none;
+  margin-bottom: 30px;
 `;
 
 const TotalCostBox = styled.textarea`
@@ -336,6 +503,10 @@ const TotalCostBox = styled.textarea`
   border-radius: 5px;
   border: 1px solid gray;
   resize: none;
+  textarea::placeholder {
+    color: black;
+    opacity: 1;
+  }
 `;
 
 const CreatePostButton = styled.button`
@@ -344,7 +515,7 @@ const CreatePostButton = styled.button`
   font-size: 16px;
   border-radius: 5px;
   border: none;
-  background-color: lightgray;
+  background-color: #15b5bf;
   cursor: pointer;
   float: right;
 `;
@@ -352,7 +523,7 @@ const StarRating = styled.div`
   display: flex;
   flex-direction: row;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 `;
 
 const PostSelect = styled.div`

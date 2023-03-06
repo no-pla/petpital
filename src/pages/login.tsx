@@ -273,7 +273,7 @@ export const ModalBackground = styled.div`
   align-items: center;
   z-index: 9999;
   background: #f5f5f5;
-  overflow-y: auto;
+  overflow-y: scroll;
 `;
 
 export const Container = styled.div`
@@ -283,7 +283,6 @@ export const Container = styled.div`
   flex-direction: column;
   /* background-color: red; */
   align-items: center;
-  overflow-y: auto;
   /* min-height: 1100px; */
 `;
 

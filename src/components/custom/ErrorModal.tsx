@@ -33,7 +33,7 @@ const Backdrop = styled.div`
   left: 0;
   width: 100%;
   height: 100vh;
-  z-index: 10;
+  z-index: 100;
   background: rgba(159, 159, 159, 0.6);
   display: flex;
   justify-content: center;

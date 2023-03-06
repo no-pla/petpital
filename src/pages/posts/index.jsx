@@ -238,22 +238,12 @@ function Posts() {
     data: post,
     isLoading: postLoading,
     refetch: refetchPost,
-    isFetching,
-  } = useQuery(
-    ["posts", page],
-    async (key, page) => {
-      const response = await axios.get(
-        `${REVIEW_SERVER}posts?page=${page}&limit=10`,
-      );
-      return response.data.reverse();
-    },
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        if (lastPage.length === 0) return undefined; // 마지막 페이지를 로드한 경우
-        return allPages.length + 1; // 다음 페이지 번호
-      },
-    },
-  );
+  } = useQuery(["posts", page], async (key, page) => {
+    const response = await axios.get(
+      `${REVIEW_SERVER}posts?page=${page}&limit=10`,
+    );
+    return response.data.reverse();
+  });
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);

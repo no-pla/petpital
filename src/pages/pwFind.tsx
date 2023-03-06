@@ -96,7 +96,9 @@ const Login = () => {
                 <LoginButton
                   type="submit"
                   onClick={() => {
-                    alert("이메일을 확인해주세요.");
+                    alert(
+                      "이메일을 확인하여 비밀번호를 재설정해주시기 바랍니다.",
+                    );
                     router.push("login");
                   }}
                 >

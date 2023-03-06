@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { REVIEW_SERVER } from "../share/server";
 
 interface IReview {
@@ -26,8 +26,12 @@ export const useGetReviews = (limit: string) => {
     isLoading,
     data: recentlyReview,
     refetch: recentlyRefetch,
-  } = useQuery<IReview>("getrecentlyReview", () => {
-    return axios.get(`${REVIEW_SERVER}posts${limit}`);
+  } = useQuery<IReview>(["getrecentlyReview"], async () => {
+    const res = await axios.get(`${REVIEW_SERVER}posts${limit}`);
+    console.log("res", res);
+    return res;
   });
+  console.log("eee", recentlyReview);
+
   return { recentlyReview, isLoading, recentlyRefetch };
 };
