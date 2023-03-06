@@ -14,10 +14,7 @@ const HeaderContainer = styled.div`
   }
 `;
 
-export const HeaderTitle = styled.h3`
-  font-weight: 700;
-  font-size: 1rem;
-`;
+export const HeaderTitle = styled.h3``;
 
 export const BackButton = styled.button`
   background-color: transparent;

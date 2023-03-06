@@ -148,11 +148,7 @@ export default function Home() {
           육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
         </SectionSubTitle>
         <PageButtonContainer
-          style={{
-            justifyContent: "right",
-            marginBottom: "10px",
-            paddingRight: "40px",
-          }}
+          style={{ justifyContent: "right", marginBottom: "10px" }}
         >
           <PageButton disabled={page === 1} onClick={previousPage}>
             &larr;
@@ -205,7 +201,9 @@ export default function Home() {
                       " " +
                       petpital.road_address_name.split(" ")[1]}
                 </BestPetpitalAddress>
-                <BestPetpitalCost>{arverageCost[index]}</BestPetpitalCost>
+                <BestPetpitalCost>
+                  {arverageCost?.length > 0 && arverageCost[index]}
+                </BestPetpitalCost>
               </BestPetpitalItem>
             );
           })}
@@ -231,7 +229,7 @@ export default function Home() {
         </MainCustomButton>
       </ReviewBanner>
       <Section>
-        <SectionTitle>내가 한번 가봤다냥</SectionTitle>
+        <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
         <CurrentReivewContainer>
           {recentlyReview?.data.map((review) => {
             return (
@@ -340,8 +338,8 @@ const ReviewBanner = styled.div<{
 // 최근 검색 병원
 const BestPetpitalContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 190px);
-  gap: 20px 24px;
+  grid-template-columns: repeat(6, 144px);
+  gap: 20px 18px;
   padding-bottom: 20px;
   @media screen and (max-width: 1200px) {
     overflow-x: scroll;
@@ -349,11 +347,11 @@ const BestPetpitalContainer = styled.div`
 `;
 
 const BestPetpitalItem = styled.div`
-  width: calc(max(100%, 140px));
+  width: calc(max(100%, 144px));
   border-radius: 4px;
   box-shadow: 0px 4px 4px 0px #0000001a;
   @media screen and (max-width: 800px) {
-    grid-template-columns: repeat(5, 200px);
+    grid-template-columns: repeat(6, 200px);
   }
 `;
 
@@ -383,7 +381,7 @@ const BestPetpitalAddress = styled.div`
 `;
 const BestPetpitalCost = styled.div`
   &::before {
-    content: "진로 평균 ";
+    content: "진료 평균 ";
   }
 
   padding: 6px;
@@ -400,7 +398,7 @@ const BestPetpitalCost = styled.div`
 const CurrentReivewContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 24px;
+  gap: 20px 25px;
   padding: 10px 0;
   @media screen and (max-width: 800px) {
     overflow-x: scroll;
@@ -416,11 +414,11 @@ const CurrentReview = styled.div`
 `;
 
 const CurrentImageContainer = styled.div`
-  width: 200px;
+  width: 160px;
 `;
 
 const CurrentReviewImage = styled.img`
-  width: 200px;
+  width: 160px;
   height: 100%;
   object-fit: cover;
   border-radius: 4px 0px 0px 4px;
@@ -469,9 +467,19 @@ const CurrentReviewDesc = styled.div`
 `;
 
 const CurrentReviewCost = styled.div`
-  margin-top: 6px;
+  &::before {
+    content: "진료비 ";
+  }
   position: absolute;
-  bottom: 10px;
+  bottom: 7px;
+  padding: 11px 15px;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  background: #15b5bf;
+  height: 40px;
 `;
 
 // 메인 설명
@@ -529,7 +537,8 @@ const HeaderContainer = styled.header`
 // 커스텀
 const Section = styled.section`
   width: 100%;
-  padding: 20px 120px 100px 100px;
+  padding: 0 123px;
+  margin-bottom: 100px;
 `;
 
 export const MainCustomButton = styled.button`

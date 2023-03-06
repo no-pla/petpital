@@ -46,7 +46,7 @@ const FooterContainer = styled.footer`
   @media screen and (max-width: 375px) {
     display: none;
   }
-  padding: 30px;
+  padding: 40px 45px;
 `;
 
 const FooterItems = styled.div`

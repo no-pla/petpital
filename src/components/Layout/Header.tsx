@@ -117,7 +117,7 @@ export default function Header() {
 
 const HeaderContainer = styled.header`
   width: 100vw;
-  height: 70px;
+  height: 80px;
   background: white;
   backdrop-filter: blur(20px);
   position: fixed;
@@ -135,7 +135,7 @@ const HeaderItems = styled.div`
   align-items: center;
   margin: 0 auto;
   justify-content: space-between;
-  padding: 0 80px;
+  padding: 0 130px;
   gap: 36px;
 `;
 
