@@ -5,16 +5,16 @@ import { RecoilRoot } from "recoil";
 import { ReactQueryDevtools } from "react-query/devtools";
 import "../styles/globals.css";
 
-export default function App({ Component, pageProps }: AppProps) {
-  const quertClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: Infinity,
-        notifyOnChangeProps: "tracked",
-      },
+const quertClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+      notifyOnChangeProps: "tracked",
     },
-  });
+  },
+});
 
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <RecoilRoot>
       <QueryClientProvider client={quertClient}>
