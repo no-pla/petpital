@@ -4,7 +4,7 @@ import { REVIEW_SERVER } from "@/share/server";
 import styled from "@emotion/styled";
 import axios from "axios";
 import { useRouter } from "next/router";
-import {
+import React, {
   ReactElement,
   JSXElementConstructor,
   ReactFragment,
@@ -13,6 +13,7 @@ import {
   useEffect,
   useRef,
 } from "react";
+import CopyToClipboard from "react-copy-to-clipboard";
 import {
   Map,
   MapMarker,
@@ -63,6 +64,10 @@ export function getServerSideProps({ query }: any) {
     },
   };
 }
+
+declare const window: typeof globalThis & {
+  kakao: any;
+};
 
 const SearchHospital = () => {
   const router = useRouter();
@@ -200,7 +205,8 @@ const SearchHospital = () => {
     ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
       if (data.length === 0) {
         setHospitalList([]);
-        setPlace("");
+        // setPlace("");
+        return;
       }
       if (status === kakao.maps.services.Status.OK) {
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
@@ -233,54 +239,45 @@ const SearchHospital = () => {
   useEffect(() => {
     const tempArray: any[] = [];
     const tempDataArray: any[] = [];
-    // 병원 아이디 가져오기
-
+    // // 병원 아이디 가져오기
     hospitalList.map((hospital: IHospital) => {
       tempArray.push(hospital.id);
     });
 
-    // 병원 데이터 가져오기
-    const promises = tempArray.map(async (hospital) => {
-      const costArray: any[] | PromiseLike<any[]> = [];
+    // 별점 저장
+    const promiseCosts = tempArray.map(async (hospital: any) => {
+      const tempCostArray: any[] | PromiseLike<any[]> = [];
+
       await axios
         .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
-        .then((res) => {
-          if (res.data) {
-            costArray.push(...res.data);
-          } else {
-            costArray.push(...[]);
-          }
-        });
-      return costArray;
-    });
-
-    Promise.all(promises).then(async (results) => {
-      const tempArray: any[] = [];
-      const tempCostArray: any[] = [];
-      // console.log(results);
-      results.forEach((hospital: any) => {
-        const tempDataArray: any[] = [];
-        if (hospital.length > 0) {
-          hospital.forEach((element: any) => {
-            tempDataArray.push(element.rating);
-          });
-        } else {
-          tempDataArray.push("데이터없음");
-        }
-        tempArray.push(...tempDataArray);
-      });
-
-      if (!tempArray.includes("데이터없음")) {
-        tempCostArray.push(
-          (
-            tempArray.reduce((acc, cur) => acc + cur, 0) / tempArray.length
-          ).toFixed(2),
+        .then((res) =>
+          res.data.map((data: any) => {
+            tempCostArray.push(data.rating);
+          }),
         );
-      } else {
-        tempCostArray.push("데이터없음");
-      }
-      setHospitalRate(tempCostArray);
+      return tempCostArray;
     });
+
+    Promise.all(promiseCosts).then(async (results) => {
+      const tempArray: (string | number)[] = [];
+      results.forEach((cost) => {
+        if (cost.length > 0) {
+          tempArray.push(
+            Number(
+              (
+                cost.reduce(
+                  (acc: string | number, cur: string | number) => +acc + +cur,
+                ) / cost.length
+              ).toFixed(2),
+            ).toLocaleString("ko-KR"),
+          );
+        } else {
+          tempArray.push("정보 없음");
+        }
+      });
+      setHospitalRate(tempArray);
+    });
+    // 리뷰 저장
   }, [hospitalList, place]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -330,11 +327,14 @@ const SearchHospital = () => {
         }}
         style={{
           width: "100%",
-          height: "100vh",
+          height: `calc(100vh - 60px)`,
+          position: "fixed",
+          bottom: 0,
         }}
-        level={3}
+        level={4}
         onCreate={setMap}
       >
+        {/* <MapTypeControl position={kakao.maps.ControlPosition?.TOPRIGHT} /> */}
         <BoardContainer>
           <DashBoard>
             <SearchForm onSubmit={onSubmit}>
@@ -344,10 +344,36 @@ const SearchHospital = () => {
               ? // 1번째 대시보드
                 hospitalList.map((hospital: IHospital, index: number) => {
                   return (
-                    <div key={hospital.id} onClick={() => onClick(hospital)}>
-                      {hospital.place_name}
-                      <div>{hospitalRate[index]}</div>
-                    </div>
+                    <HospitalItem
+                      key={hospital.id}
+                      onClick={() => onClick(hospital)}
+                      style={{
+                        backgroundColor:
+                          index % 2 === 0 ? "#FAFAFA" : "#FFFFFF",
+                      }}
+                    >
+                      <HospotalInfo>
+                        <div>
+                          <HospitalNumber>{`${String.fromCharCode(
+                            65 + index,
+                          )}`}</HospitalNumber>
+                          <HospitalName>{hospital.place_name}</HospitalName>
+                          <HospitalType>동물병원</HospitalType>
+                        </div>
+                        <CopyToClipboard
+                          text={`http://localhost:3000/searchHospital?hospitalName=${hospital.place_name}&placeId=${hospital.id}`}
+                        >
+                          <button>공유</button>
+                        </CopyToClipboard>
+                      </HospotalInfo>
+                      <ReviewRate>
+                        <div>⭐ {hospitalRate[index]}</div>
+                        <ReviewCount>
+                          <div>방문자 리뷰</div>
+                          <span>1,234</span>
+                        </ReviewCount>
+                      </ReviewRate>
+                    </HospitalItem>
                   );
                 })
               : "데이터가 없습니다."}
@@ -414,7 +440,7 @@ const SearchHospital = () => {
         {!state.isLoading && (
           <MapMarker position={state.center}>
             <div style={{ padding: "5px", color: "#000" }}>
-              {state.errMsg ? state.errMsg : "여기에 계신가요?!"}
+              {state.errMsg ? state.errMsg : "로그인하고 사용해 보세요."}
             </div>
           </MapMarker>
         )}
@@ -423,6 +449,57 @@ const SearchHospital = () => {
   );
 };
 
+const HospitalNumber = styled.div`
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 24px;
+  color: #15b5bf;
+  padding-right: 12px;
+`;
+
+const ReviewCount = styled.div`
+  display: flex;
+  color: #9f9f9f;
+  font-size: 0.8rem;
+  gap: 4px;
+`;
+
+const HospitalItem = styled.div`
+  padding: 14px;
+  background-color: calc(odd);
+`;
+
+const HospotalInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  & div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+`;
+
+const ReviewRate = styled.div`
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+`;
+
+const HospitalName = styled.div`
+  font-weight: 700;
+  font-size: 16px;
+`;
+
+const HospitalType = styled.span`
+  font-size: 0.8rem;
+  line-height: 14px;
+
+  /* gray_4_act */
+
+  color: #9f9f9f;
+`;
 const ViewContreoler = styled.div`
   margin-top: 800px;
 `;
@@ -462,5 +539,4 @@ const SearchInput = styled.input`
   width: 100%;
 `;
 
-export default SearchHospital;
-//
+export default React.memo(SearchHospital);

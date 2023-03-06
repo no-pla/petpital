@@ -58,16 +58,14 @@ const CounselPost = () => {
     setTargetId(id);
   };
 
-  const deleteCounselPost = () => {
+  const deleteCounselPost = async () => {
     // 추후 수정 예정 삭제보다 이동이 먼저 발생하고 있음
-    // deleteCounsel(targetId).then(() => {
-    //   if (id === targetId) {
-    //     console.log("이동");
-    //     // router.back();
-    //     router.push(`/petconsult`);
-    //   }
-    //   setOpenModal((prev: any) => !prev);
-    // });
+    await deleteCounsel(targetId);
+
+    if (id === targetId) {
+      await router.push(`/petconsult`);
+    }
+    setOpenModal((prev: any) => !prev);
   };
 
   const addLike = (linkedUser: string[], counselData: any) => {
@@ -95,11 +93,6 @@ const CounselPost = () => {
       {CounselList?.map((counselData: any) => {
         return (
           <Counsel key={counselData.id}>
-            <CopyToClipboard
-              text={`http://localhost:3000/petconsult/${counselData.id}`}
-            >
-              <button>클릭해서 공유</button>
-            </CopyToClipboard>
             <CounselHeader>
               <CounselInfo>
                 <UserProfile profileLink={counselData.profileImg} />
@@ -112,24 +105,33 @@ const CounselPost = () => {
                   </div>
                 </UserInfo>
               </CounselInfo>
-              <div>
+              {/* <div>
                 {String(
                   counselData?.linkedUser?.includes(
                     authService?.currentUser?.uid,
                   ),
                 )}
-              </div>
-              {counselData.uid === authService.currentUser?.uid && (
-                <ManageButtonContainer>
-                  <button onClick={() => onDelete(counselData.id)}>삭제</button>
-                  <button onClick={() => onOpenInput(counselData.id)}>
-                    수정
-                  </button>
-                </ManageButtonContainer>
-              )}
+              </div> */}
+              <CounselSetting>
+                {counselData.uid === authService.currentUser?.uid && (
+                  <ManageButtonContainer>
+                    <button onClick={() => onDelete(counselData.id)}>
+                      삭제
+                    </button>
+                    <button onClick={() => onOpenInput(counselData.id)}>
+                      수정
+                    </button>
+                  </ManageButtonContainer>
+                )}
+                <CopyToClipboard
+                  text={`http://localhost:3000/petconsult/${counselData.id}`}
+                >
+                  <button>공유</button>
+                </CopyToClipboard>
+              </CounselSetting>
             </CounselHeader>
             {/* 좋아요 */}
-            <div>{counselData?.linkedUser?.length}</div>
+            {/* <div>{counselData?.linkedUser?.length}</div>
             <div>
               {counselData?.linkedUser?.includes(
                 authService?.currentUser?.uid,
@@ -152,7 +154,7 @@ const CounselPost = () => {
                     : "좋와요"}
                 </button>
               )}
-            </div>
+            </div> */}
             <CounselText>{String(counselData.content)}</CounselText>
             {/* 댓글 */}
             <CounselComments target={counselData.id} />
@@ -173,6 +175,11 @@ const CounselPost = () => {
     </>
   );
 };
+
+const CounselSetting = styled.div`
+  display: flex;
+  align-items: baseline;
+`;
 
 const CounselText = styled.div`
   width: 80%;

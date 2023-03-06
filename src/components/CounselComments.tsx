@@ -35,8 +35,6 @@ interface IComment {
 }
 
 const CounselComments = ({ target }: any) => {
-  const [isOpen, setIsOpen] = useState<boolean[]>([]);
-  const [isOpenComment, setIsOpenComment] = useState<boolean[]>([]);
   const [emptyComment, setEmptyComment] = useState(false);
   const { mutate: addNewComment } = useAddCounselComment();
   const { mutate: editComment } = useEditCounselComment();
@@ -46,16 +44,6 @@ const CounselComments = ({ target }: any) => {
   const newEditCommentRef = useRef<HTMLInputElement>(null);
   const newCoCommentRef = useRef<HTMLInputElement>(null);
   const newEditCoCommentRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // 리뷰 개별 수정 가능하기 위해 추가
-    // if (commentList?.data) {
-    //   for (let i = 0; i < commentList.data.length; i++) {
-    //     setIsOpen((prev) => [...prev, false]);
-    //     setIsOpenComment((prev) => [...prev, false]);
-    //   }
-    // }
-  }, [commentList]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // 새로운 코맨트 작성
@@ -79,30 +67,6 @@ const CounselComments = ({ target }: any) => {
       };
       addNewComment(newComment);
     }
-  };
-
-  const openIpt = (index: any) => {
-    const newArray = [...isOpen];
-    newArray[index] = true;
-    setIsOpen(newArray);
-  };
-
-  const closeIpt = (index: any) => {
-    const newArray = [...isOpen];
-    newArray[index] = false;
-    setIsOpen(newArray);
-  };
-
-  const openCoComentIpt = (index: any) => {
-    const newArray = [...isOpen];
-    newArray[index] = true;
-    setIsOpenComment(newArray);
-  };
-
-  const closeCoComentIpt = (index: any) => {
-    const newArray = [...isOpen];
-    newArray[index] = false;
-    setIsOpenComment(newArray);
   };
 
   const NewCommentInput = () => {
@@ -165,7 +129,6 @@ const CounselComments = ({ target }: any) => {
       return;
     } else {
       editComment(cocomentObj);
-      // isOpenComment[index] = false;
     }
   };
 
@@ -179,9 +142,6 @@ const CounselComments = ({ target }: any) => {
       (target: any) => target.commentId === targetCocoment.commentId,
     );
     if (newEditCoCommentRef.current?.value !== "") {
-      console.log();
-      // data.findIndex((item) => item.id === idToFind);
-
       const newCommentObj = {
         ...comment,
         cocoment: [
@@ -193,7 +153,6 @@ const CounselComments = ({ target }: any) => {
           ...comment.cocoment.slice(idx + 1),
         ],
       };
-      // console.log(newCommentObj);
       await editComment(newCommentObj);
     }
   };
@@ -222,14 +181,13 @@ const CounselComments = ({ target }: any) => {
       // 코멘트 수정
       event.preventDefault();
       if (newEditCommentRef?.current?.value === "") {
-        // setEmptyComment((prev) => !prev);
       } else {
         editComment({ ...comment, content: newEditCommentRef?.current?.value });
       }
     };
 
     return (
-      <div>
+      <CounselItem>
         {comment.counselId === target && (
           <>
             {isEdit ? (
@@ -245,7 +203,22 @@ const CounselComments = ({ target }: any) => {
               </form>
             ) : (
               <>
-                <div>{comment.content}</div>
+                <CounselCommentItemContainer>
+                  <UserInfo>
+                    <UserProfileImg src={comment.profileImg} />
+                    <CommentInfoItem>
+                      <div>
+                        <CommnetNickname>{comment.nickname}</CommnetNickname>
+                        <CommentDate>
+                          {new Date(comment.createdAt).toLocaleDateString(
+                            "ko-KR",
+                          )}
+                        </CommentDate>
+                      </div>
+                      <CommentContent>{comment.content}</CommentContent>
+                    </CommentInfoItem>
+                  </UserInfo>
+                </CounselCommentItemContainer>
                 <button onClick={() => setIsEdit((prev) => !prev)}>
                   댓글수정
                 </button>
@@ -276,15 +249,13 @@ const CounselComments = ({ target }: any) => {
             )}
           </>
         )}
-      </div>
+      </CounselItem>
     );
   };
 
   const CoComment = ({ comment }: IComment) => {
     // 대댓글
-    const [openModal, setOpenModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const [target, setTarget] = useState("");
 
     return (
       <>
@@ -298,9 +269,9 @@ const CounselComments = ({ target }: any) => {
             </button>
           </>
         ) : (
-          <button onClick={() => setIsEdit((prev) => !prev)}>
+          <WriteCoComentButton onClick={() => setIsEdit((prev) => !prev)}>
             대댓 작성 버튼
-          </button>
+          </WriteCoComentButton>
         )}
 
         {comment.cocoment.map((cocomentItem: any) => {
@@ -351,9 +322,6 @@ const CounselComments = ({ target }: any) => {
               onSubmit={(event) => EditCoComent(comment, cocomentItem, event)}
             >
               <EditCoCommentInput />
-              {/* <button onClick={() => onDelete(coco.commentId)}>
-                삭제대댓삭제
-              </button>{" "} */}
             </form>
             <button onClick={() => setIsEdit((prev) => !prev)}>
               수정취소하기
@@ -399,14 +367,44 @@ const CounselComments = ({ target }: any) => {
         />
         <NewCommentInput />
       </CounselCommentForm>
-      <div>
+      <CounselLists>
         {commentList?.data?.map((comment: any) => {
           return <Comment key={comment.id} comment={comment} />;
         })}
-      </div>
+      </CounselLists>
     </CounselCommentContainer>
   );
 };
+
+const WriteCoComentButton = styled.button``;
+
+const CommentInfoItem = styled.div`
+  & div {
+    display: flex;
+    margin-bottom: 2px;
+  }
+`;
+
+const CommentContent = styled.div`
+  font-weight: 500;
+  font-size: 0.9rem;
+`;
+const CommnetNickname = styled.div`
+  font-size: 0.9rem;
+  margin-right: 8px;
+`;
+const CommentDate = styled.div`
+  ::before {
+    content: "게시일 •";
+  }
+  color: #c5c5c5;
+  font-weight: 400;
+  font-size: 12px;
+`;
+
+const CounselCommentItemContainer = styled.div`
+  display: flex;
+`;
 
 const CoComentButton = styled.button`
   font-weight: 400;
@@ -462,10 +460,11 @@ export const ManageButtonContainer = styled.div`
 
 const UserInfo = styled.div`
   display: flex;
-  flex-direction: column;
   padding: 10px 0;
-  & div:nth-of-type(1) {
+  /* & div:nth-of-type(1) {
     display: flex;
+    flex-direction: column;
+
     & div:nth-of-type(1) {
       font-size: 14px;
       margin-right: 8px;
@@ -477,8 +476,8 @@ const UserInfo = styled.div`
       color: #c5c5c5;
       font-weight: 400;
       font-size: 12px;
-    }
-  }
+    } */
+  /* } */
 
   @media screen and (max-width: 500px) {
     & > div {

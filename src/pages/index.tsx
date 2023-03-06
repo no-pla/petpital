@@ -95,7 +95,7 @@ export default function Home() {
                   (acc: string | number, cur: string | number) => +acc + +cur,
                 ) / cost.length
               ).toFixed(0),
-            ).toLocaleString("ko-KR"),
+            ).toLocaleString("ko-KR") + "원",
           );
         } else {
           tempArray.push("정보 없음");
@@ -360,14 +360,16 @@ const BestPetpitalAddress = styled.div`
 `;
 const BestPetpitalCost = styled.div`
   &::before {
-    content: "평균 진료비 ";
+    content: "진로 평균 ";
   }
+
   padding: 6px;
   font-size: 1rem;
+  text-align: center;
   border-radius: 0 0 4px 4px;
-  color: #15b5bf;
+  color: #fff;
   font-weight: 600;
-  background-color: #afe5e9;
+  background: #afe5e9;
   height: 30px;
 `;
 
