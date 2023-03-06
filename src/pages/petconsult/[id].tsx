@@ -10,6 +10,7 @@ import {
 } from "../../components/custom/CustomHeader";
 import CounselPost from "../../components/CounselPost";
 import { authService } from "@/firebase/firebase";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -59,12 +60,6 @@ const PetconsultDetail = () => {
       router.push("/petconsult").then(() => {
         router.reload();
       });
-      // router.push("/petconsult").then(() => {
-      //   window.location.reload();
-      // });
-      // router.replace("/petconsult");
-      // router.replace("/petconsult").then(() => router.reload());
-      // router.replace(`/petconsult`, undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
   };

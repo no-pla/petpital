@@ -127,7 +127,7 @@ export const useDeletCounsel = () => {
     onSuccess(data, variables, context) {
       // 성공 시 실행
       console.log("성공");
-      queryClient.invalidateQueries(["pagnationCounsel"]);
+      queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
     },
     onError: (error, newCounsel, context) => {
       // 실패 시 실행. 롤백을 해주어야 함
