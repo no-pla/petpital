@@ -420,7 +420,7 @@ const CurrentImageContainer = styled.div`
 `;
 
 const CurrentReviewImage = styled.img`
-  width: 220px;
+  width: 200px;
   height: 100%;
   object-fit: cover;
   border-radius: 4px 0px 0px 4px;
