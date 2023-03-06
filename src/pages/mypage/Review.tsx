@@ -61,7 +61,7 @@ const ReviewContainer = styled.div`
 `;
 
 const ReviewBox = styled.div`
-  margin-top: 50px;
+  margin-top: 30px;
   width: 80%;
   border: 1px solid;
   background-color: #fafafa;
