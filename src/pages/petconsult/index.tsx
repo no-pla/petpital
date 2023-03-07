@@ -14,6 +14,7 @@ import { authService } from "../../firebase/firebase";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { REVIEW_SERVER } from "@/share/server";
 import Head from "next/head";
+import { CounselItem } from "@/components/custom/CounselItem";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
@@ -126,7 +127,8 @@ const DownButtonImage = styled.img``;
 const CurrentReviewContainer = styled.div`
   display: flex;
   gap: 8px;
-  justify-content: space-around;
+  justify-content: flex-start;
+  padding: 0 8px;
   border-top: 1px solid #e4e4e4;
   height: 80px;
 `;
@@ -135,7 +137,7 @@ const CurrentReview = styled.div`
   background: #fafafa;
   border-radius: 4px;
   margin: 12px 0;
-  width: 45%;
+  width: 49%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -260,27 +262,12 @@ function Petconsult() {
       <CounselContainer ref={targetRef}>
         {!isLoading &&
           petConsult?.map((counsel: any, index: number) => (
-            <Counsel key={counsel.id}>
-              <CounselTitle>{counsel.content}</CounselTitle>
-              <CurrentReviewContainer>
-                {commentList[index]?.length > 0 &&
-                  commentList[index]?.map((comment: any) => {
-                    return (
-                      <CurrentReview key={comment.content}>
-                        <CurrentReviewNickname>
-                          {comment.nickname}
-                        </CurrentReviewNickname>
-                        <CurrentReviewContent>
-                          {comment.content}
-                        </CurrentReviewContent>
-                      </CurrentReview>
-                    );
-                  })}
-              </CurrentReviewContainer>
-              <CounselButton onClick={() => onClick(counsel.id)}>
-                답변하러가기
-              </CounselButton>
-            </Counsel>
+            <CounselItem
+              key={counsel.id}
+              counsel={counsel}
+              index={index}
+              page={page}
+            />
           ))}
       </CounselContainer>
       <PageButtonContainer>

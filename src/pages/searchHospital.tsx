@@ -1,8 +1,10 @@
+import CustomModal, { ModalButton } from "@/components/custom/ErrorModal";
 import { useGetReviews } from "@/hooks/useGetReviews";
 import { mainPetpitalList } from "@/share/atom";
 import { REVIEW_SERVER } from "@/share/server";
 import styled from "@emotion/styled";
 import axios from "axios";
+import { checkPrimeSync } from "crypto";
 import { useRouter } from "next/router";
 import React, {
   ReactElement,
@@ -22,6 +24,7 @@ import {
   ZoomControl,
 } from "react-kakao-maps-sdk";
 import { useSetRecoilState } from "recoil";
+import shortUUID from "short-uuid";
 
 interface IHospital {
   address_name: string;
@@ -39,7 +42,6 @@ interface IHospital {
 }
 
 /* 
-  1. 로드뷰
   2. 내 위치 표시
   3. 스카이뷰 지도 전환 컨트롤
   4. 페이지네이션
@@ -78,11 +80,13 @@ const SearchHospital = () => {
   const [info, setInfo] = useState<any>();
   const [markers, setMarkers] = useState<any>([]);
   const [map, setMap] = useState<any>();
-
+  const [emptyComment, setEmptyComment] = useState(false);
   const [hospitalList, setHospitalList] = useState<any>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [targetHospitalData, setTargetHospitalData] = useState<any>([]);
   const [hospitalRate, setHospitalRate] = useState<any[]>([]);
+  const [hospitalReview, setHospitalReview] = useState<any[]>([]);
+  const [hospitalReviewCount, setHospitalReviewCount] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
   const { recentlyReview, isLoading } = useGetReviews("");
   const [state, setState] = useState({
@@ -94,9 +98,16 @@ const SearchHospital = () => {
     isLoading: true,
   });
 
+  console.log(target);
+
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
+  // console.log(hospitalRate, hospitalReview, hospitalReviewCount);
+
   useEffect(() => {
+    if (target) {
+      setPlace(target);
+    }
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
       navigator.geolocation.getCurrentPosition(
@@ -141,6 +152,8 @@ const SearchHospital = () => {
   };
 
   useEffect(() => {
+    console.log("id리로드 왜리로드안됨");
+
     // 상세 페이지 열면 hospitalId => 병원 공유 통해서 들어왔을 때 or 병원 클릭 시
     if (hospitalName && placeId) {
       setPlace(hospitalName);
@@ -194,10 +207,9 @@ const SearchHospital = () => {
   }, [map]);
 
   useEffect(() => {
+    console.log("검색리로드 왜리로드안됨");
+
     // 병원을 검색했을 때 실행
-    if (target) {
-      setPlace(target);
-    }
     if (!place) return;
     if (!map) return;
     const ps = new kakao.maps.services.Places();
@@ -234,24 +246,26 @@ const SearchHospital = () => {
         map.setBounds(bounds);
       }
     });
-  }, [target, place, map]);
+  }, [place, target]);
 
   useEffect(() => {
+    console.log("리로드 별점왜리로드안됨");
     const tempArray: any[] = [];
-    const tempDataArray: any[] = [];
+    const tempCountArray: any[] = [];
     // // 병원 아이디 가져오기
     hospitalList.map((hospital: IHospital) => {
       tempArray.push(hospital.id);
     });
 
-    // 별점 저장
+    // 별점 저장 / 리뷰 수 저장
     const promiseCosts = tempArray.map(async (hospital: any) => {
       const tempCostArray: any[] | PromiseLike<any[]> = [];
-
       await axios
         .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
         .then((res) =>
           res.data.map((data: any) => {
+            // console.log(data);
+            tempCountArray.push(data);
             tempCostArray.push(data.rating);
           }),
         );
@@ -259,8 +273,11 @@ const SearchHospital = () => {
     });
 
     Promise.all(promiseCosts).then(async (results) => {
+      // console.log(results);
       const tempArray: (string | number)[] = [];
+      const tempCount: (string | number)[] = [];
       results.forEach((cost) => {
+        tempCount.push(cost.length);
         if (cost.length > 0) {
           tempArray.push(
             Number(
@@ -275,15 +292,59 @@ const SearchHospital = () => {
           tempArray.push("정보 없음");
         }
       });
+      setHospitalReviewCount(tempCount);
       setHospitalRate(tempArray);
     });
+
     // 리뷰 저장
-  }, [hospitalList, place]);
+    const promiseReview = tempArray.map(async (hospital: any) => {
+      const tempReviewArray: any[] = [];
+
+      await axios
+        .get(
+          `${REVIEW_SERVER}posts?_sort=createdAt&_order=desc&hospitalId=${hospital}`,
+        )
+        .then((res) =>
+          res.data.map((data: any) => {
+            if (tempReviewArray.length < 3) {
+              const tempObj = {
+                id: data.id,
+                nickname: data.displayName,
+                profileImage: data.profileImage,
+                photo: data.downloadUrl,
+              };
+              tempReviewArray.push(tempObj);
+            }
+          }),
+        );
+      return tempReviewArray;
+    });
+
+    Promise.all(promiseReview).then(async (results) => {
+      const tempArray: any[] = [];
+      results.forEach((review: string | any[]) => {
+        if (review.length > 0) {
+          tempArray.push(review);
+        } else {
+          tempArray.push([
+            {
+              photo:
+                "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fno_image_info.svg?alt=media&token=c770159e-01d1-443e-89d9-0e14dea7ebdd",
+              id: shortUUID,
+            },
+          ]);
+        }
+      });
+      setHospitalReview(tempArray);
+    });
+
+    console.log(tempCountArray);
+  }, [hospitalList]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (targetHospital.current?.value === "") {
-      alert("비어있음"); // 추후 모달로 수정 예정
+      setEmptyComment((prev) => !prev);
       return;
     } else if (targetHospital.current?.value !== undefined) {
       setIsDetailOpen(false);
@@ -370,9 +431,30 @@ const SearchHospital = () => {
                         <div>⭐ {hospitalRate[index]}</div>
                         <ReviewCount>
                           <div>방문자 리뷰</div>
-                          <span>1,234</span>
+                          <span>{hospitalReviewCount[index]}</span>
                         </ReviewCount>
                       </ReviewRate>
+                      <ReviewPhoto>
+                        <CurrentReviewContainer>
+                          {hospitalReview[index]?.map((review: any) => {
+                            return (
+                              <CurrentReview
+                                key={review.id}
+                                bgImage={review.photo}
+                              >
+                                <CurrentReviewWriter>
+                                  <CurrentReviewUser
+                                    src={review.profileImage}
+                                  />
+                                  <CurrentReviewNickname>
+                                    {review.nickname}
+                                  </CurrentReviewNickname>
+                                </CurrentReviewWriter>
+                              </CurrentReview>
+                            );
+                          })}
+                        </CurrentReviewContainer>
+                      </ReviewPhoto>
                     </HospitalItem>
                   );
                 })
@@ -445,9 +527,63 @@ const SearchHospital = () => {
           </MapMarker>
         )}
       </Map>
+      {emptyComment && (
+        <CustomModal
+          modalText1={"내용이 비어있습니다."}
+          modalText2={"댓글은 최소 1글자 이상 채워주세요."}
+        >
+          <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
     </MapContainer>
   );
 };
+
+const CurrentReviewNickname = styled.div`
+  color: #ffffff;
+  text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+`;
+
+const CurrentReviewUser = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const CurrentReviewWriter = styled.div`
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+`;
+
+const CurrentReview = styled.div<{ bgImage: string }>`
+  background-image: url(${(props) => props.bgImage});
+  border-radius: 4px;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+`;
+
+const CurrentReviewContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 156px);
+  grid-auto-rows: 156px;
+  gap: 4px;
+  margin: 0 13px;
+`;
+
+const ReviewPhoto = styled.div`
+  margin: 16px 0;
+  height: 180px;
+  overflow-x: scroll;
+`;
 
 const HospitalNumber = styled.div`
   font-weight: 700;
@@ -495,9 +631,6 @@ const HospitalName = styled.div`
 const HospitalType = styled.span`
   font-size: 0.8rem;
   line-height: 14px;
-
-  /* gray_4_act */
-
   color: #9f9f9f;
 `;
 const ViewContreoler = styled.div`
@@ -511,6 +644,7 @@ const DashBoard = styled.div`
   box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid gray;
   padding-top: 60px;
+  overflow-y: scroll;
   /* display: none; */
 `;
 

@@ -53,6 +53,7 @@ export default function Home() {
         tempArray.push(temp);
       });
     }
+
     // promise.all을 사용해서 전부 실행이 끝난 다음에 실행시킨다.
     // 지금까지 매번 다른 데이터가 떴던 이유: tempArray에 모든 데이터를 담기 전에 바로 axios를 싱행했기 때문
     const promises = tempArray.map(async (hospital) => {
@@ -196,7 +197,9 @@ export default function Home() {
                       " " +
                       petpital.road_address_name.split(" ")[1]}
                 </BestPetpitalAddress>
-                <BestPetpitalCost>{arverageCost[index]}</BestPetpitalCost>
+                <BestPetpitalCost>
+                  {arverageCost?.length > 0 && arverageCost[index]}
+                </BestPetpitalCost>
               </BestPetpitalItem>
             );
           })}
