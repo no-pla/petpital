@@ -362,7 +362,6 @@ function Posts() {
             setPostEdit={setPostEdit}
             refetchPost={refetchPost}
             id={postId}
-            downloadUrl={photoUrl}
           />
           <button onClick={CloseEditPost}>close</button>
         </CreateAddModal>

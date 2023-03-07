@@ -196,7 +196,7 @@ export default function Home() {
                       " " +
                       petpital.road_address_name.split(" ")[1]}
                 </BestPetpitalAddress>
-                <BestPetpitalCost>{arverageCost[index]}</BestPetpitalCost>
+                {/* <BestPetpitalCost>{arverageCost[index]}</BestPetpitalCost> */}
               </BestPetpitalItem>
             );
           })}

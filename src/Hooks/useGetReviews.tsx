@@ -26,7 +26,7 @@ export const useGetReviews = (limit: string) => {
     isLoading,
     data: recentlyReview,
     refetch: recentlyRefetch,
-  } = useQuery<IReview>(["getrecentlyReview"], async () => {
+  } = useQuery<IReview>(["getrecentlyReview", limit], async () => {
     const res = await axios.get(`${REVIEW_SERVER}posts${limit}`);
     console.log("res", res);
     return res;

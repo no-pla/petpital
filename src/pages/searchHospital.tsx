@@ -1,5 +1,5 @@
 import { useGetReviews } from "@/hooks/useGetReviews";
-import { mainPetpitalList } from "@/share/atom";
+import { currentUserUid, mainPetpitalList } from "@/share/atom";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import {
@@ -21,6 +21,12 @@ import {
 import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import { hospitalData, modalState } from "../share/atom";
 import CreatePostModal from "../components/custom/CreatePostModal";
+import EditPostModal from "../components/custom/EditPostModal";
+import { useMutation, useQueryClient } from "react-query";
+import axios from "axios";
+import { REVIEW_SERVER } from "@/share/server";
+import { CiEdit } from "react-icons/ci";
+import { CiTrash } from "react-icons/ci";
 
 interface IHospital {
   address_name: string;
@@ -67,6 +73,8 @@ const SearchHospital = () => {
 
   const [hospitalList, setHospitalList] = useState<any>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [postId, setPostId] = useState("");
   const [targetHospitalData, setTargetHospitalData] =
     useRecoilState<any>(hospitalData);
   const targetHospital = useRef<HTMLInputElement>(null);
@@ -74,6 +82,8 @@ const SearchHospital = () => {
   console.log("recentlyReview", recentlyReview);
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
   const HospitalData = targetHospitalData;
+  const userUid = useRecoilValue(currentUserUid);
+  console.log("userUid", userUid);
 
   // 바깥으로 빼라!
   const Input = () => {
@@ -181,11 +191,47 @@ const SearchHospital = () => {
     setCreateModalOpen(true);
   };
 
+  const onClickEditButton = (id: any) => {
+    setIsEdit(true);
+    setPostId(id);
+  };
+
+  const queryClient = useQueryClient();
+  // 게시글 삭제
+  const { mutate: deleteMutate } = useMutation(
+    (id) =>
+      axios.delete(`${REVIEW_SERVER}/posts/${id}`).then((res) => res.data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["getrecentlyReview"]);
+      },
+    },
+  );
+
+  const handleDelete = async (id: any) => {
+    deleteMutate(id);
+  };
+
+  // console.log("targetHospitalData", targetHospitalData);
+
+  // 리뷰수
+  const totalReview = recentlyReview?.data.filter(
+    (item: any) => item.hospitalId === placeId,
+  ).length;
+  console.log("totalReview", totalReview);
+
+  // // 유저별 방문수
+  // const personTotalReview = recentlyReview?.data.filter(
+  //   (review: any) => review.hospitalId === placeId,
+  // ).length;
+  // console.log("personTotalReview", personTotalReview);
+
   return (
     <>
       {createModalOpen && (
         <CreatePostModal setCreateModalOpen={setCreateModalOpen} />
       )}
+      {isEdit && <EditPostModal setIsEdit={setIsEdit} id={postId} />}
       <MapContainer>
         <Map // 로드뷰를 표시할 Container
           center={{
@@ -234,16 +280,42 @@ const SearchHospital = () => {
                 />
                 <HospitalInfoWrap>
                   <HospitalInfoTopWrap>
-                    <div style={{ fontWeight: "bold" }}>{hospitalName}</div>
+                    <HospitalInfoTop>
+                      <div style={{ fontWeight: "bold", fontSize: "18px" }}>
+                        {hospitalName}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          marginLeft: "5px",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {targetHospitalData.phone}
+                      </div>
+                    </HospitalInfoTop>
+                    <div
+                      style={{
+                        fontSize: "13px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        // backgroundColor: "red",
+                      }}
+                    >
+                      <div>{targetHospitalData.address_name}</div>
+                    </div>
                   </HospitalInfoTopWrap>
                 </HospitalInfoWrap>
                 <ReviewInfoWrap>
-                  <div style={{ color: "#15B5BF" }}>영수증리뷰</div>
+                  <div style={{ color: "#15B5BF" }}>
+                    영수증리뷰({totalReview})
+                  </div>
                   <div style={{ color: "lightgray", marginLeft: "10px" }}>
                     최신순
                   </div>
+                  <button onClick={onClickWriteButton}>리뷰 참여하기</button>
                 </ReviewInfoWrap>
-                <button onClick={onClickWriteButton}>리뷰 참여하기</button>
+
                 {!isLoading &&
                   recentlyReview?.data
                     .filter(
@@ -251,9 +323,138 @@ const SearchHospital = () => {
                     )
                     .map((review) => {
                       return (
-                        <div key={review.id}>
-                          <div key={review.id}>{review.title}</div>
-                        </div>
+                        <ReviewContainer key={review.id}>
+                          <ReviewTopContainer>
+                            <ReviewProfileLeft>
+                              <img
+                                src={
+                                  review.profileImage
+                                    ? review.profileImage
+                                    : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
+                                }
+                                alt="프로필 이미지"
+                                width={40}
+                                height={40}
+                                style={{
+                                  borderRadius: "50%",
+                                }}
+                              ></img>
+                              <div style={{ marginLeft: "10px" }}>
+                                {review.displayName}
+                              </div>
+                            </ReviewProfileLeft>
+                            <ReviewProfileRight>
+                              진료비 {review.totalCost}원
+                            </ReviewProfileRight>
+                          </ReviewTopContainer>
+                          <ReviewMiddleContainer>
+                            <img
+                              src={review.downloadUrl}
+                              alt="게시글 이미지"
+                              width={339}
+                              height={200}
+                            />
+                            <div>{review.title}</div>
+                            <div
+                              style={{
+                                // backgroundColor: "red",
+                                width: "339px",
+                                marginTop: "5px",
+                                fontSize: "13px",
+                                padding: "3px",
+                              }}
+                            >
+                              {review.contents}
+                            </div>
+                          </ReviewMiddleContainer>
+                          <ReviewBottomContainer>
+                            <div style={{ display: "flex" }}>
+                              {review.selectedColors?.map((color) => {
+                                if (color === "깨끗해요") {
+                                  return (
+                                    <ReviewTagFirst key={color}>
+                                      {color}
+                                    </ReviewTagFirst>
+                                  );
+                                } else if (color === "친절해요") {
+                                  return (
+                                    <ReviewTagFirst key={color}>
+                                      {color}
+                                    </ReviewTagFirst>
+                                  );
+                                } else if (color === "꼼꼼해요") {
+                                  return (
+                                    <ReviewTagFirst key={color}>
+                                      {color}
+                                    </ReviewTagFirst>
+                                  );
+                                } else if (color === "저렴해요") {
+                                  return (
+                                    <ReviewTagFirst key={color}>
+                                      {color}
+                                    </ReviewTagFirst>
+                                  );
+                                }
+                              })}
+                            </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "10px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  // backgroundColor: "red",
+                                }}
+                              >
+                                <div
+                                  style={{ fontSize: "13px", color: "gray" }}
+                                >
+                                  {review.date.slice(6, 8)}월{" "}
+                                  {review.date.slice(10, 12)}일
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "13px",
+                                    color: "gray",
+                                    marginLeft: "5px",
+                                  }}
+                                >
+                                  {/* • {personTotalReview}번째 방문 */}
+                                </div>
+                              </div>
+
+                              {userUid === review.userId ? (
+                                <div style={{ display: "flex" }}>
+                                  <div
+                                    style={{
+                                      cursor: "pointer",
+                                      marginRight: "5px",
+                                    }}
+                                    onClick={() => {
+                                      onClickEditButton(review.id);
+                                    }}
+                                  >
+                                    <CiEdit size={18} />
+                                  </div>
+                                  <div
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => {
+                                      handleDelete(review.id);
+                                    }}
+                                  >
+                                    <CiTrash size={18} />
+                                  </div>
+                                </div>
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                          </ReviewBottomContainer>
+                        </ReviewContainer>
                       );
                     })
                     .reverse()}
@@ -303,6 +504,7 @@ const DashBoard = styled.div`
   border: 1px solid gray;
   padding-top: 60px;
   /* display: none; */
+  overflow: auto;
 `;
 
 const BoardContainer = styled.div`
@@ -347,6 +549,126 @@ const ReviewInfoWrap = styled.div`
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
   padding: 10px;
+`;
+
+const ReviewContainer = styled.div`
+  /* background-color: red; */
+  padding: 10px;
+`;
+const ReviewTopContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  /* background-color: red; */
+  height: 50px;
+  padding: 6px;
+`;
+
+const ReviewMiddleContainer = styled.div`
+  /* background-color: blue; */
+  height: 350px;
+  padding: 7px;
+  width: 373px;
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+`;
+
+const ReviewBottomContainer = styled.div`
+  /* background-color: purple; */
+  height: 50px;
+`;
+
+const ReviewProfileLeft = styled.div`
+  display: flex;
+  align-items: center;
+  /* background-color: red; */
+  width: 150px;
+`;
+
+const ReviewProfileRight = styled.div`
+  background-color: #15b5bf;
+  width: 105px;
+  border: 1px solid #15b5bf;
+  border-radius: 5px;
+  font-size: 12px;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  justify-content: center;
+`;
+
+const HospitalInfoTop = styled.div`
+  /* background-color: red; */
+  display: flex;
+`;
+
+// ---------- tag 색깔 -------------
+const ReviewTagFirst = styled.div`
+  width: 60px;
+  height: 26px;
+  background-color: #fff;
+  color: #00b8d9;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+  border: 1.5px solid #00b8d9;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+`;
+
+const ReviewTagSecond = styled.div`
+  width: 100px;
+  height: 28px;
+  background-color: #0052cc;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+const ReviewTagThird = styled.div`
+  width: 100px;
+  height: 28px;
+  background-color: #5243aa;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+
+const ReviewTagFourth = styled.div`
+  width: 100px;
+  height: 28px;
+  background-color: #ff5630;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
+`;
+const ReviewTagFifth = styled.div`
+  width: 100px;
+  height: 28px;
+  background-color: #ff8b00;
+  color: white;
+  padding: 2px;
+  cursor: default;
+  justify-content: center;
+  display: flex;
+  margin-left: 5px;
+  opacity: 0.7;
 `;
 
 export default SearchHospital;
