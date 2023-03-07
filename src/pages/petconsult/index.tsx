@@ -43,7 +43,7 @@ export const CounselTitle = styled.div`
 `;
 
 export const Counsel = styled.div`
-  background-color: #fafafa;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -123,6 +123,32 @@ const DownButton = styled.button`
 `;
 
 const DownButtonImage = styled.img``;
+const CurrentReviewContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-content: space-around;
+  border-top: 1px solid #e4e4e4;
+  height: 80px;
+`;
+const CurrentReview = styled.div`
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 4px;
+  margin: 12px 0;
+  width: 45%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-bottom: 4px;
+`;
+
+const CurrentReviewNickname = styled.span`
+  font-weight: 600;
+  padding-right: 4px;
+`;
+
+const CurrentReviewContent = styled.span``;
 
 interface ICounsel {
   uid: string;
@@ -144,12 +170,12 @@ function Petconsult() {
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
+      console.log("pagnationCounsel");
       return axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {
-      keepPreviousData: true,
       select: (data) => data?.data,
     },
   );
@@ -186,7 +212,6 @@ function Petconsult() {
       setIsLogin(true);
     }
   };
-
   return (
     <>
       {isLogin && (
@@ -237,12 +262,21 @@ function Petconsult() {
           petConsult?.map((counsel: any, index: number) => (
             <Counsel key={counsel.id}>
               <CounselTitle>{counsel.content}</CounselTitle>
-              <ul>
+              <CurrentReviewContainer>
                 {commentList[index]?.length > 0 &&
                   commentList[index]?.map((comment: any) => {
-                    return <li key={comment.content}>{comment.content}</li>;
+                    return (
+                      <CurrentReview key={comment.content}>
+                        <CurrentReviewNickname>
+                          {comment.nickname}
+                        </CurrentReviewNickname>
+                        <CurrentReviewContent>
+                          {comment.content}
+                        </CurrentReviewContent>
+                      </CurrentReview>
+                    );
                   })}
-              </ul>
+              </CurrentReviewContainer>
               <CounselButton onClick={() => onClick(counsel.id)}>
                 답변하러가기
               </CounselButton>

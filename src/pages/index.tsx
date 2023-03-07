@@ -15,6 +15,7 @@ import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
+import { REVIEW_SERVER } from "@/share/server";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -36,7 +37,7 @@ export default function Home() {
     // 지역명 + 병원 이름이 담긴 배열을 만든다.
 
     const tempArray: string[] = [];
-    const idArray: any[] = [];
+    const idArray: any = [];
     // const tempCostArray: any[] | PromiseLike<any[]> = [];
 
     if (mainPetpial?.documents) {
@@ -65,13 +66,12 @@ export default function Home() {
       );
       return res?.data.documents[0]?.thumbnail_url;
     });
-
     // 금액 정보 가져오기
-    const promiseCosts = idArray.map(async (hospital) => {
+    const promiseCosts = idArray.map(async (hospital: any) => {
       const tempCostArray: any[] | PromiseLike<any[]> = [];
 
       await axios
-        .get(`https://gabby-denim-trout.glitch.me/posts?hospitalId=${hospital}`)
+        .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
         .then((res) =>
           res.data.map((data: any) => {
             tempCostArray.push(+data.totalCost);
@@ -88,22 +88,21 @@ export default function Home() {
       const tempArray: (string | number)[] = [];
       results.forEach((cost) => {
         if (cost.length > 0) {
-          if (Math.max(...cost) === Math.min(...cost)) {
-            tempArray.push(Math.max(...cost).toLocaleString("ko-KR"));
-          } else {
-            tempArray.push(
-              Math.min(...cost).toLocaleString("ko-KR") +
-                "~" +
-                Math.max(...cost).toLocaleString("ko-KR"),
-            );
-          }
+          tempArray.push(
+            Number(
+              (
+                cost.reduce(
+                  (acc: string | number, cur: string | number) => +acc + +cur,
+                ) / cost.length
+              ).toFixed(0),
+            ).toLocaleString("ko-KR") + "원",
+          );
         } else {
           tempArray.push("정보 없음");
         }
       });
       setAverageCost(tempArray);
     });
-
     // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
   }, [mainPetpial, page, KAKAO_API_KEY]);
 
@@ -166,10 +165,11 @@ export default function Home() {
                     pathname: "/searchHospital",
                     // 동일 이름 병원이 많아서 병원 이름 + 주소로 수정
                     query: {
-                      target:
+                      hospitalName:
                         petpital.place_name +
                         " " +
                         petpital.road_address_name.split(" ")[0],
+                      placeId: petpital.id,
                     },
                   })
                 }
@@ -217,10 +217,11 @@ export default function Home() {
                   router.push({
                     pathname: "/searchHospital",
                     query: {
-                      target:
+                      hospitalName:
                         review.hospitalName +
                         " " +
                         review?.hospitalAddress.split(" ")[0],
+                      placeId: review.hospitalId,
                     },
                   })
                 }
@@ -359,14 +360,16 @@ const BestPetpitalAddress = styled.div`
 `;
 const BestPetpitalCost = styled.div`
   &::before {
-    content: "진료비 ";
+    content: "진로 평균 ";
   }
+
   padding: 6px;
   font-size: 1rem;
+  text-align: center;
   border-radius: 0 0 4px 4px;
-  color: #15b5bf;
+  color: #fff;
   font-weight: 600;
-  background-color: #afe5e9;
+  background: #afe5e9;
   height: 30px;
 `;
 

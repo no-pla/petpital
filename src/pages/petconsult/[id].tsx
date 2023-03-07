@@ -10,6 +10,7 @@ import {
 } from "../../components/custom/CustomHeader";
 import CounselPost from "../../components/CounselPost";
 import { authService } from "@/firebase/firebase";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -53,10 +54,12 @@ const PetconsultDetail = () => {
     }
   };
 
-  const deleteCounselPost = () => {
-    deleteCounsel(targetId);
+  const deleteCounselPost = async () => {
+    await deleteCounsel(targetId);
     if (id === targetId) {
-      router.push(`/petconsult`, undefined, { shallow: true });
+      router.push("/petconsult").then(() => {
+        router.reload();
+      });
     }
     setOpenModal((prev: any) => !prev);
   };
