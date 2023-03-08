@@ -12,6 +12,7 @@ import CreateAddModal from "../../components/custom/CreateAddModal";
 import CreatePost from "../../components/CreatePost";
 import EditPost from "../../components/EditPost";
 import { hospitalData } from "../../share/atom";
+import { REVIEW_SERVER } from "../../share/server";
 
 const Container = styled.div`
   width: 1200px;
@@ -237,22 +238,12 @@ function Posts() {
     data: post,
     isLoading: postLoading,
     refetch: refetchPost,
-    isFetching,
-  } = useQuery(
-    ["posts", page],
-    async (key, page) => {
-      const response = await axios.get(
-        `https://humble-summer-ballcap.glitch.me/posts?page=${page}&limit=10`,
-      );
-      return response.data.reverse();
-    },
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        if (lastPage.length === 0) return undefined; // 마지막 페이지를 로드한 경우
-        return allPages.length + 1; // 다음 페이지 번호
-      },
-    },
-  );
+  } = useQuery(["posts", page], async (key, page) => {
+    const response = await axios.get(
+      `${REVIEW_SERVER}posts?page=${page}&limit=10`,
+    );
+    return response.data.reverse();
+  });
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
@@ -265,7 +256,7 @@ function Posts() {
   const { mutate: updateMutate } = useMutation(
     (data) =>
       axios
-        .put(`https://humble-summer-ballcap.glitch.me/posts/${data.id}`, data)
+        .put(`${REVIEW_SERVER}posts/${data.id}`, data)
         .then((res) => res.data),
     {
       onSuccess: () => {
@@ -321,9 +312,7 @@ function Posts() {
   // 게시글 삭제
   const { mutate: deleteMutate } = useMutation(
     (id) =>
-      axios
-        .delete(`https://humble-summer-ballcap.glitch.me/posts/${id}`)
-        .then((res) => res.data),
+      axios.delete(`${REVIEW_SERVER}/posts/${id}`).then((res) => res.data),
     {
       onSuccess: () => {
         refetchPost();
@@ -373,7 +362,6 @@ function Posts() {
             setPostEdit={setPostEdit}
             refetchPost={refetchPost}
             id={postId}
-            downloadUrl={photoUrl}
           />
           <button onClick={CloseEditPost}>close</button>
         </CreateAddModal>
@@ -388,7 +376,6 @@ function Posts() {
           <button onClick={CloseCreatePost}>close</button>
         </CreateAddModal>
       )}
-      <div id="myMap" style={{ width: "500px", height: "400px" }}></div>
       <InfoContainer>
         <InformationBox>
           <div>

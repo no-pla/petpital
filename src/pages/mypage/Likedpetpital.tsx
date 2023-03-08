@@ -2,7 +2,6 @@ import React from "react";
 import styled from "@emotion/styled";
 import {
   useAddCounsel,
-  useGetCounselList,
   useGetCounselTarget,
   useGetPetConsult,
 } from "../../hooks/usePetsult";
@@ -13,7 +12,7 @@ import { useRouter } from "next/router";
 
 const Likedpetpital = () => {
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
-    limit: "&_limit=3",
+    limit: "",
   });
   const router = useRouter();
 
@@ -25,7 +24,7 @@ const Likedpetpital = () => {
         petConsult?.data
           .filter((counsel) => myId === counsel.uid)
           .map((counsel) => (
-            <CounselList key={counsel.uid}>
+            <CounselList key={counsel.id}>
               <Counsel onClick={() => router.push(`petconsult/${counsel.id}`)}>
                 <CounselTitle>{counsel.content}</CounselTitle>
               </Counsel>
@@ -43,7 +42,7 @@ const CounselList = styled.div`
 `;
 
 const Counsel = styled.div`
-  margin-top: 50px;
+  margin-top: 30px;
   width: 80%;
   border: 1px solid;
   background-color: #fafafa;

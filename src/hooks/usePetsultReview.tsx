@@ -1,3 +1,4 @@
+import { REVIEW_SERVER } from "@/share/server";
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -7,9 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const useGetPetConsultComment = () => {
   const { data, refetch } = useQuery(["getComments"], () => {
-    return axios.get(
-      `https://swift-flash-alfalfa.glitch.me/comments?_sort=createdAt&_order=desc`,
-    );
+    return axios.get(`${REVIEW_SERVER}qnaReview?_sort=createdAt&_order=desc`);
   });
 
   return { data, refetch };
@@ -18,10 +17,7 @@ export const useGetPetConsultComment = () => {
 // 상담 게시글 코멘트 추가
 
 const addCounselComment = (newCounselComment: any) => {
-  return axios.post(
-    `https://swift-flash-alfalfa.glitch.me/comments`,
-    newCounselComment,
-  );
+  return axios.post(`${REVIEW_SERVER}qnaReview`, newCounselComment);
 };
 
 export const useAddCounselComment = () => {
@@ -53,7 +49,7 @@ export const useAddCounselComment = () => {
 
 const editCounselComment = (newCounselComment: any) => {
   return axios.patch(
-    `https://swift-flash-alfalfa.glitch.me/comments/${newCounselComment.id}`,
+    `${REVIEW_SERVER}qnaReview/${newCounselComment.id}`,
     newCounselComment,
   );
 };
@@ -87,9 +83,7 @@ export const useEditCounselComment = () => {
 // 상담 코멘트 삭제
 
 const deleteCounselComment = (targetId: any) => {
-  return axios.delete(
-    `https://swift-flash-alfalfa.glitch.me/comments/${targetId}`,
-  );
+  return axios.delete(`${REVIEW_SERVER}qnaReview/${targetId}`);
 };
 
 export const useDeletCounselComment = () => {

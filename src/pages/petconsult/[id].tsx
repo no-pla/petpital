@@ -1,23 +1,16 @@
-import {
-  useDeletCounsel,
-  useGetCounselList,
-  useGetCounselTarget,
-} from "../../hooks/usePetsult";
+import { useDeletCounsel } from "../../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import CounselComments, {
-  ManageButtonContainer,
-} from "../../components/CounselComments";
-import { useQuery } from "react-query";
-import axios from "axios";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import {
   BackButton,
   CustomHeader,
   HeaderButton,
 } from "../../components/custom/CustomHeader";
-import { authService } from "../../firebase/firebase";
+import CounselPost from "../../components/CounselPost";
+import { authService } from "@/firebase/firebase";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -44,91 +37,69 @@ const PetconsultDetail = () => {
   const router = useRouter();
   const id = router.query.id;
   const { mutate: deleteCounsel } = useDeletCounsel();
-  const { data: targetTime } = useGetCounselTarget(id);
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
 
-  const fetchInfiniteComment = async (targetTime: any) => {
-    return await axios.get(
-      `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
-    );
+  // const onDelete = (id: any) => {
+  //   setOpenModal((prev: any) => !prev);
+  //   setTargetId(id);
+  // };
+
+  const goToNewQnAPage = () => {
+    if (authService.currentUser !== null) {
+      router.push("/petconsult/new");
+    } else {
+      setIsLogin(true);
+    }
   };
 
-  const { data } = useQuery(["infiniteComments", targetTime], () =>
-    fetchInfiniteComment(targetTime),
-  );
-
-  const onDelete = (id: any) => {
-    setOpenModal((prev: any) => !prev);
-    setTargetId(id);
-  };
-
-  const deleteCounselPost = () => {
-    deleteCounsel(targetId);
+  const deleteCounselPost = async () => {
+    await deleteCounsel(targetId);
     if (id === targetId) {
-      router.push(`/petconsult`);
+      router.push("/petconsult").then(() => {
+        router.reload();
+      });
     }
     setOpenModal((prev: any) => !prev);
   };
 
-  const onOpenInput = (targetId: string) => {
-    router.push(`/petconsult/edit/${targetId}`);
-  };
-
-  function Components(this: any, { counselData }: any) {
-    return (
-      <Counsel key={counselData.id}>
-        <CounselHeader>
-          <CounselInfo>
-            <UserProfileImg
-              src={counselData.profileImg}
-              alt={counselData.nickname + " 유저의 프로필 사진입니다."}
-            />
-            <UserInfo>
-              <div>{counselData.nickname}</div>
-              <div>
-                {new Date(counselData.createdAt).toLocaleDateString("ko-Kr")}
-              </div>
-            </UserInfo>
-          </CounselInfo>
-          {counselData.uid === authService.currentUser?.uid && (
-            <ManageButtonContainer>
-              <button onClick={() => onDelete(counselData.id)}>삭제</button>
-              <button onClick={() => onOpenInput(counselData.id)}>수정</button>
-            </ManageButtonContainer>
-          )}
-        </CounselHeader>
-        <CounselText>{String(counselData.content)}</CounselText>
-        <CounselComments target={counselData.id} />
-      </Counsel>
-    );
-  }
+  console.log("전체페이지 리렌더");
 
   return (
-    <CounselContainer>
-      <CustomHeader>
-        <BackButton onClick={() => router.push("/petconsult")}>
-          &larr; 이전으로
-        </BackButton>
-        <HeaderButton onClick={() => router.push("/petconsult/new")}>
-          질문하기
-        </HeaderButton>
-      </CustomHeader>
-      {data?.data?.map((counselData: any) => {
-        return <Components key={counselData.id} counselData={counselData} />;
-      })}
-      {openModal && (
+    <>
+      <CounselContainer>
+        <CustomHeader>
+          <BackButton onClick={() => router.push("/petconsult")}>
+            &larr; 이전으로
+          </BackButton>
+          <HeaderButton onClick={goToNewQnAPage}>질문하기</HeaderButton>
+        </CustomHeader>
+        <CounselPost />
+        {openModal && (
+          <CustomModal
+            modalText1={"입력하신 게시글을"}
+            modalText2={"삭제 하시겠습니까?"}
+          >
+            <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
+              취소
+            </ModalButton>
+            <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
+          </CustomModal>
+        )}
+      </CounselContainer>
+      {isLogin && (
         <CustomModal
-          modalText1={"입력하신 게시글을"}
-          modalText2={"삭제 하시겠습니까?"}
+          modalText1={"회원가입 후"}
+          modalText2={"질문을 남겨보세요!"}
         >
-          <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
-            취소
+          <ModalButton onClick={() => setIsLogin(false)}>취소</ModalButton>
+          <ModalButton onClick={() => router.push("/signup")}>
+            회원가입 하기
           </ModalButton>
-          <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
         </CustomModal>
       )}
-    </CounselContainer>
+    </>
   );
 };
 
@@ -191,10 +162,12 @@ const CounselText = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 1.2rem;
   color: #ffffff;
   border-radius: 4px;
   margin: 40px auto;
+  text-align: center;
+  padding: 0 10px;
 `;
 
 export default PetconsultDetail;

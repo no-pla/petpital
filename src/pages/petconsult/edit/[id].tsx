@@ -8,13 +8,15 @@ import { CounselHeader, CounselInfo, UserInfo, UserProfileImg } from "../[id]";
 import { authService } from "../../../firebase/firebase";
 import CustomModal, {
   ModalButton,
-} from "../../../components/custom/CustomModal";
+} from "../../../components/custom/ErrorModal";
 import { HeaderButton } from "../../../pages";
 import {
   BackButton,
   CustomHeader,
 } from "../../../components/custom/CustomHeader";
 import { SubBanner } from "../../../components/SubBanner";
+import { REVIEW_SERVER } from "@/share/server";
+import { UserProfile } from "@/components/CounselPost";
 
 const EditCounsel = () => {
   const router = useRouter();
@@ -31,7 +33,7 @@ const EditCounsel = () => {
   const { data } = useQuery(
     ["getEditCounsels", id],
     () => {
-      return axios.get(`https://swift-flash-alfalfa.glitch.me/posts/${id}`);
+      return axios.get(`${REVIEW_SERVER}/qna/${id}`);
     },
     {
       enabled: !!id,
@@ -114,14 +116,10 @@ const EditCounsel = () => {
       </CustomHeader>
       <CounselHeader>
         <CounselInfo>
-          <UserProfileImg
-            src={
+          <UserProfile
+            profileLink={
               authService.currentUser?.photoURL ||
-              "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606"
-            }
-            alt={
-              authService.currentUser?.displayName +
-              " 유저의 프로필 사진입니다."
+              "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
             }
           />
           <UserInfo>

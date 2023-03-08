@@ -4,6 +4,14 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
+  images: {
+    domains: [
+      "firebasestorage.googleapis.com",
+      "i.pinimg.com",
+      "upload.wikimedia.org",
+      "user-images.githubusercontent.com",
+    ],
+  },
 };
 
 module.exports = nextConfig;

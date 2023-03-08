@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import React, { memo } from "react";
 
 const HeaderContainer = styled.div`
   padding: 20px 0;
@@ -13,10 +14,7 @@ const HeaderContainer = styled.div`
   }
 `;
 
-export const HeaderTitle = styled.h3`
-  font-weight: 700;
-  font-size: 1rem;
-`;
+export const HeaderTitle = styled.h3``;
 
 export const BackButton = styled.button`
   background-color: transparent;
@@ -58,6 +56,7 @@ export const HeaderButton = styled.button`
   }
 `;
 
-export const CustomHeader = ({ children }: any) => {
+export const CustomHeader = React.memo(({ children }: any) => {
   return <HeaderContainer>{children}</HeaderContainer>;
-};
+});
+CustomHeader.displayName = "CustomHeader";

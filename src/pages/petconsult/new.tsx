@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAddCounsel } from "../../hooks/usePetsult";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { useRouter } from "next/router";
 import { authService } from "../../firebase/firebase";
 import {
@@ -20,6 +20,7 @@ export interface INewPetsult {
   nickname: any;
   profileImg: any;
   createdAt: number;
+  linkedUser: string[];
 }
 
 const NewPetsult = () => {
@@ -53,8 +54,9 @@ const NewPetsult = () => {
           authService.currentUser?.photoURL ||
           "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FComponent%209.png?alt=media&token=ee6ff59f-3c4a-4cea-b5ff-c3f20765a606",
         createdAt: Date.now(),
+        linkedUser: [],
       };
-      addCounsel(newCounsel);
+      await addCounsel(newCounsel);
 
       router.push(`/petconsult/${newCounsel.id}`);
     }

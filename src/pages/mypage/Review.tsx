@@ -20,8 +20,8 @@ const Review = () => {
         : recentlyReview?.data
             .filter((review) => myId === review.userId)
             .map((review: any) => (
-              <ReviewContainer key={review.userId}>
-                <ReviewBox onClick={() => router.push(`posts/`)}>
+              <ReviewContainer key={review.id}>
+                <ReviewBox onClick={() => router.push(`/`)}>
                   <ReviewId>
                     <ReviewImg src={review.downloadUrl} alt="" />
                     <ReviewInfo>
@@ -61,7 +61,7 @@ const ReviewContainer = styled.div`
 `;
 
 const ReviewBox = styled.div`
-  margin-top: 50px;
+  margin-top: 30px;
   width: 80%;
   border: 1px solid;
   background-color: #fafafa;

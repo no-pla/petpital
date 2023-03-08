@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -11,7 +11,10 @@ import {
 import { MainBannerContiner } from "../../components/MainBanner";
 import { MainCustomButton } from "..";
 import { authService } from "../../firebase/firebase";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
+import { REVIEW_SERVER } from "@/share/server";
+import Head from "next/head";
+import { CounselItem } from "@/components/custom/CounselItem";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
@@ -27,25 +30,29 @@ const CounselContainer = styled.div`
   }
 `;
 
-export const CounselTitle = styled.h3`
+export const CounselTitle = styled.div`
   margin-bottom: 50px;
   display: flex;
   font-size: 1.1rem;
+  margin-top: 12px;
   &::before {
     content: "Q";
     color: #c5c5c5;
     font-size: 47px;
-    margin: 0 10px 0 15px;
+    margin: -15px 20px 0 15px;
   }
 `;
 
 export const Counsel = styled.div`
-  background-color: #fafafa;
+  margin-top: -15px;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
+  border-width: 4px;
+  border-color: #eee;
+  border-style: solid;
   width: 90%;
   height: 100%;
 `;
@@ -120,23 +127,84 @@ const DownButton = styled.button`
 `;
 
 const DownButtonImage = styled.img``;
+export const CurrentReviewContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  padding: 0 8px;
+  border-top: 1px solid #e4e4e4;
+  height: 80px;
+`;
+export const CurrentReview = styled.div`
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 4px;
+  margin: 12px 0;
+  width: 49%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-bottom: 4px;
+`;
+
+export const CurrentReviewNickname = styled.span`
+  font-weight: 600;
+  padding-right: 4px;
+`;
+
+export const CurrentReviewContent = styled.span``;
+
+interface ICounsel {
+  uid: string;
+  id: string;
+  content: string;
+  nickname: string;
+  profileImg: string;
+  createdAt: number;
+}
 
 function Petconsult() {
   const router = useRouter();
   const targetRef = useRef<HTMLDivElement>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [page, setPage] = useState(1);
+  const [counselList, setCounselList] = useState<string[]>([]);
+  const [commentList, setCommentList] = useState<string[][]>([]);
+
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
+      console.log("pagnationCounsel");
       return axios.get(
-        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {
-      keepPreviousData: true,
+      select: (data) => data?.data,
     },
   );
+
+  useEffect(() => {
+    // forEach를 사용하면 이전 작업이 끝나는 것을 기다리고 실행되지 않기 때문에 Promise.all을 사용해주어야 한다.
+    const tempArray: string[] = [];
+
+    if (petConsult) {
+      petConsult.map((counsel: any) => tempArray.push(counsel.id));
+    }
+
+    const promises = tempArray.map(async (counselId) => {
+      return await axios
+        .get(
+          `${REVIEW_SERVER}qnaReview?_sort=createdAt&_order=desc&counselId=${counselId}`,
+        )
+        .then((res) => res.data.slice(0, 2));
+    });
+
+    Promise.all(promises).then((results) => {
+      setCommentList(results);
+    });
+  }, [page, petConsult]);
 
   const onClick = (id: string) => {
     router.push(`petconsult/${id}`);
@@ -149,7 +217,6 @@ function Petconsult() {
       setIsLogin(true);
     }
   };
-
   return (
     <>
       {isLogin && (
@@ -191,22 +258,20 @@ function Petconsult() {
         <HeaderButton
           disabled={!authService.currentUser === undefined}
           onClick={goToNewQnAPage}
-          // onClick={() =>}
         >
           질문하기
         </HeaderButton>
       </CustomHeader>
       <CounselContainer ref={targetRef}>
-        {isLoading
-          ? "로딩중"
-          : petConsult?.data.map((counsel: any) => (
-              <Counsel key={counsel.id}>
-                <CounselTitle>{counsel.content}</CounselTitle>
-                <CounselButton onClick={() => onClick(counsel.id)}>
-                  답변하러가기
-                </CounselButton>
-              </Counsel>
-            ))}
+        {!isLoading &&
+          petConsult?.map((counsel: any, index: number) => (
+            <CounselItem
+              key={counsel.id}
+              counsel={counsel}
+              index={index}
+              page={page}
+            />
+          ))}
       </CounselContainer>
       <PageButtonContainer>
         <PageButton
@@ -216,7 +281,7 @@ function Petconsult() {
           &larr;
         </PageButton>
         <PageButton
-          disabled={petConsult?.data.length !== 10 && true}
+          disabled={petConsult?.length !== 10 && true}
           onClick={() => setPage((prev) => prev + 1)}
         >
           &rarr;

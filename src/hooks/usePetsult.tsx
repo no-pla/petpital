@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { REVIEW_SERVER } from "../share/server";
 
 // 타입 지정
 interface INewPetsult {
-  filter(arg0: (log: any) => void): INewPetsult;
   data: {
     id: string;
     content: any;
@@ -22,7 +22,7 @@ export const useGetPetConsult = ({ limit }: any) => {
       queryKey: ["getCounsel", limit],
       queryFn: () => {
         return axios.get(
-          `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc${limit}`,
+          `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc${limit}`,
         );
       },
     });
@@ -30,7 +30,7 @@ export const useGetPetConsult = ({ limit }: any) => {
 };
 
 const addCounsel = (newCounsult: any) => {
-  return axios.post("https://swift-flash-alfalfa.glitch.me/posts", newCounsult);
+  return axios.post(`${REVIEW_SERVER}qna`, newCounsult);
 };
 
 export const useAddCounsel = () => {
@@ -40,10 +40,10 @@ export const useAddCounsel = () => {
 // 상담 게시글 불러오기
 
 export const useGetCounselTarget = (id: any) => {
-  const { data } = useQuery(
+  const { data: targetTime } = useQuery(
     ["getCounsels", id],
     () => {
-      return axios.get(`https://swift-flash-alfalfa.glitch.me/posts/${id}`);
+      return axios.get(`${REVIEW_SERVER}qna/${id}`);
     },
     {
       // id가 존재할 때만 실행
@@ -54,35 +54,26 @@ export const useGetCounselTarget = (id: any) => {
       select: (data) => data?.data.createdAt,
     },
   );
-  return { data };
-};
 
-export const useGetCounselList = (targetTime: any) => {
-  const { data, isLoading } = useQuery(
-    "getCounsel",
-    () => {
-      return axios.get(
-        `https://swift-flash-alfalfa.glitch.me/posts?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
-      );
-    },
+  const { data: CounselList } = useQuery(
+    ["infiniteComments", targetTime],
+    async () =>
+      await axios.get(
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+      ),
     {
-      // targetTime이 존재할 때만 실행
       enabled: !!targetTime,
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      cacheTime: 0,
+      select: (data) => data?.data,
     },
   );
 
-  return { data, isLoading };
+  return { CounselList };
 };
+
 // 상담 게시글 수정
 
 const editCounsel = (newCounsel: any) => {
-  return axios.patch(
-    `https://swift-flash-alfalfa.glitch.me/posts/${newCounsel.id}`,
-    newCounsel,
-  );
+  return axios.patch(`${REVIEW_SERVER}qna/${newCounsel.id}`, newCounsel);
 };
 
 export const useEditCounsel = () => {
@@ -106,7 +97,7 @@ export const useEditCounsel = () => {
       console.log(error);
     },
     onSettled() {
-      queryClient.invalidateQueries({ queryKey: ["getCounsel"] });
+      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
     },
   });
 };
@@ -114,9 +105,8 @@ export const useEditCounsel = () => {
 // 상담 게시글 삭제
 
 const deleteCounsel = (targetId: any) => {
-  return axios.delete(
-    `https://swift-flash-alfalfa.glitch.me/posts/${targetId}`,
-  );
+  console.log("deleteCOunsel");
+  return axios.delete(`${REVIEW_SERVER}qna/${targetId}`);
 };
 
 export const useDeletCounsel = () => {
@@ -126,17 +116,18 @@ export const useDeletCounsel = () => {
     mutationFn: deleteCounsel,
     mutationKey: ["getCounsel"],
     onMutate: async (newCounsel) => {
-      // mutation 취소
+      //     // mutation 취소
       await queryClient.cancelQueries({ queryKey: ["getCounsel"] });
       const oldCounsel = queryClient.getQueriesData(["getCounsel"]);
       queryClient.setQueriesData(["getCounsel"], newCounsel);
       return { oldCounsel, newCounsel };
-      // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
-      // 낙관적 업데이트를 통해 캐시 수정
+      //     // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
+      //     // 낙관적 업데이트를 통해 캐시 수정
     },
     onSuccess(data, variables, context) {
       // 성공 시 실행
-      // console.log("성공");
+      console.log("성공");
+      queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
     },
     onError: (error, newCounsel, context) => {
       // 실패 시 실행. 롤백을 해주어야 함
@@ -145,7 +136,7 @@ export const useDeletCounsel = () => {
     },
     onSettled: () => {
       // 무조건 실행
-      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
+      queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
     },
   });
 };
