@@ -20,9 +20,12 @@ import { CounselItem } from "@/components/custom/CounselItem";
 const CounselContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(6, 1fr);
   gap: 24px;
   justify-content: center;
   justify-items: center;
+  position: relative;
+  height: 100%;
   @media screen and (max-width: 880px) {
     display: flex;
     flex-direction: column;
@@ -71,7 +74,7 @@ export const CounselButton = styled.button`
 export const PageButtonContainer = styled.div`
   width: 100%;
   text-align: center;
-  margin: 20px 0 96px 0;
+  margin: 20px 0 0px 0;
   display: flex;
   gap: 20px;
   justify-content: center;
@@ -87,7 +90,7 @@ export const PageButton = styled.button`
   background-color: transparent;
   border: 2px solid #65d8df;
   border-radius: 50%;
-
+  margin-bottom: 80px;
   &:disabled {
     color: gray;
     border-color: gray;
@@ -154,6 +157,41 @@ export const CurrentReviewNickname = styled.span`
 `;
 
 export const CurrentReviewContent = styled.span``;
+
+export const QuestionButton = styled.button`
+  color: white;
+  position: fixed;
+  bottom: 100px;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #15b5bf;
+  border: none;
+  font-weight: 700;
+  gap: 8px;
+  cursor: pointer;
+
+  @media screen and (max-width: 1200px) {
+    /* margin-bottom: 120px; */
+    /* right: 12%; */
+    right: 40px;
+  }
+  @media screen and (min-width: 1200px) {
+    /* margin-bottom: 120px; */
+    right: 12%;
+  }
+  filter: drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.3));
+  &::before {
+    content: "Q";
+    font-size: 48px;
+    font-weight: 400;
+  }
+`;
 
 interface ICounsel {
   uid: string;
@@ -255,12 +293,6 @@ function Petconsult() {
       </MainBannerContiner>
       <CustomHeader>
         <HeaderTitle>고민있음 털어놔보개!🐶</HeaderTitle>
-        <HeaderButton
-          disabled={!authService.currentUser === undefined}
-          onClick={goToNewQnAPage}
-        >
-          질문하기
-        </HeaderButton>
       </CustomHeader>
       <CounselContainer ref={targetRef}>
         {!isLoading &&
@@ -272,6 +304,7 @@ function Petconsult() {
               page={page}
             />
           ))}
+        <QuestionButton>질문하기</QuestionButton>
       </CounselContainer>
       <PageButtonContainer>
         <PageButton

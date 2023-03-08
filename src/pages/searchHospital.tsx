@@ -480,7 +480,7 @@ const SearchHospital = () => {
             lng: 126.9786567,
           }}
           style={{
-            width: "100%",
+            width: "1200px",
             height: `calc(100vh - 80px)`,
             position: "fixed",
             bottom: 0,
@@ -787,6 +787,27 @@ const SearchHospital = () => {
             )}
           </BoardContainer>
           {/* 마커 표시 */}
+
+          {/* <MapMarker // 마커를 생성합니다
+            position={{
+              // 마커가 표시될 위치입니다
+              lat: 37.54699,
+              lng: 127.09598,
+            }}
+            image={{
+              src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
+              size: {
+                width: 64,
+                height: 69,
+              }, // 마커이미지의 크기입니다
+              options: {
+                offset: {
+                  x: 27,
+                  y: 69,
+                }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+              },
+            }}
+          ></MapMarker> */}
           {markers.map(
             (marker: {
               content:
@@ -800,15 +821,18 @@ const SearchHospital = () => {
                 | undefined;
               position: { lat: any; lng: any };
             }) => (
-              <MapMarker
+              <MapMarker // 마커를 생성합니다
                 key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
-                position={marker.position}
-                onClick={() => setInfo(marker)}
+                position={{
+                  // 마커가 표시될 위치입니다
+                  lat: 37.54699,
+                  lng: 127.09598,
+                }}
                 image={{
                   src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
                   size: {
-                    width: 56,
-                    height: 56,
+                    width: 64,
+                    height: 69,
                   }, // 마커이미지의 크기입니다
                   options: {
                     offset: {
@@ -817,19 +841,7 @@ const SearchHospital = () => {
                     }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
                   },
                 }}
-              >
-                {info && info.content === marker.content && (
-                  <CustomOverlayMap
-                    position={{
-                      lat: marker.position.lat,
-                      lng: marker.position.lng,
-                    }}
-                    yAnchor={1}
-                  >
-                    <MarkerItem className="title">{marker.content}</MarkerItem>
-                  </CustomOverlayMap>
-                )}
-              </MapMarker>
+              ></MapMarker>
             ),
           )}
           {/* 현재 접속 위치 표시 */}

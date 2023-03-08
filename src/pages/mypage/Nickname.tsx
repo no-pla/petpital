@@ -45,14 +45,16 @@ const Nickname = () => {
 
   // 마이페이지 이동
   const onMyPageClick = () => {
-    router.push("/mypage");
+    router.push("/mypage").then(() => {
+      router.reload();
+    });
   };
 
   // 닉네임 글자수 제한, 닉네임변경
   const onInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputCount(e.target.value.length);
     setNewNickname(e.target.value);
-    console.log(newNickname);
+    // console.log(newNickname);
   };
 
   //   //바이트로 실시간변환
@@ -192,11 +194,11 @@ const Nickname = () => {
         >
           저장하기
         </SaveButton>
-        {modal == true ? (
+        {modal ? (
           <AuthModal>
             <ModalBox>
-              <span>이전 닉네임을</span>
-              <span>사용하시겠습니까?</span>
+              <span>프로필을</span>
+              <span>변경 하시겠습니까?</span>
             </ModalBox>
             <form onSubmit={handleSubmit}>
               <ModalButton onClick={() => setModal(false)}>
@@ -221,7 +223,7 @@ const Nickname = () => {
 export default Nickname;
 
 const MyPageContainer = styled.div`
-  height: 100%;
+  height: 100vh;
   background-color: #fafafa;
 `;
 
