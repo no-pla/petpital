@@ -114,7 +114,7 @@ const Index = () => {
 
   //프로필 변경 페이지 이동
   const onProfileChangeClick = () => {
-    // router.push("/mypage/Nickname");
+    router.push("/mypage/Nickname");
   };
 
   const placesData = useRecoilValue(hospitalData);
