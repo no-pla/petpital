@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { hospitalData } from "../share/atom";
+import { hospitalData, modalState } from "../share/atom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import {
@@ -12,11 +12,12 @@ import { Roadview } from "react-kakao-maps-sdk";
 import Script from "next/script";
 import { mainPetpitalList } from "../share/atom";
 import { useGetReviews } from "../hooks/useGetReviews";
-import CreateAddModal from "../components/custom/CreateAddModal";
-import CreatePost from "../components/CreatePost";
 import { createRoot } from "react-dom/client";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
+import { useMutation, useQueryClient } from "react-query";
+import axios from "axios";
+import { REVIEW_SERVER } from "@/share/server";
 
 declare const window: typeof globalThis & {
   kakao: any;
@@ -28,7 +29,7 @@ export default function SearchMap(props: any) {
   const [search, setSearch] = useState<any>("");
   const [isOpen, setIsOpen] = useState(true);
   const [isOpen1, setIsOpen1] = useState(false);
-  const { recentlyReview, isLoading } = useGetReviews("");
+  const { recentlyReview, isLoading, recentlyRefetch } = useGetReviews("");
 
   const setNewSearch = useSetRecoilState(mainPetpitalList);
 
@@ -37,8 +38,16 @@ export default function SearchMap(props: any) {
     query: { target },
   } = router;
 
+  const queryClient = useQueryClient();
+
   const initialPlace = useRecoilValue(hospitalData);
   const placesData = useSetRecoilState(hospitalData);
+
+  const setIsOpenModal = useSetRecoilState(modalState);
+
+  const handleOpenModal = () => {
+    // setIsOpenModal(true);
+  };
 
   const onchangeSearch = (event: any) => {
     setSearch(event?.target.value);
@@ -49,6 +58,22 @@ export default function SearchMap(props: any) {
   };
   const onClickSearchBarOpen1 = () => {
     setIsOpen1(!isOpen1);
+  };
+
+  const { mutate: deleteMutate } = useMutation(
+    (id) =>
+      axios.delete(`${REVIEW_SERVER}/posts/${id}`).then((res) => res.data),
+    {
+      onSuccess: () => {
+        console.log("성공");
+        // recentlyRefetch();
+        queryClient.invalidateQueries(["getrecentlyReview"]);
+      },
+    },
+  );
+
+  const ReviewDelete = async (id: any) => {
+    deleteMutate(id);
   };
 
   useEffect(() => {
@@ -458,8 +483,10 @@ export default function SearchMap(props: any) {
           const reviewList = document.getElementById("reviewList");
           if (reviewList) {
             const root2 = createRoot(reviewList);
+            console.log("root2");
             root2.render(
               <ReviewList>
+                <button onClick={handleOpenModal}>리뷰쓰기</button>
                 {!isLoading &&
                   recentlyReview?.data
                     .map((review) => {
@@ -512,6 +539,14 @@ export default function SearchMap(props: any) {
                                     }
                                   })}
                                   <DateWrap>{review.date}</DateWrap>
+                                  {/* <button onClick={ReviewUpdate}>수정</button> */}
+                                  <button
+                                    onClick={() => {
+                                      ReviewDelete(review.id);
+                                    }}
+                                  >
+                                    삭제
+                                  </button>
                                 </TagBottom>
                               </TagWrap>
                             </ReviewInfo>
@@ -828,7 +863,7 @@ const Review = styled.div`
   background-color: #f7f3f3e8;
   border-radius: 5px;
   display: flex;
-  width: 100%;
+  width: 60%;
   height: 200px;
   margin-top: 10px;
 `;
@@ -897,6 +932,7 @@ const ReviewTitle = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
 `;
 
 const ReviewContents = styled.div`

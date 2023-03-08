@@ -9,6 +9,7 @@ const nextConfig = {
       "firebasestorage.googleapis.com",
       "i.pinimg.com",
       "upload.wikimedia.org",
+      "user-images.githubusercontent.com",
     ],
   },
 };

@@ -16,6 +16,7 @@ import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
 import { REVIEW_SERVER } from "@/share/server";
+import { BsArrowRightCircle } from "react-icons/bs";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -135,6 +136,10 @@ export default function Home() {
           </PetpitalSubTitle>
           <MainCustomButton onClick={() => router.push("/searchHospital")}>
             병원검색 하러가기
+            <BsArrowRightCircle
+              size={16}
+              style={{ marginTop: 1, marginLeft: 13 }}
+            />
           </MainCustomButton>
         </MainBanner>
       </MainBannerContiner>
@@ -144,7 +149,7 @@ export default function Home() {
           육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
         </SectionSubTitle>
         <PageButtonContainer
-          style={{ justifyContent: "right", marginBottom: "50px" }}
+          style={{ justifyContent: "right", marginBottom: "10px" }}
         >
           <PageButton disabled={page === 1} onClick={previousPage}>
             &larr;
@@ -209,9 +214,23 @@ export default function Home() {
         backgroundMinImg="
       https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fapp_banner.jpg?alt=media&token=1622f93e-970b-4a9d-a521-ada6094668fb"
         backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Freview_banner.jpg?alt=media&token=aa4b416c-5b37-4ca1-afae-9b040631d396"
-      />
+      >
+        <MainCustomButton
+          onClick={() =>
+            authService.currentUser === null
+              ? router.push("/login")
+              : router.push("/searchMap")
+          }
+        >
+          리뷰 남기러가기
+          <BsArrowRightCircle
+            size={16}
+            style={{ marginTop: 1, marginLeft: 13 }}
+          />
+        </MainCustomButton>
+      </ReviewBanner>
       <Section>
-        <SectionTitle>내가 한번 가봤다냥</SectionTitle>
+        <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
         <CurrentReivewContainer>
           {recentlyReview?.data.map((review) => {
             return (
@@ -320,8 +339,8 @@ const ReviewBanner = styled.div<{
 // 최근 검색 병원
 const BestPetpitalContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 190px);
-  gap: 20px 24px;
+  grid-template-columns: repeat(6, 144px);
+  gap: 20px 18px;
   padding-bottom: 20px;
   @media screen and (max-width: 1200px) {
     overflow-x: scroll;
@@ -329,11 +348,11 @@ const BestPetpitalContainer = styled.div`
 `;
 
 const BestPetpitalItem = styled.div`
-  width: calc(max(100%, 140px));
+  width: calc(max(100%, 144px));
   border-radius: 4px;
   box-shadow: 0px 4px 4px 0px #0000001a;
   @media screen and (max-width: 800px) {
-    grid-template-columns: repeat(5, 200px);
+    grid-template-columns: repeat(6, 200px);
   }
 `;
 
@@ -363,7 +382,7 @@ const BestPetpitalAddress = styled.div`
 `;
 const BestPetpitalCost = styled.div`
   &::before {
-    content: "진로 평균 ";
+    content: "진료 평균 ";
   }
 
   padding: 6px;
@@ -380,7 +399,7 @@ const BestPetpitalCost = styled.div`
 const CurrentReivewContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 24px;
+  gap: 20px 25px;
   padding: 10px 0;
   @media screen and (max-width: 800px) {
     overflow-x: scroll;
@@ -396,11 +415,11 @@ const CurrentReview = styled.div`
 `;
 
 const CurrentImageContainer = styled.div`
-  width: 220px;
+  width: 160px;
 `;
 
 const CurrentReviewImage = styled.img`
-  width: 220px;
+  width: 160px;
   height: 100%;
   object-fit: cover;
   border-radius: 4px 0px 0px 4px;
@@ -449,9 +468,19 @@ const CurrentReviewDesc = styled.div`
 `;
 
 const CurrentReviewCost = styled.div`
-  margin-top: 6px;
+  &::before {
+    content: "진료비 ";
+  }
   position: absolute;
-  bottom: 10px;
+  bottom: 7px;
+  padding: 11px 15px;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  background: #15b5bf;
+  height: 40px;
 `;
 
 // 메인 설명
@@ -509,12 +538,13 @@ const HeaderContainer = styled.header`
 // 커스텀
 const Section = styled.section`
   width: 100%;
-  padding: 0 60px;
+  padding: 0 123px;
+  margin-bottom: 100px;
 `;
 
 export const MainCustomButton = styled.button`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.3);
@@ -531,7 +561,7 @@ const SectionTitle = styled.h3`
 `;
 
 const SectionSubTitle = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: -50px;
   color: #c5c5c5;
 `;
 

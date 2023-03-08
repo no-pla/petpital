@@ -14,7 +14,7 @@ import { authService, storageService } from "../../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../../share/atom";
 import { FiEdit3 } from "react-icons/fi";
-import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
+// import CustomModal, { ModalButton } from "../../components/custom/CustomModal";
 import { REVIEW_SERVER } from "../../share/server";
 
 const Container = styled.div``;

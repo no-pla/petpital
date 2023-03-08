@@ -6,11 +6,14 @@ import { colourOptions, colourStyles } from "../../components/Select";
 import Select from "react-select";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { authService, storageService } from "../../firebase/firebase";
-import { useRecoilValue } from "recoil";
+
 import { hospitalData } from "../../share/atom";
 import { REVIEW_SERVER } from "../../share/server";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { modalState } from "../../share/atom";
+import { useGetReviews } from "../../hooks/useGetReviews";
 
-const CreatePostModal = ({ isEdit }) => {
+const CreatePostModal = () => {
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
   const [totalCost, setTotalCost] = useState("");
@@ -21,10 +24,19 @@ const CreatePostModal = ({ isEdit }) => {
 
   const placesData = useRecoilValue(hospitalData);
 
+  const { recentlyRefetch } = useGetReviews("");
+
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget) {
       isEdit(false);
     }
+  };
+
+  // const isOpenModal = useRecoilValue(modalState);
+  // const setIsOpenModal = useSetRecoilState(modalState);
+
+  const handleClose = () => {
+    setIsOpenModal(false);
   };
 
   // 별점 만들기
@@ -32,7 +44,7 @@ const CreatePostModal = ({ isEdit }) => {
 
   useEffect(() => {
     document.body.style.cssText = `
-      position: fixed; 
+      position: fixed;
       top: -${window.scrollY}px;
       overflow-y: scroll;
       width: 100%;`;
@@ -83,7 +95,9 @@ const CreatePostModal = ({ isEdit }) => {
       });
       console.log("response", response);
       localStorage.removeItem("Photo");
-      router.push(`/searchMap`);
+      setIsOpenModal(false);
+      // router.push(`/searchMap`);
+      recentlyRefetch();
     } catch (error) {
       console.error(error);
     }
@@ -135,109 +149,110 @@ const CreatePostModal = ({ isEdit }) => {
 
   return (
     <>
-      {isEdit && (
-        <ContainerBg onClick={handleBackgroundClick}>
-          <Container>
-            <ModalContainer>
-              <Wrap>
-                <FormWrap onSubmit={ChangePhoto}>
-                  <ImageBox htmlFor="file">
-                    <PostImage
-                      id="preview-photo"
-                      src="https://media.istockphoto.com/id/1248723171/vector/camera-photo-upload-icon-on-isolated-white-background-eps-10-vector.jpg?s=612x612&w=0&k=20&c=e-OBJ2jbB-W_vfEwNCip4PW4DqhHGXYMtC3K_mzOac0="
-                      alt="게시글사진"
-                    />
-                  </ImageBox>
-                  <input
-                    id="file"
-                    type="file"
-                    style={{ display: "none" }}
-                    accept="images/*"
-                    onChange={uploadPhoto}
+      {/* {isOpenModal && ( */}
+      <ContainerBg onClick={handleBackgroundClick}>
+        <Container>
+          <ModalContainer>
+            <Wrap>
+              <FormWrap onSubmit={ChangePhoto}>
+                <ImageBox htmlFor="file">
+                  <PostImage
+                    id="preview-photo"
+                    src="https://media.istockphoto.com/id/1248723171/vector/camera-photo-upload-icon-on-isolated-white-background-eps-10-vector.jpg?s=612x612&w=0&k=20&c=e-OBJ2jbB-W_vfEwNCip4PW4DqhHGXYMtC3K_mzOac0="
+                    alt="게시글사진"
                   />
-                  <InputWrap>
-                    <label htmlFor="title">제목쓰기</label>
-                    <TitleBox
-                      type="text"
-                      placeholder="Title"
-                      value={title}
-                      onChange={(event) => setTitle(event.target.value)}
-                      id="title"
-                      rows="1"
-                      maxLength="50"
+                </ImageBox>
+                <input
+                  id="file"
+                  type="file"
+                  style={{ display: "none" }}
+                  accept="images/*"
+                  onChange={uploadPhoto}
+                />
+                <InputWrap>
+                  <label htmlFor="title">제목쓰기</label>
+                  <TitleBox
+                    type="text"
+                    placeholder="Title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    id="title"
+                    rows="1"
+                    maxLength="50"
+                  />
+                  <label htmlFor="title">글 작성</label>
+                  <ContentBox
+                    type="text"
+                    placeholder="Contents"
+                    value={contents}
+                    onChange={(event) => setContents(event.target.value)}
+                    rows="8"
+                    maxLength="500"
+                  />
+                  <label htmlFor="title">총 진료비</label>
+                  <TotalCostBox
+                    type="text"
+                    placeholder="TotalCost"
+                    value={totalCost}
+                    onChange={(event) => setTotalCost(event.target.value)}
+                    rows="3"
+                    maxLength="200"
+                  />
+                </InputWrap>
+                <label htmlFor="title">별점남기기</label>
+                <StarRating>
+                  {starArray.map((star) => (
+                    <Star
+                      key={star}
+                      selected={star <= starRating}
+                      onClick={() => setStarRating(star)}
                     />
-                    <label htmlFor="title">글 작성</label>
-                    <ContentBox
-                      type="text"
-                      placeholder="Contents"
-                      value={contents}
-                      onChange={(event) => setContents(event.target.value)}
-                      rows="8"
-                      maxLength="500"
-                    />
-                    <label htmlFor="title">총 진료비</label>
-                    <TotalCostBox
-                      type="text"
-                      placeholder="TotalCost"
-                      value={totalCost}
-                      onChange={(event) => setTotalCost(event.target.value)}
-                      rows="3"
-                      maxLength="200"
-                    />
-                  </InputWrap>
-                  <label htmlFor="title">별점남기기</label>
-                  <StarRating>
-                    {starArray.map((star) => (
-                      <Star
-                        key={star}
-                        selected={star <= starRating}
-                        onClick={() => setStarRating(star)}
-                      />
-                    ))}
-                  </StarRating>
-                  <label htmlFor="title">이 병원의 좋은점을 남겨주세요</label>
-                  <PostSelect>
-                    <Select
-                      value={selectvalue}
-                      onChange={(selectedOptions) =>
-                        setSelectValue(selectedOptions)
-                      }
-                      closeMenuOnSelect={false}
-                      defaultValue={[colourOptions[0], colourOptions[1]]}
-                      isMulti
-                      options={colourOptions}
-                      styles={colourStyles}
-                      instanceId="selectbox"
-                    />
-                  </PostSelect>
-                  <CreatePostButton>리뷰남기기</CreatePostButton>
-                </FormWrap>
-              </Wrap>
-            </ModalContainer>
-          </Container>
-        </ContainerBg>
-      )}
+                  ))}
+                </StarRating>
+                <label htmlFor="title">이 병원의 좋은점을 남겨주세요</label>
+                <PostSelect>
+                  <Select
+                    value={selectvalue}
+                    onChange={(selectedOptions) =>
+                      setSelectValue(selectedOptions)
+                    }
+                    closeMenuOnSelect={false}
+                    defaultValue={[colourOptions[0], colourOptions[1]]}
+                    isMulti
+                    options={colourOptions}
+                    styles={colourStyles}
+                    instanceId="selectbox"
+                  />
+                </PostSelect>
+                <button onClick={handleClose}>Close</button>
+                <CreatePostButton>리뷰남기기</CreatePostButton>
+              </FormWrap>
+            </Wrap>
+          </ModalContainer>
+        </Container>
+      </ContainerBg>
+      {/* )} */}
     </>
   );
 };
 
 const ContainerBg = styled.div`
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1;
+  width: 400px;
+  height: 1080px;
+  /* background-color: rgba(0, 0, 0, 0.6); */
+  position: absolute;
+  top: -100px;
+  left: 400px;
+  z-index: 2;
 `;
 
 const Container = styled.div`
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  /* background-color: rgba(0, 0, 0, 0.7); */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -250,9 +265,10 @@ const ModalContainer = styled.div`
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-  width: 800px;
-  height: 800px;
+  width: 400px;
+  height: 100%;
   overflow-y: auto;
+  position: fixed;
 `;
 
 // -------------------
