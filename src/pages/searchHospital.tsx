@@ -780,11 +780,11 @@ const SearchHospital = () => {
                       );
                     })
                     .reverse()}
+                <WriteButton onClick={onClickWriteButton}>
+                  리뷰 참여하기
+                </WriteButton>
               </DashBoard>
             )}
-            <WriteButton onClick={onClickWriteButton}>
-              리뷰 참여하기
-            </WriteButton>
           </BoardContainer>
           {/* 마커 표시 */}
           {markers.map(
@@ -1083,11 +1083,11 @@ const HospitalInfoTop = styled.div`
 const WriteButton = styled.button`
   cursor: pointer;
   background-color: #15b5bf;
-  position: absolute;
+  position: fixed;
   width: 375px;
   height: 56px;
   bottom: 79px;
-  left: 375px;
+  left: 505px;
   border: none;
 `;
 

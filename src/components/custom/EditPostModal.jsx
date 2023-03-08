@@ -31,7 +31,7 @@ const EditPostModal = ({
   const [editTotalCost, setEditTotalCost] = useState(postTotalCost);
   const [editRatings, setEditRatings] = useState(postRating);
   const [editSelectValue, setEditSelectValue] = useState([]);
-  const [editDownloadUrl, setEditDownloadUrl] = useState(postDownloadUrl);
+  // const [editDownloadUrl, setEditDownloadUrl] = useState(postDownloadUrl);
   const [openModalTitle, setOpenModalTitle] = useState(false);
   const [openModalContents, setOpenModalContents] = useState(false);
   const [openModalTotalCost, setOpenModalTotalCost] = useState(false);
@@ -116,7 +116,7 @@ const EditPostModal = ({
   }).format(createdAt);
 
   // DB에 저장
-  const handleEditSubmit = async () => {
+  const handleEditSubmit = async (downloadUrl) => {
     if (editTitle.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
 
@@ -143,7 +143,7 @@ const EditPostModal = ({
       selectedColors: editSelectValue.map((option) => option.value),
       rating: editRatings,
       totalCost: editTotalCost,
-      downloadUrl: editDownloadUrl,
+      downloadUrl,
       date: timestamp,
       displayName: authService.currentUser?.displayName,
       userId: authService.currentUser?.uid,
@@ -198,7 +198,7 @@ const EditPostModal = ({
       }
       if (downloadUrl) {
         console.log("downloadUrl", downloadUrl);
-        setEditDownloadUrl(downloadUrl);
+        // setEditDownloadUrl(downloadUrl);
         handleEditSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
@@ -414,10 +414,10 @@ const EditPostModal = ({
                     instanceId="selectbox"
                   />
                 </PostSelect>
+                <CreatePostButton>수정하기</CreatePostButton>
               </FormWrap>
             </Wrap>
           </ModalContainer>
-          <CreatePostButton>수정하기</CreatePostButton>
         </Container>
       </ContainerBg>
       {/* )} */}
@@ -552,10 +552,10 @@ const CreatePostButton = styled.button`
   border: none;
   background-color: #15b5bf;
   cursor: pointer;
-  position: absolute;
+  position: fixed;
   width: 375px;
   height: 56px;
-  left: 450px;
+  left: 505px;
   top: 922px;
 `;
 const StarRating = styled.div`
