@@ -1,4 +1,4 @@
-import { REVIEW_SERVER } from "../../share/server"";
+import { REVIEW_SERVER } from "../../share/server";
 import styled from "@emotion/styled";
 import axios from "axios";
 import { useRouter } from "next/router";
