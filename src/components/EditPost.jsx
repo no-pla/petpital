@@ -8,7 +8,7 @@ import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { authService, storageService } from "../firebase/firebase";
 import { useRecoilValue } from "recoil";
 import { hospitalData } from "../share/atom";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { REIVEW_SERVER } from "../share/server";
 
 const Container = styled.div``;
@@ -95,7 +95,7 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-const NewPost = ({ setPostEdit, refetchPost, id }) => {
+const NewPost = ({ setIsEdit, id }) => {
   const [editTitle, setEditTitle] = useState("");
   const [editContents, setEditContents] = useState("");
   const [editTotalCost, setEditTotalCost] = useState("");
@@ -104,9 +104,11 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
 
   const router = useRouter();
 
+  const queryClient = useQueryClient();
+
   const placesData = useRecoilValue(hospitalData);
   console.log("placedata", placesData);
-  console.log("dddd", id);
+  // console.log("dddd", PlacesData);
 
   // 별점 만들기
   const starArray = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -157,7 +159,8 @@ const NewPost = ({ setPostEdit, refetchPost, id }) => {
       userId: authService.currentUser?.uid,
       hospitalId: placesData.id,
     });
-    refetchPost();
+    // refetchPost();
+    await queryClient.invalidateQueries(["getrecentlyReview"]);
     localStorage.removeItem("Photo");
     setPostEdit(false);
   };

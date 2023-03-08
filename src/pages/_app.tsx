@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import "../styles/globals.css";
 import PasswordFindModal from "../components/custom/PasswordFindModal";
 
-const quertClient = new QueryClient({
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: Infinity,
@@ -14,11 +14,10 @@ const quertClient = new QueryClient({
     },
   },
 });
-
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <RecoilRoot>
-      <QueryClientProvider client={quertClient}>
+      <QueryClientProvider client={queryClient}>
         <Layout>
           <Component {...pageProps} />
           {/* <PasswordFindModal /> */}

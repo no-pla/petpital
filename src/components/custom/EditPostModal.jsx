@@ -12,16 +12,26 @@ import { REVIEW_SERVER } from "../../share/server";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { modalState } from "../../share/atom";
 import { useGetReviews } from "../../hooks/useGetReviews";
-import { useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { GrClose } from "react-icons/gr";
 import CustomModal, { ModalButton } from "./ErrorModal";
 
-const CreatePostModal = ({ setCreateModalOpen }) => {
-  const [title, setTitle] = useState("");
-  const [contents, setContents] = useState("");
-  const [totalCost, setTotalCost] = useState("");
-  const [starRating, setStarRating] = useState(0);
-  const [selectvalue, setSelectValue] = useState([]);
+const EditPostModal = ({
+  setIsEdit,
+  id,
+  postTitle,
+  postContents,
+  postTotalCost,
+  postDownloadUrl,
+  postRating,
+}) => {
+  // console.log("지금궁금", postRating);
+  const [editTitle, setEditTitle] = useState(postTitle);
+  const [editContents, setEditContents] = useState(postContents);
+  const [editTotalCost, setEditTotalCost] = useState(postTotalCost);
+  const [editRatings, setEditRatings] = useState(postRating);
+  const [editSelectValue, setEditSelectValue] = useState([]);
+  const [editDownloadUrl, setEditDownloadUrl] = useState(postDownloadUrl);
   const [openModalTitle, setOpenModalTitle] = useState(false);
   const [openModalContents, setOpenModalContents] = useState(false);
   const [openModalTotalCost, setOpenModalTotalCost] = useState(false);
@@ -32,6 +42,7 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
   const focusTitle = useRef();
   const focusContents = useRef();
   const focusTotalCost = useRef();
+  //   const ref = useRef(null);
 
   const router = useRouter();
 
@@ -40,6 +51,8 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
   const placesData = useRecoilValue(hospitalData);
   // console.log("placesData", placesData);
   const { recentlyRefetch } = useGetReviews("");
+
+  console.log("placesData", placesData);
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -51,7 +64,7 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
   // const setIsOpenModal = useSetRecoilState(modalState);
 
   const handleClose = () => {
-    setCreateModalOpen(false);
+    setIsEdit(false);
   };
 
   // 별점 만들기
@@ -81,6 +94,18 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
     </div>
   );
 
+  // 게시글 업데이트
+  const { mutate: updateMutate } = useMutation(
+    (data) =>
+      axios.put(`${REVIEW_SERVER}posts/${id}`, data).then((res) => res.data),
+    {
+      onSuccess: () => {
+        // refetchPost();
+        queryClient.invalidateQueries(["getrecentlyReview"]);
+      },
+    },
+  );
+
   const createdAt = Date.now();
   const timestamp = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
@@ -91,53 +116,53 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
   }).format(createdAt);
 
   // DB에 저장
-  const handleSubmit = async (downloadUrl) => {
-    if (title.replace(/ /g, "") === "") {
+  const handleEditSubmit = async () => {
+    if (editTitle.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
 
       return;
-    } else if (contents.replace(/ /g, "") === "") {
+    } else if (editContents.replace(/ /g, "") === "") {
       setOpenModalContents(true);
       return;
-    } else if (totalCost.replace(/ /g, "") === "" || !/^\d+$/.test(totalCost)) {
+    } else if (
+      editTotalCost.replace(/ /g, "") === "" ||
+      !/^\d+$/.test(editTotalCost)
+    ) {
       setOpenModalTotalCost(true);
       return;
-    } else if (starRating.length === 0) {
+    } else if (editRatings.length === 0) {
       setOpenModalStarRating(true);
       return;
-    } else if (selectvalue.length === 0) {
+    } else if (editSelectValue.length === 0) {
       setOpenModalSelectValue(true);
       return;
     }
-    try {
-      await axios.post(`${REVIEW_SERVER}posts`, {
-        title,
-        contents,
-        totalCost,
-        rating: starRating,
-        selectedColors: selectvalue.map((option) => option.value), // 선택된 value값만
-        downloadUrl,
-        date: timestamp,
-        displayName: authService.currentUser?.displayName,
-        userId: authService.currentUser?.uid,
-        profileImage: authService.currentUser?.photoURL,
-        hospitalId: placesData.id,
-        isEdit: false,
-        id: createdAt,
-        hospitalAddress: placesData.address_name,
-        hospitalName: placesData.place_name,
-      });
-      // console.log("response", response);
-      localStorage.removeItem("Photo");
-      console.log("포스트완료");
-      // await recentlyRefetch();
-      setCreateModalOpen(false);
-      await queryClient.invalidateQueries(["getrecentlyReview"]);
-      // await refetch();
-      // router.push(`/searchMap`);
-    } catch (error) {
-      console.error(error);
-    }
+    updateMutate({
+      title: editTitle,
+      contents: editContents,
+      selectedColors: editSelectValue.map((option) => option.value),
+      rating: editRatings,
+      totalCost: editTotalCost,
+      downloadUrl: editDownloadUrl,
+      date: timestamp,
+      displayName: authService.currentUser?.displayName,
+      userId: authService.currentUser?.uid,
+      profileImage: authService.currentUser?.photoURL,
+      hospitalId: placesData.id,
+      isEdit: false,
+      id,
+      hospitalAddress: placesData.address_name,
+      hospitalName: placesData.place_name,
+    });
+    // console.log("response", response);
+    await queryClient.invalidateQueries(["getrecentlyReview"]);
+    localStorage.removeItem("Photo");
+    console.log("포스트완료");
+    // await recentlyRefetch();
+    setIsEdit(false);
+
+    // await refetch();
+    // router.push(`/searchMap`);
   };
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
@@ -173,7 +198,8 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
       }
       if (downloadUrl) {
         console.log("downloadUrl", downloadUrl);
-        handleSubmit(downloadUrl);
+        setEditDownloadUrl(downloadUrl);
+        handleEditSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
         alert("사진을 업로드 해주세요");
@@ -288,12 +314,12 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                   <TitleBox
                     type="text"
                     ref={focusTitle}
+                    defaultValue={editTitle}
                     placeholder="20자 이내로 제목을 입력해 주세요."
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
+                    onChange={(event) => setEditTitle(event.target.value)}
                     id="title"
                     rows="1"
-                    maxLength="21"
+                    maxLength="50"
                     style={{
                       border: "none",
                       backgroundColor: "#e8e7e6",
@@ -312,11 +338,11 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                   <ContentBox
                     type="text"
                     ref={focusContents}
+                    defaultValue={editContents}
                     placeholder="150자 이내로 내용을 입력해 주세요."
-                    value={contents}
-                    onChange={(event) => setContents(event.target.value)}
+                    onChange={(event) => setEditContents(event.target.value)}
                     rows="8"
-                    maxLength="150"
+                    maxLength="500"
                     style={{
                       border: "none",
                       backgroundColor: "#e8e7e6",
@@ -335,9 +361,9 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                   <TotalCostBox
                     type="text"
                     ref={focusTotalCost}
+                    defaultValue={editTotalCost}
                     placeholder="금액을 입력해 주세요"
-                    value={totalCost}
-                    onChange={(event) => setTotalCost(event.target.value)}
+                    onChange={(event) => setEditTotalCost(event.target.value)}
                     rows="1"
                     maxLength="7"
                     style={{
@@ -360,8 +386,8 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                   {starArray.map((star) => (
                     <Star
                       key={star}
-                      selected={star <= starRating}
-                      onClick={() => setStarRating(star)}
+                      selected={star <= editRatings}
+                      onClick={() => setEditRatings(star)}
                     />
                   ))}
                 </StarRating>
@@ -376,9 +402,9 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                 </p>
                 <PostSelect>
                   <Select
-                    value={selectvalue}
+                    value={editSelectValue}
                     onChange={(selectedOptions) =>
-                      setSelectValue(selectedOptions)
+                      setEditSelectValue(selectedOptions)
                     }
                     closeMenuOnSelect={false}
                     defaultValue={[colourOptions[0], colourOptions[1]]}
@@ -389,7 +415,7 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                   />
                 </PostSelect>
 
-                <CreatePostButton>리뷰남기기</CreatePostButton>
+                <CreatePostButton>수정하기</CreatePostButton>
               </FormWrap>
             </Wrap>
           </ModalContainer>
@@ -541,4 +567,4 @@ const PostSelect = styled.div`
   margin-bottom: 30px;
 `;
 
-export default CreatePostModal;
+export default EditPostModal;

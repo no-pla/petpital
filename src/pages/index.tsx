@@ -17,6 +17,7 @@ import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
 import { REVIEW_SERVER } from "@/share/server";
 import { BsArrowRightCircle } from "react-icons/bs";
+import { CounselItem } from "@/components/custom/CounselItem";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -294,15 +295,8 @@ export default function Home() {
         </HeaderContainer>
         <CounselList>
           {!isLoadingPetConsult &&
-            petConsult?.data.map((counsel) => (
-              <Counsel key={counsel.id}>
-                <CounselTitle>{counsel.content}</CounselTitle>
-                <CounselButton
-                  onClick={() => router.push(`petconsult/${counsel.id}`)}
-                >
-                  답변하러가기
-                </CounselButton>
-              </Counsel>
+            petConsult?.data.map((counsel, index) => (
+              <CounselItem key={counsel.id} counsel={counsel} index={index} />
             ))}
         </CounselList>
       </Section>
