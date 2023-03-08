@@ -216,11 +216,11 @@ export default function Home() {
       https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fapp_banner.jpg?alt=media&token=1622f93e-970b-4a9d-a521-ada6094668fb"
         backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Freview_banner.jpg?alt=media&token=aa4b416c-5b37-4ca1-afae-9b040631d396"
       >
-        <MainCustomButton
+        <SubCustomButton
           onClick={() =>
             authService.currentUser === null
               ? router.push("/login")
-              : router.push("/searchMap")
+              : router.push("/searchHospital")
           }
         >
           리뷰 남기러가기
@@ -228,7 +228,7 @@ export default function Home() {
             size={16}
             style={{ marginTop: 1, marginLeft: 13 }}
           />
-        </MainCustomButton>
+        </SubCustomButton>
       </ReviewBanner>
       <Section>
         <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
@@ -550,6 +550,24 @@ export const MainCustomButton = styled.button`
   height: 32px;
   color: white;
   cursor: pointer;
+`;
+
+export const SubCustomButton = styled.button`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid #ffffff;
+  backdrop-filter: blur(20px);
+  border-radius: 999px;
+  height: 32px;
+  color: white;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  margin-right: 300px;
+  margin-top: 100px;
 `;
 
 const SectionTitle = styled.h3`
