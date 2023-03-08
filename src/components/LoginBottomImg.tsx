@@ -9,6 +9,6 @@ const LoginBottom = styled.div<{ backgroundImg: string }>`
   background-position: center;
   object-fit: cover;
   height: 200px;
-  width: 450px;
+  width: 564px;
   margin: 30px 30px;
 `;

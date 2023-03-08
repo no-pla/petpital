@@ -11,9 +11,8 @@ import { useRouter } from "next/router";
 import { hospitalData } from "@/share/atom";
 import { useRecoilValue } from "recoil";
 import { useGetPetConsult } from "@/hooks/usePetsult";
-import Image from 'next/image'
-import { useGetReviews } from '../../hooks/useGetReviews';
-
+import Image from "next/image";
+import { useGetReviews } from "../../hooks/useGetReviews";
 
 const Index = () => {
   const [modal, setModal] = useState(false);
@@ -34,7 +33,6 @@ const Index = () => {
   const { recentlyReview, isLoading } = useGetReviews(
     "?_sort=createdAt&_order=desc",
   );
-  
 
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
     limit: "",
@@ -110,12 +108,13 @@ const Index = () => {
 
   const onLogOutClick = () => {
     authService.signOut();
+    localStorage.removeItem("currentUserUid");
     router.push("/");
   };
 
   //프로필 변경 페이지 이동
   const onProfileChangeClick = () => {
-    router.push("/mypage/Nickname");
+    // router.push("/mypage/Nickname");
   };
 
   const placesData = useRecoilValue(hospitalData);
@@ -188,10 +187,13 @@ const Index = () => {
             </LeaveContainer>
             <LeaveContainer>
               <LeaveBox>남긴 리뷰</LeaveBox>
-              <div>+{" "} {
-                recentlyReview?.data.filter((review) => myId === review.uid)
-                .length
-              }</div>
+              <div>
+                +{" "}
+                {
+                  recentlyReview?.data.filter((review) => myId === review.uid)
+                    .length
+                }
+              </div>
             </LeaveContainer>
           </LeaveWrap>
           <ButtonBox>

@@ -46,14 +46,14 @@ const Login = () => {
             alt="loginLogo"
             width={50}
             height={40}
-            style={{ marginBottom: 10 }}
+            style={{ marginBottom: 20 }}
           />
           <Image
             src={Logo2}
             alt="loginLogo"
             width={170}
             height={40}
-            style={{ marginBottom: 40 }}
+            style={{ marginBottom: 60 }}
           />
           <ModalWrap>
             <div style={{ backgroundColor: "white", marginBottom: "100px" }}>
@@ -64,7 +64,7 @@ const Login = () => {
                 style={{
                   fontWeight: "bold",
                   fontSize: "14px",
-                  marginBottom: "5px",
+                  marginBottom: "15px",
                 }}
               >
                 등록된 이메일을 입력해 주세요.
@@ -96,7 +96,9 @@ const Login = () => {
                 <LoginButton
                   type="submit"
                   onClick={() => {
-                    alert("이메일을 확인해주세요.");
+                    alert(
+                      "이메일을 확인하여 비밀번호를 재설정해주시기 바랍니다.",
+                    );
                     router.push("login");
                   }}
                 >
@@ -167,7 +169,7 @@ const ModalBackground = styled.div`
 `;
 
 const Container = styled.div`
-  margin-top: 350px;
+  margin-top: 100px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -190,6 +192,7 @@ const ModalWrap = styled.div`
   border: 1px solid #15b5bf;
   width: 564px;
   height: 512px;
+  margin-bottom: 20px;
 `;
 
 const Title = styled.h2`

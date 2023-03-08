@@ -2,10 +2,10 @@ import chroma from "chroma-js";
 
 export const colourOptions = [
   { value: "깨끗해요", label: "깨끗해요", color: "#00B8D9", isFixed: true },
-  { value: "시설이좋아요", label: "시설이좋아요", color: "#0052CC" },
-  { value: "친절해요", label: "친절해요", color: "#5243AA" },
-  { value: "꼼꼼해요", label: "꼼꼼해요", color: "#FF5630", isFixed: true },
-  { value: "저렴해요", label: "저렴해요", color: "#FF8B00" },
+  // { value: "시설이좋아요", label: "시설이좋아요", color: "#00B8D9" },
+  { value: "친절해요", label: "친절해요", color: "#00B8D9" },
+  { value: "꼼꼼해요", label: "꼼꼼해요", color: "#00B8D9", isFixed: true },
+  { value: "저렴해요", label: "저렴해요", color: "#00B8D9" },
   // { value: "yellow", label: "Yellow", color: "#FFC400" },
   // { value: "green", label: "Green", color: "#36B37E" },
   // { value: "forest", label: "Forest", color: "#00875A" },
