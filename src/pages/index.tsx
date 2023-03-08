@@ -15,11 +15,11 @@ import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../share/server";
 import { BsArrowRightCircle } from "react-icons/bs";
-import { CounselItem } from "@/components/custom/CounselItem";
+import { CounselItem } from "../components/custom/CounselItem";
 
-export default function Home() {
+function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const router = useRouter();
   const { recentlyReview, isLoading: isLoadingReviews } = useGetReviews(
@@ -121,6 +121,8 @@ export default function Home() {
     setPage((prev) => prev + 1);
   };
 
+  console.log(mainPetpial);
+
   return (
     <>
       <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=80384910-8ef9-456e-8e2f-cb548d67e263">
@@ -191,17 +193,17 @@ export default function Home() {
                 />
                 <BestPetpitalName>
                   {petpital.place_name.length > 12
-                    ? petpital.place_name.slice(0, 12) + "..."
-                    : petpital.place_name}
+                    ? petpital?.place_name.slice(0, 12) + "..."
+                    : petpital?.place_name}
                 </BestPetpitalName>
                 <BestPetpitalAddress>
-                  {petpital.road_address_name === ""
+                  {petpital?.road_address_name === ""
                     ? "정보 없음"
-                    : petpital.road_address_name === undefined
+                    : petpital?.road_address_name === undefined
                     ? ""
-                    : petpital.road_address_name.split(" ")[0] +
+                    : petpital?.road_address_name?.split(" ")[0] +
                       " " +
-                      petpital.road_address_name.split(" ")[1]}
+                      petpital?.road_address_name?.split(" ")[1]}
                 </BestPetpitalAddress>
                 <BestPetpitalCost>
                   {arverageCost?.length > 0 && arverageCost[index]}
@@ -233,7 +235,7 @@ export default function Home() {
       <Section>
         <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
         <CurrentReivewContainer>
-          {recentlyReview?.data.map((review) => {
+          {recentlyReview?.data?.map((review) => {
             return (
               <CurrentReview
                 onClick={() =>
@@ -251,23 +253,23 @@ export default function Home() {
                 key={review.id}
               >
                 <CurrentImageContainer>
-                  <CurrentReviewImage src={review.downloadUrl} />
+                  <CurrentReviewImage src={review?.downloadUrl} />
                 </CurrentImageContainer>
                 <CurrentReviewComment>
-                  <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
+                  <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
                   <CurrentReviewPetpitalDesc>
                     <CurrentReviewPetpitalName>
-                      {review.hospitalName}
+                      {review?.hospitalName}
                     </CurrentReviewPetpitalName>
                     <CurrentReviewPetpitalAddress>
-                      {review?.hospitalAddress.split(" ")[0] +
+                      {review?.hospitalAddress?.split(" ")[0] +
                         " " +
-                        review?.hospitalAddress.split(" ")[1]}
+                        review?.hospitalAddress?.split(" ")[1]}
                     </CurrentReviewPetpitalAddress>
                   </CurrentReviewPetpitalDesc>
                   <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
                   <CurrentReviewCost>
-                    {Number(review.totalCost).toLocaleString("ko-KR")}
+                    {Number(review?.totalCost).toLocaleString("ko-KR")}
                   </CurrentReviewCost>
                 </CurrentReviewComment>
               </CurrentReview>
@@ -295,7 +297,7 @@ export default function Home() {
         </HeaderContainer>
         <CounselList>
           {!isLoadingPetConsult &&
-            petConsult?.data.map((counsel, index) => (
+            petConsult?.data?.map((counsel, index) => (
               <CounselItem key={counsel.id} counsel={counsel} index={index} />
             ))}
         </CounselList>
@@ -320,6 +322,7 @@ const ReviewBanner = styled.div<{
   background-position: center;
   object-fit: cover;
   height: calc(min(40vh, 200px));
+  position: relative;
 
   @media screen and (max-width: 550px) {
     background-image: url(${(props) => props.backgroundMinImg});
@@ -330,11 +333,13 @@ const ReviewBanner = styled.div<{
   }
 `;
 
+export default Home;
 // 최근 검색 병원
 const BestPetpitalContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(6, 144px);
   gap: 20px 18px;
+  justify-content: space-between;
   padding-bottom: 20px;
   @media screen and (max-width: 1200px) {
     overflow-x: scroll;
@@ -357,6 +362,8 @@ const BestPetpitalImage = styled.img<{ ImgSrc: string }>`
   border-radius: 4px 4px 0 0;
   background-image: url(${(props) => props.ImgSrc});
   background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 const BestPetpitalName = styled.div`
@@ -532,7 +539,7 @@ const HeaderContainer = styled.header`
 // 커스텀
 const Section = styled.section`
   width: 100%;
-  padding: 0 123px;
+  padding: 0 70px;
   margin-bottom: 100px;
 `;
 
@@ -563,9 +570,8 @@ export const SubCustomButton = styled.button`
   color: white;
   cursor: pointer;
   position: absolute;
-  right: 0;
-  margin-right: 300px;
-  margin-top: 100px;
+  right: 28px;
+  top: 45%;
 `;
 
 const SectionTitle = styled.h3`
@@ -573,7 +579,7 @@ const SectionTitle = styled.h3`
 `;
 
 const SectionSubTitle = styled.div`
-  margin-bottom: -50px;
+  margin-bottom: -30px;
   color: #c5c5c5;
 `;
 

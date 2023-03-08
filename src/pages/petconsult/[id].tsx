@@ -11,6 +11,7 @@ import {
 import CounselPost from "../../components/CounselPost";
 import { authService } from "@/firebase/firebase";
 import CopyToClipboard from "react-copy-to-clipboard";
+import { QuestionButton } from "./index";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -70,10 +71,16 @@ const PetconsultDetail = () => {
     <>
       <CounselContainer>
         <CustomHeader>
-          <BackButton onClick={() => router.push("/petconsult")}>
+          <BackButton
+            onClick={() =>
+              router.push("/petconsult").then(() => {
+                router.reload();
+              })
+            }
+          >
             &larr; 이전으로
           </BackButton>
-          <HeaderButton onClick={goToNewQnAPage}>질문하기</HeaderButton>
+          <QuestionButton onClick={goToNewQnAPage}>질문하기</QuestionButton>
         </CustomHeader>
         <CounselPost />
         {openModal && (
