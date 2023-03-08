@@ -1,1 +1,1 @@
-export const REVIEW_SERVER = "https://gabby-denim-trout.glitch.me/";
+export const REVIEW_SERVER = "http://localhost:3001/";
