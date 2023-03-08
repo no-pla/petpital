@@ -234,7 +234,7 @@ export const ModalWrap = styled.div`
   /* border: 1px solid #15b5bf; */
   width: 400px;
   height: 1000px;
-  margin-top: 100px;
+  /* margin-top: 20px; */
 `;
 
 const InputWrap = styled.div`

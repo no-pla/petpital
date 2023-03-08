@@ -16,12 +16,22 @@ import { useMutation, useQueryClient } from "react-query";
 import { GrClose } from "react-icons/gr";
 import CustomModal, { ModalButton } from "./ErrorModal";
 
-const EditPostModal = ({ setIsEdit, id }) => {
-  const [editTitle, setEditTitle] = useState("");
-  const [editContents, setEditContents] = useState("");
-  const [editTotalCost, setEditTotalCost] = useState("");
-  const [editRatings, setEditRatings] = useState("");
+const EditPostModal = ({
+  setIsEdit,
+  id,
+  postTitle,
+  postContents,
+  postTotalCost,
+  postDownloadUrl,
+  postRating,
+}) => {
+  // console.log("지금궁금", postRating);
+  const [editTitle, setEditTitle] = useState(postTitle);
+  const [editContents, setEditContents] = useState(postContents);
+  const [editTotalCost, setEditTotalCost] = useState(postTotalCost);
+  const [editRatings, setEditRatings] = useState(postRating);
   const [editSelectValue, setEditSelectValue] = useState([]);
+  const [editDownloadUrl, setEditDownloadUrl] = useState(postDownloadUrl);
   const [openModalTitle, setOpenModalTitle] = useState(false);
   const [openModalContents, setOpenModalContents] = useState(false);
   const [openModalTotalCost, setOpenModalTotalCost] = useState(false);
@@ -106,7 +116,7 @@ const EditPostModal = ({ setIsEdit, id }) => {
   }).format(createdAt);
 
   // DB에 저장
-  const handleEditSubmit = async (downloadUrl) => {
+  const handleEditSubmit = async () => {
     if (editTitle.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
 
@@ -133,7 +143,7 @@ const EditPostModal = ({ setIsEdit, id }) => {
       selectedColors: editSelectValue.map((option) => option.value),
       rating: editRatings,
       totalCost: editTotalCost,
-      downloadUrl,
+      downloadUrl: editDownloadUrl,
       date: timestamp,
       displayName: authService.currentUser?.displayName,
       userId: authService.currentUser?.uid,
@@ -188,6 +198,7 @@ const EditPostModal = ({ setIsEdit, id }) => {
       }
       if (downloadUrl) {
         console.log("downloadUrl", downloadUrl);
+        setEditDownloadUrl(downloadUrl);
         handleEditSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
@@ -327,6 +338,7 @@ const EditPostModal = ({ setIsEdit, id }) => {
                   <ContentBox
                     type="text"
                     ref={focusContents}
+                    defaultValue={editContents}
                     placeholder="150자 이내로 내용을 입력해 주세요."
                     onChange={(event) => setEditContents(event.target.value)}
                     rows="8"
@@ -349,6 +361,7 @@ const EditPostModal = ({ setIsEdit, id }) => {
                   <TotalCostBox
                     type="text"
                     ref={focusTotalCost}
+                    defaultValue={editTotalCost}
                     placeholder="금액을 입력해 주세요"
                     onChange={(event) => setEditTotalCost(event.target.value)}
                     rows="1"

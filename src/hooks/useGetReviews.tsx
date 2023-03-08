@@ -18,6 +18,7 @@ interface IReview {
     date: string;
     hospitalAddress: string;
     hospitalName: string;
+    uid: any;
   }[];
 }
 

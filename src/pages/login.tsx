@@ -277,7 +277,7 @@ export const ModalBackground = styled.div`
 `;
 
 export const Container = styled.div`
-  margin-top: 350px;
+  margin-top: 200px;
   display: flex;
   justify-content: center;
   flex-direction: column;

@@ -38,17 +38,20 @@ export const CounselTitle = styled.div`
     content: "Q";
     color: #c5c5c5;
     font-size: 47px;
-    margin: 0 10px 0 15px;
+    margin: -15px 20px 0 15px;
   }
 `;
 
 export const Counsel = styled.div`
+  margin-top: -15px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
+  border-width: 4px;
+  border-color: #eee;
+  border-style: solid;
   width: 90%;
   height: 100%;
 `;
@@ -123,14 +126,14 @@ const DownButton = styled.button`
 `;
 
 const DownButtonImage = styled.img``;
-const CurrentReviewContainer = styled.div`
+export const CurrentReviewContainer = styled.div`
   display: flex;
   gap: 8px;
   justify-content: space-around;
   border-top: 1px solid #e4e4e4;
   height: 80px;
 `;
-const CurrentReview = styled.div`
+export const CurrentReview = styled.div`
   padding: 8px;
   background: #fafafa;
   border-radius: 4px;
@@ -143,12 +146,12 @@ const CurrentReview = styled.div`
   padding-bottom: 4px;
 `;
 
-const CurrentReviewNickname = styled.span`
+export const CurrentReviewNickname = styled.span`
   font-weight: 600;
   padding-right: 4px;
 `;
 
-const CurrentReviewContent = styled.span``;
+export const CurrentReviewContent = styled.span``;
 
 interface ICounsel {
   uid: string;
