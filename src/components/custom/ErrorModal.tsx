@@ -33,26 +33,26 @@ const Backdrop = styled.div`
   left: 0;
   width: 100%;
   height: 100vh;
-<<<<<<< HEAD
-  z-index: 10000;
-=======
-  z-index: 100;
->>>>>>> feature/posts
-  background: rgba(159, 159, 159, 0.6);
+  background: rgba(159, 159, 159, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 10000;
 `;
 
 const ModalContianer = styled.div`
   width: calc(min(60vw, 300px));
   background-color: #ffffff;
   border-radius: 4px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ModalButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  align-items: stretch;
+
   button:first-of-type {
     color: #9f9f9f;
   }

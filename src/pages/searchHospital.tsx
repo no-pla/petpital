@@ -16,11 +16,12 @@ import React, {
 } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import {
+  CustomOverlayMap,
   Map,
+  MapInfoWindow,
   MapMarker,
   MapTypeControl,
   Roadview,
-  ZoomControl,
 } from "react-kakao-maps-sdk";
 import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import { hospitalData, modalState } from "../share/atom";
@@ -32,6 +33,9 @@ import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
 import ConfirmModal from "@/components/custom/ConfirmModal";
 import shortUUID from "short-uuid";
+import { FaSlideshare } from "react-icons/fa";
+import { GrShare } from "react-icons/gr";
+import { RxShare2 } from "react-icons/rx";
 
 interface IHospital {
   address_name: string;
@@ -90,7 +94,6 @@ const SearchHospital = () => {
   const [emptyComment, setEmptyComment] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
   const [hospitalList, setHospitalList] = useState<any>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -116,7 +119,6 @@ const SearchHospital = () => {
     errMsg: null,
     isLoading: true,
   });
-  console.log("recentlyReview", recentlyReview);
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
   // console.log(hospitalRate, hospitalReview, hospitalReviewCount);
@@ -155,6 +157,7 @@ const SearchHospital = () => {
       }));
     }
   }, []);
+
   const HospitalData = targetHospitalData;
   const userUid = useRecoilValue(currentUserUid);
   console.log("userUid", userUid);
@@ -378,7 +381,7 @@ const SearchHospital = () => {
       });
     }
   };
-
+  //
   const onClick = (targetHospital: IHospital) => {
     // 병원 이름만 적으려 했으나 동일 이름의 병원이 존재해 placeName=[병원이름]&id[placeId]로 설정
     router.push(
@@ -514,11 +517,13 @@ const SearchHospital = () => {
                           <CopyToClipboard
                             text={`http://localhost:3000/searchHospital?hospitalName=${hospital.place_name}&placeId=${hospital.id}`}
                           >
-                            <button>공유</button>
+                            <ShareButton>
+                              <RxShare2 size={16} />
+                            </ShareButton>
                           </CopyToClipboard>
                         </HospotalInfo>
                         <ReviewRate>
-                          <div>⭐ {hospitalRate[index]}</div>
+                          <div>★ {hospitalRate[index]}</div>
                           <ReviewCount>
                             <div>방문자 리뷰</div>
                             <span>{hospitalReviewCount[index]}</span>
@@ -557,8 +562,8 @@ const SearchHospital = () => {
                 <Roadview // 로드뷰를 표시할 Container
                   position={{
                     // 지도의 중심좌표
-                    lat: targetHospitalData.y,
-                    lng: targetHospitalData.x,
+                    lat: targetHospitalData?.y,
+                    lng: targetHospitalData?.x,
                     radius: 50,
                   }}
                   style={{
@@ -580,7 +585,7 @@ const SearchHospital = () => {
                           marginTop: "2px",
                         }}
                       >
-                        {targetHospitalData.phone}
+                        {targetHospitalData?.phone}
                       </div>
                     </HospitalInfoTop>
                     <div
@@ -591,7 +596,7 @@ const SearchHospital = () => {
                         // backgroundColor: "red",
                       }}
                     >
-                      <div>{targetHospitalData.address_name}</div>
+                      <div>{targetHospitalData?.address_name}</div>
                     </div>
                   </HospitalInfoTopWrap>
                 </HospitalInfoWrap>
@@ -791,9 +796,30 @@ const SearchHospital = () => {
                 key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
                 position={marker.position}
                 onClick={() => setInfo(marker)}
+                image={{
+                  src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
+                  size: {
+                    width: 56,
+                    height: 56,
+                  }, // 마커이미지의 크기입니다
+                  options: {
+                    offset: {
+                      x: 27,
+                      y: 69,
+                    }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+                  },
+                }}
               >
                 {info && info.content === marker.content && (
-                  <div style={{ color: "#000" }}>{marker.content}</div>
+                  <CustomOverlayMap
+                    position={{
+                      lat: marker.position.lat,
+                      lng: marker.position.lng,
+                    }}
+                    yAnchor={1}
+                  >
+                    <MarkerItem className="title">{marker.content}</MarkerItem>
+                  </CustomOverlayMap>
                 )}
               </MapMarker>
             ),
@@ -802,7 +828,7 @@ const SearchHospital = () => {
           {!state.isLoading && (
             <MapMarker position={state.center}>
               <div style={{ padding: "5px", color: "#000" }}>
-                {state.errMsg ? state.errMsg : "로그인하고 사용해 보세요."}
+                {state.errMsg ? state.errMsg : "현재 위치입니다."}
               </div>
             </MapMarker>
           )}
@@ -811,6 +837,26 @@ const SearchHospital = () => {
     </>
   );
 };
+
+const MarkerItem = styled.div`
+  border: 2px solid #15b5bf;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  background-color: white;
+  padding: 4px;
+`;
+
+const OpenDashBoardButton = styled.button`
+  position: absolute;
+  top: 50%;
+  right: 0;
+`;
+
+const ShareButton = styled.button`
+  background-color: transparent;
+  border: none;
+`;
 
 const CurrentReviewNickname = styled.div`
   color: #ffffff;
@@ -892,6 +938,9 @@ const ReviewRate = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
+  & > div:nth-of-type(1) {
+    color: #15b5bf;
+  }
 `;
 
 const HospitalName = styled.div`
@@ -918,6 +967,7 @@ const DashBoard = styled.div`
   overflow-y: scroll;
   /* display: none; */
   overflow: auto;
+  position: relative;
 `;
 
 const BoardContainer = styled.div`
