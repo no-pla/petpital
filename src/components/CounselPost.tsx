@@ -11,6 +11,8 @@ import CounselComments from "./CounselComments";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Image from "next/image";
+import { RxShare2 } from "react-icons/rx";
+import { AiOutlineMore } from "react-icons/Ai";
 
 export const UserProfile = ({ profileLink }: any) => {
   return (
@@ -69,7 +71,9 @@ const CounselSettingButton = ({ counselData }: any) => {
     <>
       {counselData.uid === authService.currentUser?.uid && (
         <PostSettingButtonContainer>
-          <button onClick={() => setOpenSetting((prev) => !prev)}>설정</button>
+          <ShareButton onClick={() => setOpenSetting((prev) => !prev)}>
+            <AiOutlineMore />
+          </ShareButton>
           {openSetting && (
             <PostSettingButtons>
               <PostSettingButton onClick={() => onOpenInput(counselData.id)}>
@@ -145,7 +149,9 @@ const CounselPost = () => {
                 <CopyToClipboard
                   text={`http://localhost:3000/petconsult/${counselData.id}`}
                 >
-                  <button>공유</button>
+                  <ShareButton>
+                    <RxShare2 size={16} />
+                  </ShareButton>
                 </CopyToClipboard>
                 <CounselSettingButton counselData={counselData} />
               </CounselSetting>
@@ -185,6 +191,11 @@ const CounselPost = () => {
   );
 };
 
+const ShareButton = styled.button`
+  background-color: transparent;
+  border: none;
+`;
+
 const PostSettingButton = styled.button`
   display: flex;
   flex-direction: row;
@@ -212,7 +223,6 @@ const PostSettingButtons = styled.div`
 `;
 
 const PostSettingButtonContainer = styled.div`
-  background-color: rebeccapurple;
   position: relative;
 `;
 

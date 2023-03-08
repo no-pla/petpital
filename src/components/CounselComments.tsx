@@ -7,6 +7,7 @@ import {
 } from "@/hooks/usePetsultReview";
 import styled from "@emotion/styled";
 import React, { useRef, useState } from "react";
+import { AiOutlineMore } from "react-icons/Ai";
 import shortUUID from "short-uuid";
 import { UserProfile } from "./CounselPost";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
@@ -25,13 +26,20 @@ const CounselCommentFormContainer = ({ target }: any) => {
   const newCommentRef = useRef<HTMLInputElement>(null);
   const { mutate: addNewComment } = useAddCounselComment();
   const [emptyComment, setEmptyComment] = useState(false);
+  const [tooLongComment, setTooLongComment] = useState(false);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     // 새로운 코맨트 작성
     event.preventDefault();
 
-    if (newCommentRef.current?.value === "") {
+    if (
+      newCommentRef.current?.value === "" ||
+      newCommentRef.current?.value === undefined
+    ) {
       setEmptyComment((prev) => !prev);
+      return;
+    } else if (newCommentRef.current?.value.length > 300) {
+      setTooLongComment((prev) => !prev);
       return;
     } else {
       const newComment = {
@@ -50,7 +58,6 @@ const CounselCommentFormContainer = ({ target }: any) => {
       await addNewComment(newComment);
     }
   };
-
   const NewCommentInput = () => {
     return (
       <CounselInput
@@ -79,8 +86,8 @@ const CounselCommentFormContainer = ({ target }: any) => {
           <NewCommentInput />
         </div>
         <FormButtonContainer>
-          <button type="button">취소</button>
-          <button type="submit">답글</button>
+          {/* <button type="button">취소</button> */}
+          <CommentFormButton type="submit">답글</CommentFormButton>
         </FormButtonContainer>
       </CounselCommentForm>
       {emptyComment && (
@@ -89,6 +96,16 @@ const CounselCommentFormContainer = ({ target }: any) => {
           modalText2={"댓글은 최소 1글자 이상 채워주세요."}
         >
           <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
+      {tooLongComment && (
+        <CustomModal
+          modalText1={"내용이 너무 깁니다.."}
+          modalText2={"댓글은 최대 300글자까지만 작성해 주세요."}
+        >
+          <ModalButton onClick={() => setTooLongComment((prev) => !prev)}>
             닫기
           </ModalButton>
         </CustomModal>
@@ -118,7 +135,8 @@ const CounselCommentItem = ({ comment }: any) => {
   const [targetId, setTargetId] = useState("");
   const { mutate: editComment } = useEditCounselComment();
   const { mutate: deleteComment } = useDeletCounselComment();
-
+  const [emptyComment, setEmptyComment] = useState(false);
+  const [tooLongComment, setTooLongComment] = useState(false);
   const newEditCommentRef = useRef<HTMLInputElement>(null);
 
   const onSumbitNewComment = (
@@ -127,7 +145,12 @@ const CounselCommentItem = ({ comment }: any) => {
   ) => {
     // 코멘트 수정
     event.preventDefault();
-    if (newEditCommentRef?.current?.value === "") {
+    if (
+      newEditCommentRef?.current?.value === "" ||
+      newEditCommentRef?.current?.value === undefined
+    ) {
+      setEmptyComment((prev) => !prev);
+      return;
     } else {
       editComment({ ...comment, content: newEditCommentRef?.current?.value });
     }
@@ -159,9 +182,12 @@ const CounselCommentItem = ({ comment }: any) => {
             <>
               <CounselContent>{comment.content}</CounselContent>
               <CounselContentButtonContainer>
-                <button onClick={() => setOnSetting((prev) => !prev)}>
-                  설정
-                </button>
+                {(authService.currentUser?.uid === comment.uid ||
+                  authService.currentUser === undefined) && (
+                  <SettingButton onClick={() => setOnSetting((prev) => !prev)}>
+                    <AiOutlineMore />
+                  </SettingButton>
+                )}
                 {onSetting && (
                   <PostSettingButtons>
                     <PostSettingButton
@@ -183,10 +209,13 @@ const CounselCommentItem = ({ comment }: any) => {
               >
                 <EditCommentInput comment={comment.content} />
                 <FormButtonContainer>
-                  <button onClick={() => setIsEdit((prev) => !prev)}>
+                  <button
+                    type="button"
+                    onClick={() => setIsEdit((prev) => !prev)}
+                  >
                     취소
                   </button>
-                  <button>확인</button>
+                  <button type="submit">확인</button>
                 </FormButtonContainer>
               </CommentForm>
             </>
@@ -204,6 +233,26 @@ const CounselCommentItem = ({ comment }: any) => {
             취소
           </ModalButton>
           <ModalButton onClick={deleteReview}>삭제</ModalButton>
+        </CustomModal>
+      )}
+      {emptyComment && (
+        <CustomModal
+          modalText1={"내용이 비어있습니다."}
+          modalText2={"댓글은 최소 1글자 이상 채워주세요."}
+        >
+          <ModalButton onClick={() => setEmptyComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
+      {tooLongComment && (
+        <CustomModal
+          modalText1={"내용이 너무 깁니다.."}
+          modalText2={"댓글은 최대 300글자까지만 작성해 주세요."}
+        >
+          <ModalButton onClick={() => setTooLongComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
         </CustomModal>
       )}
     </>
@@ -234,6 +283,8 @@ const CounselCoCommentItem = ({ comment, coco }: any) => {
   const { mutate: editComment } = useEditCounselComment();
   const newEditCoCommentRef = useRef<HTMLInputElement>(null);
   const [onSetting, setOnSetting] = useState(false);
+  const [emptyComment, setEmptyComment] = useState(false);
+  const [tooLongComment, setTooLongComment] = useState(false);
 
   const deleteCoComent = async (comment: any, id: any) => {
     const newCommentObj = {
@@ -265,7 +316,17 @@ const CounselCoCommentItem = ({ comment, coco }: any) => {
     const idx = comment.cocoment.findIndex(
       (target: any) => target.commentId === targetCocoment.commentId,
     );
-    if (newEditCoCommentRef.current?.value !== "") {
+
+    if (
+      newEditCoCommentRef.current?.value === "" ||
+      newEditCoCommentRef.current?.value === undefined
+    ) {
+      setEmptyComment((prev) => !prev);
+      return;
+    } else if (newEditCoCommentRef.current?.value.length > 300) {
+      setTooLongComment((prev) => !prev);
+      return;
+    } else {
       const newCommentObj = {
         ...comment,
         cocoment: [
@@ -282,59 +343,67 @@ const CounselCoCommentItem = ({ comment, coco }: any) => {
   };
 
   return (
-    <div>
-      <UserProfileContainer>
-        <UserProfile profileLink={coco.profileImage} />
-        <div style={{ width: "100%" }}>
+    <>
+      <div>
+        <UserProfileContainer>
+          <UserProfile profileLink={coco.profileImage} />
           <div style={{ width: "100%" }}>
-            <div>
-              <div>{coco.nickname}</div>
-              <div>{coco.createdAt}</div>
+            <div style={{ width: "100%" }}>
+              <div>
+                <div>{coco.nickname}</div>
+                <div>{coco.createdAt}</div>
+              </div>
             </div>
-          </div>
 
-          {!isEdit ? (
+            {!isEdit ? (
+              <>
+                <div>{coco.content}</div>
+              </>
+            ) : (
+              <>
+                <CoComentEditForm
+                  onSubmit={(event) => EditCoComent(comment, coco, event)}
+                >
+                  <EditCoCommentInput placeHolder={coco.content} />
+                  <FormButtonContainer>
+                    <button
+                      type="button"
+                      onClick={() => setIsEdit((prev) => !prev)}
+                    >
+                      취소
+                    </button>
+                    <button type="submit">확인</button>
+                  </FormButtonContainer>
+                </CoComentEditForm>
+              </>
+            )}
             <>
-              <div>{coco.content}</div>
-            </>
-          ) : (
-            <>
-              <CoComentEditForm
-                onSubmit={(event) => EditCoComent(comment, coco, event)}
-              >
-                <EditCoCommentInput placeHolder={coco.content} />
-                <FormButtonContainer>
-                  <button
-                    type="button"
-                    onClick={() => setIsEdit((prev) => !prev)}
-                  >
-                    취소
-                  </button>
-                  <button type="submit">확인</button>
-                </FormButtonContainer>
-              </CoComentEditForm>
-            </>
-          )}
-          <>
-            <CounselContentButtonContainer>
-              <button onClick={() => setOnSetting((prev) => !prev)}>
-                설정
-              </button>
-              {onSetting && (
-                <PostSettingButtons>
-                  <PostSettingButton onClick={() => setIsEdit((prev) => !prev)}>
-                    수정
-                  </PostSettingButton>
-                  <PostSettingButton onClick={() => onDelete(coco.commentId)}>
-                    삭제
-                  </PostSettingButton>
-                </PostSettingButtons>
+              {(authService.currentUser?.uid === coco.uid ||
+                authService.currentUser === undefined) && (
+                <CounselContentButtonContainer>
+                  <SettingButton onClick={() => setOnSetting((prev) => !prev)}>
+                    <AiOutlineMore />
+                  </SettingButton>
+                  {onSetting && (
+                    <PostSettingButtons>
+                      <PostSettingButton
+                        onClick={() => setIsEdit((prev) => !prev)}
+                      >
+                        수정
+                      </PostSettingButton>
+                      <PostSettingButton
+                        onClick={() => onDelete(coco.commentId)}
+                      >
+                        삭제
+                      </PostSettingButton>
+                    </PostSettingButtons>
+                  )}
+                </CounselContentButtonContainer>
               )}
-            </CounselContentButtonContainer>
-          </>
-        </div>
-      </UserProfileContainer>
-
+            </>
+          </div>
+        </UserProfileContainer>
+      </div>
       {openModal && (
         <CustomModal
           modalText1={"입력하신 댓글을"}
@@ -348,7 +417,7 @@ const CounselCoCommentItem = ({ comment, coco }: any) => {
           </ModalButton>
         </CustomModal>
       )}
-      {/* {emptyComment && (
+      {emptyComment && (
         <CustomModal
           modalText1={"내용이 비어있습니다."}
           modalText2={"댓글은 최소 1글자 이상 채워주세요."}
@@ -357,8 +426,18 @@ const CounselCoCommentItem = ({ comment, coco }: any) => {
             닫기
           </ModalButton>
         </CustomModal>
-      )} */}
-    </div>
+      )}
+      {tooLongComment && (
+        <CustomModal
+          modalText1={"내용이 너무 깁니다.."}
+          modalText2={"댓글은 최대 300글자까지만 작성해 주세요."}
+        >
+          <ModalButton onClick={() => setTooLongComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
+    </>
   );
 };
 
@@ -367,12 +446,18 @@ const CoComentForm = ({ comment }: any) => {
   const newCoCommentRef = useRef<HTMLInputElement>(null);
   const { mutate: editComment } = useEditCounselComment();
   const [emptyComment, setEmptyComment] = useState(false);
+  const [tooLongComment, setTooLongComment] = useState(false);
 
   const CoCommentInput = () => {
     return (
       <CounselEditInput
-        placeholder="답글을 입력해 주세요."
         ref={newCoCommentRef}
+        disabled={authService.currentUser === null}
+        placeholder={
+          authService.currentUser === null
+            ? "로그인 후 이용해 주세요"
+            : "답글을 입력해 주세요."
+        }
       />
     );
   };
@@ -401,8 +486,14 @@ const CoComentForm = ({ comment }: any) => {
         },
       ],
     };
-    if (newCoCommentRef.current?.value === "") {
+    if (
+      newCoCommentRef.current?.value === "" ||
+      newCoCommentRef.current?.value === undefined
+    ) {
       setEmptyComment((prev) => !prev);
+      return;
+    } else if (newCoCommentRef.current?.value.length > 300) {
+      setTooLongComment((prev) => !prev);
       return;
     } else {
       editComment(cocomentObj);
@@ -410,26 +501,36 @@ const CoComentForm = ({ comment }: any) => {
   };
 
   return (
-    <CoCommentContainer>
-      {isEdit ? (
-        <>
-          <CoComentFormContainer
-            onSubmit={(event) => onSubmitCoComent(event, comment)}
-          >
-            <CoCommentInput />
-            <FormButtonContainer>
-              <button type="button" onClick={() => setIsEdit((prev) => !prev)}>
-                취소
-              </button>
-              <button type="submit">등록</button>
-            </FormButtonContainer>
-          </CoComentFormContainer>
-        </>
-      ) : (
-        <CoComentFormButton onClick={() => setIsEdit((prev) => !prev)}>
-          답글
-        </CoComentFormButton>
-      )}
+    <>
+      <CoCommentContainer>
+        {isEdit ? (
+          <>
+            <CoComentFormContainer
+              onSubmit={(event) => onSubmitCoComent(event, comment)}
+            >
+              <CoCommentInput />
+              <FormButtonContainer>
+                <button
+                  type="button"
+                  onClick={() => setIsEdit((prev) => !prev)}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={authService.currentUser === null}
+                >
+                  등록
+                </button>
+              </FormButtonContainer>
+            </CoComentFormContainer>
+          </>
+        ) : (
+          <CoComentFormButton onClick={() => setIsEdit((prev) => !prev)}>
+            답글
+          </CoComentFormButton>
+        )}
+      </CoCommentContainer>
       {emptyComment && (
         <CustomModal
           modalText1={"내용이 비어있습니다."}
@@ -440,11 +541,38 @@ const CoComentForm = ({ comment }: any) => {
           </ModalButton>
         </CustomModal>
       )}
-    </CoCommentContainer>
+      {tooLongComment && (
+        <CustomModal
+          modalText1={"내용이 너무 깁니다.."}
+          modalText2={"댓글은 최대 300글자까지만 작성해 주세요."}
+        >
+          <ModalButton onClick={() => setTooLongComment((prev) => !prev)}>
+            닫기
+          </ModalButton>
+        </CustomModal>
+      )}
+    </>
   );
 };
 
 export default CounselComments;
+
+const CommentFormButton = styled.button`
+  color: #15b5bf;
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  &:hover {
+    background-color: rgba(101, 216, 223, 0.3);
+  }
+`;
+
+const SettingButton = styled.button`
+  background-color: transparent;
+  border: none;
+`;
 
 const CoComentEditForm = styled.form`
   display: flex;
@@ -459,16 +587,17 @@ const CoComentFormContainer = styled.form`
 `;
 
 const CounselCoCommentListContainer = styled.div`
-  margin-left: 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-left: 64px;
 `;
 
 const CounselCommentListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 20px;
 `;
 
 const CommentForm = styled.form`
@@ -532,12 +661,14 @@ const PostSettingButtons = styled.div`
   filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2));
   display: flex;
   flex-direction: column;
+  background-color: white;
 `;
 
 const CounselContentButtonContainer = styled.div`
   position: absolute;
   top: 0;
   right: 0;
+  border-radius: 4px;
 `;
 
 const CounselContent = styled.div`
@@ -547,12 +678,11 @@ const CounselContent = styled.div`
 const UserProfileContainer = styled.div`
   display: flex;
   position: relative;
-  & > div {
-  }
   & div:nth-of-type(1) {
     display: flex;
     gap: 8px;
-    align-items: center;
+
+    align-items: stretch;
     & div:nth-of-type(1) {
       font-weight: 500;
       font-size: 0.9rem;
@@ -575,7 +705,7 @@ const FormButtonContainer = styled.div`
   text-align: right;
   & button:nth-of-type(1) {
     background-color: transparent;
-    padding: 8px 0;
+    padding: 8px 12px;
     border: none;
     cursor: pointer;
   }

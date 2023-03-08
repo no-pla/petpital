@@ -344,6 +344,7 @@ const BestPetpitalContainer = styled.div`
 const BestPetpitalItem = styled.div`
   width: calc(max(100%, 144px));
   border-radius: 4px;
+  cursor: pointer;
   box-shadow: 0px 4px 4px 0px #0000001a;
   @media screen and (max-width: 800px) {
     grid-template-columns: repeat(6, 200px);
@@ -406,6 +407,7 @@ const CurrentReview = styled.div`
   background-color: #fafafa;
   border-radius: 4px;
   height: 180px;
+  cursor: pointer;
 `;
 
 const CurrentImageContainer = styled.div`
