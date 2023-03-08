@@ -388,7 +388,10 @@ const CreatePostModal = ({ setCreateModalOpen }) => {
                     instanceId="selectbox"
                   />
                 </PostSelect>
-                <CreatePostButton>리뷰남기기</CreatePostButton>
+
+                <div style={{ display: "flex" }}>
+                  <CreatePostButton>리뷰남기기</CreatePostButton>
+                </div>
               </FormWrap>
             </Wrap>
           </ModalContainer>
@@ -526,11 +529,10 @@ const CreatePostButton = styled.button`
   border: none;
   background-color: #15b5bf;
   cursor: pointer;
-  position: fixed;
+  /* position: fixed; */
   width: 375px;
   height: 56px;
-  left: 505px;
-  top: 922px;
+  top: 422px;
 `;
 const StarRating = styled.div`
   display: flex;

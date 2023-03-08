@@ -17,7 +17,7 @@ import Link from "next/link";
 import { FaStar } from "react-icons/fa";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "axios";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../share/server";
 
 declare const window: typeof globalThis & {
   kakao: any;

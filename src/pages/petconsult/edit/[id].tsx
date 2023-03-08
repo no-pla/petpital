@@ -15,8 +15,8 @@ import {
   CustomHeader,
 } from "../../../components/custom/CustomHeader";
 import { SubBanner } from "../../../components/SubBanner";
-import { REVIEW_SERVER } from "@/share/server";
-import { UserProfile } from "@/components/CounselPost";
+import { REVIEW_SERVER } from "../../../share/server";
+import { UserProfile } from "../../../components/CounselPost";
 
 const EditCounsel = () => {
   const router = useRouter();

@@ -8,9 +8,9 @@ import Review from "./Review";
 import AuthModal from "../../components/custom/AuthModal";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { useRouter } from "next/router";
-import { hospitalData } from "@/share/atom";
+import { hospitalData } from "../../share/atom";
 import { useRecoilValue } from "recoil";
-import { useGetPetConsult } from "@/hooks/usePetsult";
+import { useGetPetConsult } from "../../hooks/usePetsult";
 import Image from "next/image";
 import { useGetReviews } from "../../hooks/useGetReviews";
 

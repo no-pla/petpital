@@ -1,7 +1,7 @@
-import { authService } from "@/firebase/firebase";
-import { useDeletCounsel, useGetCounselTarget } from "@/hooks/usePetsult";
-import { UserInfo, UserProfileImg } from "@/pages/petconsult/[id]";
-import { REVIEW_SERVER } from "@/share/server";
+import { authService } from "../firebase/firebase";
+import { useDeletCounsel, useGetCounselTarget } from "../hooks/usePetsult";
+import { UserInfo, UserProfileImg } from "../pages/petconsult/[id]";
+import { REVIEW_SERVER } from "../share/server";
 import styled from "@emotion/styled";
 import axios from "axios";
 import Image from "next/image";
@@ -42,7 +42,7 @@ const CounselPost = () => {
   const id = router.query.id;
   const [openModal, setOpenModal] = useState(false);
   const [targetId, setTargetId] = useState("");
-  const { data: targetTime } = useGetCounselTarget(id);
+  const { CounselList: targetTime } = useGetCounselTarget(id);
   const { mutate: deleteCounsel } = useDeletCounsel();
 
   console.log("메인 리렌더");

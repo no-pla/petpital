@@ -14,7 +14,7 @@ const Nickname = () => {
   const [newNickname, setNewNickname] = useState("");
   const [modal, setModal] = useState(false);
 
-  const [photoURL, setPhotoURL] = useState(
+  const [photoURL, setPhotoURL] = useState<any>(
     "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
   );
   const [photo, setPhoto] = useState<any>(null);
@@ -107,27 +107,26 @@ const Nickname = () => {
   }, [currentUser]);
 
   //   //실시간 업데이트 프로필 사진 표시
- 
+
   const onChange = (e: any) => {
-	if(e.target.files[0]){
-        setPhotoURL(e.target.files[0])
-        }else{ //업로드 취소할 시
-            setPhotoURL("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")
-            return
-        }
-	//화면에 프로필 사진 표시
-        const reader = new FileReader();
-        reader.onload = () => {
-            if(reader.readyState === 2){
-                setPhotoURL(reader.result)
-            }
-        }
-        reader.readAsDataURL(e.target.files[0])
+    if (e.target.files[0]) {
+      setPhotoURL(e.target.files[0]);
+    } else {
+      //업로드 취소할 시
+      setPhotoURL(
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      );
+      return;
     }
-
-
-
-
+    //화면에 프로필 사진 표시
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setPhotoURL(reader.result);
+      }
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  };
 
   //현재 로그인한거 불러오기
   const [myInformation, setMyInformation] = useState<User>();
@@ -162,19 +161,20 @@ const Nickname = () => {
           <ImageWrap>
             <input
               type="file"
-                style={{ display: "none" }}
-              onChange={(e)=>{
+              style={{ display: "none" }}
+              onChange={(e) => {
                 onChange(e);
-                handleChange(e)}}
+                handleChange(e);
+              }}
               id="input-file"
             />
             <label htmlFor="input-file">
-            <ProfileImage
-              src={photoURL}
-              width={150}
-              height={130}
-              onClick={handleClick}
-            />
+              <ProfileImage
+                src={photoURL}
+                width={150}
+                height={130}
+                onClick={handleClick}
+              />
             </label>
           </ImageWrap>
         </PicContainer>
@@ -329,5 +329,5 @@ const ModalButton = styled.button`
   &:hover {
     color: #15b5bf;
     transition: 0.5s;
-};  `
-
+  }
+`;

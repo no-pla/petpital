@@ -1,9 +1,8 @@
-import CustomModal, { ModalButton } from "@/components/custom/ErrorModal";
-import { useGetReviews } from "@/hooks/useGetReviews";
-import { currentUserUid, mainPetpitalList } from "@/share/atom";
+import CustomModal, { ModalButton } from "../components/custom/ErrorModal";
+import { useGetReviews } from "../hooks/useGetReviews";
+import { currentUserUid, mainPetpitalList } from "../share/atom";
 import styled from "@emotion/styled";
 import axios from "axios";
-import { checkPrimeSync } from "crypto";
 import { useRouter } from "next/router";
 import React, {
   ReactElement,
@@ -28,13 +27,10 @@ import { hospitalData, modalState } from "../share/atom";
 import CreatePostModal from "../components/custom/CreatePostModal";
 import EditPostModal from "../components/custom/EditPostModal";
 import { useMutation, useQueryClient } from "react-query";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../share/server";
 import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
-import ConfirmModal from "@/components/custom/ConfirmModal";
 import shortUUID from "short-uuid";
-import { FaSlideshare } from "react-icons/fa";
-import { GrShare } from "react-icons/gr";
 import { RxShare2 } from "react-icons/rx";
 
 interface IHospital {
@@ -419,8 +415,7 @@ const SearchHospital = () => {
   const queryClient = useQueryClient();
   // 게시글 삭제
   const { mutate: deleteMutate } = useMutation(
-    (id) =>
-      axios.delete(`${REVIEW_SERVER}/posts/${id}`).then((res) => res.data),
+    (id) => axios.delete(`${REVIEW_SERVER}posts/${id}`).then((res) => res.data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["getrecentlyReview"]);
@@ -604,18 +599,23 @@ const SearchHospital = () => {
                   </HospitalInfoTopWrap>
                 </HospitalInfoWrap>
                 <ReviewInfoWrap>
-                  <div style={{ color: "#15B5BF", fontSize: "15px" }}>
-                    영수증리뷰({totalReview})
+                  <div style={{ display: "flex" }}>
+                    <div style={{ color: "#15B5BF", fontSize: "15px" }}>
+                      영수증리뷰({totalReview})
+                    </div>
+                    <div
+                      style={{
+                        color: "lightgray",
+                        marginLeft: "10px",
+                        fontSize: "15px",
+                      }}
+                    >
+                      최신순
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      color: "lightgray",
-                      marginLeft: "10px",
-                      fontSize: "15px",
-                    }}
-                  >
-                    최신순
-                  </div>
+                  <WriteButton onClick={onClickWriteButton}>
+                    리뷰 참여하기
+                  </WriteButton>
                 </ReviewInfoWrap>
 
                 {!isLoading &&
@@ -780,9 +780,6 @@ const SearchHospital = () => {
                       );
                     })
                     .reverse()}
-                <WriteButton onClick={onClickWriteButton}>
-                  리뷰 참여하기
-                </WriteButton>
               </DashBoard>
             )}
           </BoardContainer>
@@ -1032,6 +1029,7 @@ const ReviewInfoWrap = styled.div`
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
   padding: 10px;
+  justify-content: space-between;
 `;
 
 const ReviewContainer = styled.div`
@@ -1095,12 +1093,14 @@ const HospitalInfoTop = styled.div`
 const WriteButton = styled.button`
   cursor: pointer;
   background-color: #15b5bf;
-  position: fixed;
-  width: 375px;
-  height: 56px;
+  /* position: fixed; */
+  width: 100px;
+  height: 28px;
   bottom: 79px;
-  left: 505px;
+  left: 628px;
   border: none;
+  border-radius: 20px;
+  color: white;
 `;
 
 // ---------- tag 색깔 -------------
