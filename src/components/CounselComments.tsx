@@ -1,10 +1,10 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../firebase/firebase";
 import {
   useAddCounselComment,
   useDeletCounselComment,
   useEditCounselComment,
   useGetPetConsultComment,
-} from "@/hooks/usePetsultReview";
+} from "../hooks/usePetsultReview";
 import styled from "@emotion/styled";
 import React, { useRef, useState } from "react";
 import { AiOutlineMore } from "react-icons/Ai";

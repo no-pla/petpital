@@ -1,9 +1,8 @@
-import CustomModal, { ModalButton } from "@/components/custom/ErrorModal";
-import { useGetReviews } from "@/hooks/useGetReviews";
-import { currentUserUid, mainPetpitalList } from "@/share/atom";
+import CustomModal, { ModalButton } from "../components/custom/ErrorModal";
+import { useGetReviews } from "../hooks/useGetReviews";
+import { currentUserUid, mainPetpitalList } from "../share/atom";
 import styled from "@emotion/styled";
 import axios from "axios";
-import { checkPrimeSync } from "crypto";
 import { useRouter } from "next/router";
 import React, {
   ReactElement,
@@ -28,13 +27,10 @@ import { hospitalData, modalState } from "../share/atom";
 import CreatePostModal from "../components/custom/CreatePostModal";
 import EditPostModal from "../components/custom/EditPostModal";
 import { useMutation, useQueryClient } from "react-query";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../share/server";
 import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
-import ConfirmModal from "@/components/custom/ConfirmModal";
 import shortUUID from "short-uuid";
-import { FaSlideshare } from "react-icons/fa";
-import { GrShare } from "react-icons/gr";
 import { RxShare2 } from "react-icons/rx";
 
 interface IHospital {

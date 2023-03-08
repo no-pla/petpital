@@ -15,9 +15,9 @@ import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../share/server";
 import { BsArrowRightCircle } from "react-icons/bs";
-import { CounselItem } from "@/components/custom/CounselItem";
+import { CounselItem } from "../components/custom/CounselItem";
 
 export default function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;

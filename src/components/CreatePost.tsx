@@ -1,7 +1,7 @@
-import { authService } from "@/firebase/firebase";
-import { useDeletCounsel, useGetCounselTarget } from "@/hooks/usePetsult";
-import { UserInfo, UserProfileImg } from "@/pages/petconsult/[id]";
-import { REVIEW_SERVER } from "@/share/server";
+import { authService } from "../firebase/firebase";
+import { useDeletCounsel, useGetCounselTarget } from "../hooks/usePetsult";
+import { UserInfo, UserProfileImg } from "../pages/petconsult/[id]";
+import { REVIEW_SERVER } from "../share/server";
 import styled from "@emotion/styled";
 import axios from "axios";
 import Image from "next/image";

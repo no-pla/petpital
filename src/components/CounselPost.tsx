@@ -1,9 +1,9 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../firebase/firebase";
 import {
   useDeletCounsel,
   useGetCounselTarget,
   useEditCounsel,
-} from "@/hooks/usePetsult";
+} from "../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import React, { useState } from "react";

@@ -1,4 +1,4 @@
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../share/server";
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 

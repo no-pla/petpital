@@ -12,9 +12,9 @@ import { MainBannerContiner } from "../../components/MainBanner";
 import { MainCustomButton } from "..";
 import { authService } from "../../firebase/firebase";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../../share/server";
 import Head from "next/head";
-import { CounselItem } from "@/components/custom/CounselItem";
+import { CounselItem } from "../../components/custom/CounselItem";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`

@@ -12,18 +12,12 @@ import { authService } from "../firebase/firebase";
 import { emailRegex } from "../share/utils";
 import CustomButton from "../components/custom/CustomButton";
 import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
-import Join from "./signup";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { currentUserUid, hospitalData, modalState } from "../share/atom";
 import { useSetRecoilState } from "recoil";
 import Image from "next/image";
 import loginLogo from "../../public/loginLogo.jpg";
-import { BiArrowBack } from "react-icons/bi";
-import loginBottomImg from "../../public/loginBottomImg.png";
-import PasswordFindModal from "../components/custom/PasswordFindModal";
-import { AiOutlineCloseCircle } from "react-icons/Ai";
-import { LoginBottomImg } from "@/components/LoginBottomImg";
+import { LoginBottomImg } from "../components/LoginBottomImg";
 import {
   BottomButtonContainer,
   MainBanner,
