@@ -7,7 +7,8 @@ import {
 } from "../hooks/usePetsultReview";
 import styled from "@emotion/styled";
 import React, { useRef, useState } from "react";
-import { AiOutlineMore } from "react-icons/Ai";
+import { AiOutlineMore } from "react-icons/ai";
+
 import shortUUID from "short-uuid";
 import { UserProfile } from "./CounselPost";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
