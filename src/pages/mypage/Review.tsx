@@ -20,8 +20,8 @@ const Review = () => {
         : recentlyReview?.data
             .filter((review) => myId === review.userId)
             .map((review: any) => (
-              <ReviewContainer key={review.userId}>
-                <ReviewBox onClick={() => router.push(`posts/`)}>
+              <ReviewContainer key={review.id}>
+                <ReviewBox onClick={() => router.push(`/`)}>
                   <ReviewId>
                     <ReviewImg src={review.downloadUrl} alt="" />
                     <ReviewInfo>

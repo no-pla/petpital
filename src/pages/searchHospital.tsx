@@ -481,7 +481,7 @@ const SearchHospital = () => {
           }}
           style={{
             width: "100%",
-            height: `calc(100vh - 60px)`,
+            height: `calc(100vh - 80px)`,
             position: "fixed",
             bottom: 0,
           }}
@@ -575,7 +575,7 @@ const SearchHospital = () => {
                 <HospitalInfoWrap>
                   <HospitalInfoTopWrap>
                     <HospitalInfoTop>
-                      <div style={{ fontWeight: "bold", fontSize: "16px" }}>
+                      <div style={{ fontWeight: "bold", fontSize: "17px" }}>
                         {hospitalName}
                       </div>
                       <div
@@ -583,6 +583,7 @@ const SearchHospital = () => {
                           fontSize: "13px",
                           marginLeft: "5px",
                           marginTop: "2px",
+                          opacity: "0.6",
                         }}
                       >
                         {targetHospitalData?.phone}
@@ -596,7 +597,9 @@ const SearchHospital = () => {
                         // backgroundColor: "red",
                       }}
                     >
-                      <div>{targetHospitalData?.address_name}</div>
+                      <div style={{ opacity: "0.6" }}>
+                        {targetHospitalData.address_name}
+                      </div>
                     </div>
                   </HospitalInfoTopWrap>
                 </HospitalInfoWrap>
@@ -613,7 +616,6 @@ const SearchHospital = () => {
                   >
                     최신순
                   </div>
-                  <button onClick={onClickWriteButton}>리뷰 참여하기</button>
                 </ReviewInfoWrap>
 
                 {!isLoading &&
@@ -770,11 +772,17 @@ const SearchHospital = () => {
                                 </div>
                               </ReviewBottomContainer>
                             </ReviewBox>
+                            {/* <WriteButton onClick={onClickWriteButton}>
+                              리뷰 참여하기
+                            </WriteButton> */}
                           </ReviewContainer>
                         </>
                       );
                     })
                     .reverse()}
+                <WriteButton onClick={onClickWriteButton}>
+                  리뷰 참여하기
+                </WriteButton>
               </DashBoard>
             )}
           </BoardContainer>
@@ -963,7 +971,7 @@ const DashBoard = styled.div`
   background-color: white;
   box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid gray;
-  padding-top: 60px;
+  padding-top: 80px;
   overflow-y: scroll;
   /* display: none; */
   overflow: auto;
@@ -1070,6 +1078,17 @@ const ReviewProfileRight = styled.div`
 const HospitalInfoTop = styled.div`
   /* background-color: red; */
   display: flex;
+`;
+
+const WriteButton = styled.button`
+  cursor: pointer;
+  background-color: #15b5bf;
+  position: absolute;
+  width: 375px;
+  height: 56px;
+  bottom: 80px;
+  left: 375px;
+  border: none;
 `;
 
 // ---------- tag 색깔 -------------

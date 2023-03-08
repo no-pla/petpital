@@ -8,8 +8,10 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import CounselComments, { ManageButtonContainer } from "./CounselComments";
-import CustomModal, { ModalButton } from "../custom/ErrorModal";
+import CounselComments, {
+  ManageButtonContainer,
+} from "../components/CounselComments";
+import CustomModal, { ModalButton } from "../components/custom/ErrorModal";
 
 export const UserProfile = (counselData: any) => {
   return (
