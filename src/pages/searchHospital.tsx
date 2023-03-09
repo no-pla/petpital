@@ -32,6 +32,7 @@ import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
 import shortUUID from "short-uuid";
 import { RxShare2 } from "react-icons/rx";
+import Image from "next/image";
 
 interface IHospital {
   address_name: string;
@@ -630,7 +631,7 @@ const SearchHospital = () => {
                             <ReviewBox>
                               <ReviewTopContainer>
                                 <ReviewProfileLeft>
-                                  <img
+                                  <Image
                                     src={
                                       review.profileImage
                                         ? review.profileImage
@@ -642,7 +643,7 @@ const SearchHospital = () => {
                                     style={{
                                       borderRadius: "50%",
                                     }}
-                                  ></img>
+                                  ></Image>
                                   <div style={{ marginLeft: "10px" }}>
                                     {review.displayName}
                                   </div>
@@ -652,7 +653,7 @@ const SearchHospital = () => {
                                 </ReviewProfileRight>
                               </ReviewTopContainer>
                               <ReviewMiddleContainer>
-                                <img
+                                <Image
                                   src={review.downloadUrl}
                                   alt="게시글 이미지"
                                   width={339}

@@ -19,11 +19,11 @@ import CustomModal, { ModalButton } from "./ErrorModal";
 interface EditPostModalProps {
   setIsEdit: (value: boolean) => void;
   id: string;
-  postTitle: string;
-  postContents: string;
-  postTotalCost: string;
-  postDownloadUrl: string;
-  postRating: number;
+  postTitle: any;
+  postContents: any;
+  postTotalCost: any;
+  postDownloadUrl: any;
+  postRating: any;
 }
 
 const EditPostModal = ({
