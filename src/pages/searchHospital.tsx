@@ -118,8 +118,6 @@ const SearchHospital = () => {
   });
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
-  // console.log(hospitalRate, hospitalReview, hospitalReviewCount);
-
   useEffect(() => {
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
@@ -170,8 +168,6 @@ const SearchHospital = () => {
   };
 
   useEffect(() => {
-    console.log("id리로드 왜리로드안됨");
-
     // 상세 페이지 열면 hospitalId => 병원 공유 통해서 들어왔을 때 or 병원 클릭 시
     if (hospitalName && placeId) {
       setPlace(hospitalName);
@@ -241,7 +237,6 @@ const SearchHospital = () => {
 
     ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
       if (data.length === 0) {
-        console.log(4, "비어있음");
         setHospitalList([]);
         // setPlace("");
         return;
@@ -276,32 +271,44 @@ const SearchHospital = () => {
 
   useEffect(() => {
     const tempArray: any[] = [];
-    const tempCountArray: any[] = [];
     // // 병원 아이디 가져오기
     hospitalList.map((hospital: IHospital) => {
       tempArray.push(hospital.id);
     });
 
-    // 별점 저장 / 리뷰 수 저장
+    // 별점 저장 / 리뷰 저장
     const promiseCosts = tempArray.map(async (hospital: any) => {
-      const tempCostArray: any[] | PromiseLike<any[]> = [];
+      const tempRateArray: any[] | PromiseLike<any[]> = [];
+      const tempCountArray: any[] = [];
+
       await axios
-        .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
+        .get(
+          `${REVIEW_SERVER}posts?_sort=date&_order=desc&hospitalId=${hospital}`,
+        )
         .then((res) =>
           res.data.map((data: any) => {
-            // console.log(data);
-            tempCountArray.push(data);
-            tempCostArray.push(data.rating);
+            tempCountArray.push({
+              nickname: data.displayName,
+              reviewImage: data.downloadUrl,
+              profileImage: data.profileImage,
+              id: data.id,
+            });
+            tempRateArray.push(data.rating);
           }),
         );
-      return tempCostArray;
+      return [tempRateArray, tempCountArray];
     });
 
     Promise.all(promiseCosts).then(async (results) => {
-      // console.log(results);
+      const tempRate = results.map((item) => item[0]); // 첫 번째 배열들을 묶음
+      const tempReview = results.map((item) => item[1]); // 두 번째 배열들을 묶음
+
       const tempArray: (string | number)[] = [];
       const tempCount: (string | number)[] = [];
-      results.forEach((cost) => {
+      const tempCurrentReview: any[] = [];
+
+      tempRate.forEach((cost) => {
+        // console.log(cost);
         tempCount.push(cost.length);
         if (cost.length > 0) {
           tempArray.push(
@@ -317,41 +324,11 @@ const SearchHospital = () => {
           tempArray.push("정보 없음");
         }
       });
-      setHospitalReviewCount(tempCount);
-      setHospitalRate(tempArray);
-    });
-
-    // 리뷰 저장
-    const promiseReview = tempArray.map(async (hospital: any) => {
-      const tempReviewArray: any[] = [];
-
-      await axios
-        .get(
-          `${REVIEW_SERVER}posts?_sort=createdAt&_order=desc&hospitalId=${hospital}`,
-        )
-        .then((res) =>
-          res.data.map((data: any) => {
-            if (tempReviewArray.length < 3) {
-              const tempObj = {
-                id: data.id,
-                nickname: data.displayName,
-                profileImage: data.profileImage,
-                photo: data.downloadUrl,
-              };
-              tempReviewArray.push(tempObj);
-            }
-          }),
-        );
-      return tempReviewArray;
-    });
-
-    Promise.all(promiseReview).then(async (results) => {
-      const tempArray: any[] = [];
-      results.forEach((review: string | any[]) => {
+      tempReview.forEach((review: string | any[]) => {
         if (review.length > 0) {
-          tempArray.push(review);
+          tempCurrentReview.push(review.slice(0, 3));
         } else {
-          tempArray.push([
+          tempCurrentReview.push([
             {
               photo:
                 "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fno_image_info.svg?alt=media&token=c770159e-01d1-443e-89d9-0e14dea7ebdd",
@@ -360,11 +337,13 @@ const SearchHospital = () => {
           ]);
         }
       });
-      setHospitalReview(tempArray);
+      setHospitalReviewCount(tempCount);
+      setHospitalRate(tempArray);
+      setHospitalReview(tempCurrentReview);
     });
-
-    // console.log(tempCountArray);
   }, [hospitalList]);
+
+  // console.log(hospitalReview);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -563,23 +542,24 @@ const SearchHospital = () => {
                             </ReviewRate>
                             <ReviewPhoto>
                               <CurrentReviewContainer>
-                                {hospitalReview[index]?.map((review: any) => {
-                                  return (
-                                    <CurrentReview
-                                      key={review.id}
-                                      bgImage={review.photo}
-                                    >
-                                      <CurrentReviewWriter>
-                                        <CurrentReviewUser
-                                          src={review.profileImage}
-                                        />
-                                        <CurrentReviewNickname>
-                                          {review.nickname}
-                                        </CurrentReviewNickname>
-                                      </CurrentReviewWriter>
-                                    </CurrentReview>
-                                  );
-                                })}
+                                {hospitalReview &&
+                                  hospitalReview[index]?.map((review: any) => {
+                                    return (
+                                      <CurrentReview
+                                        key={review.id}
+                                        bgImage={review.reviewImage}
+                                      >
+                                        <CurrentReviewWriter>
+                                          <CurrentReviewUser
+                                            src={review.profileImage}
+                                          />
+                                          <CurrentReviewNickname>
+                                            {review.nickname}
+                                          </CurrentReviewNickname>
+                                        </CurrentReviewWriter>
+                                      </CurrentReview>
+                                    );
+                                  })}
                               </CurrentReviewContainer>
                             </ReviewPhoto>
                           </HospitalItem>
