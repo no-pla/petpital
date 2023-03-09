@@ -23,7 +23,7 @@ function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const router = useRouter();
   const { recentlyReview, isLoading: isLoadingReviews } = useGetReviews(
-    "?_sort=createdAt&_order=desc&_limit=6",
+    "?_sort=date&_order=desc&_limit=6",
   );
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
     limit: "&_limit=3",
@@ -218,11 +218,11 @@ function Home() {
       https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fapp_banner.jpg?alt=media&token=1622f93e-970b-4a9d-a521-ada6094668fb"
         backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Freview_banner.jpg?alt=media&token=aa4b416c-5b37-4ca1-afae-9b040631d396"
       >
-        <MainCustomButton
+        <SubCustomButton
           onClick={() =>
             authService.currentUser === null
               ? router.push("/login")
-              : router.push("/searchMap")
+              : router.push("/searchHospital")
           }
         >
           리뷰 남기러가기
@@ -230,7 +230,7 @@ function Home() {
             size={16}
             style={{ marginTop: 1, marginLeft: 13 }}
           />
-        </MainCustomButton>
+        </SubCustomButton>
       </ReviewBanner>
       <Section>
         <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
@@ -349,7 +349,6 @@ const BestPetpitalContainer = styled.div`
 const BestPetpitalItem = styled.div`
   width: calc(max(100%, 144px));
   border-radius: 4px;
-  cursor: pointer;
   box-shadow: 0px 4px 4px 0px #0000001a;
   @media screen and (max-width: 800px) {
     grid-template-columns: repeat(6, 200px);
@@ -414,7 +413,6 @@ const CurrentReview = styled.div`
   background-color: #fafafa;
   border-radius: 4px;
   height: 180px;
-  cursor: pointer;
 `;
 
 const CurrentImageContainer = styled.div`

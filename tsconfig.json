@@ -24,8 +24,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/pages/login.tsx",
-    "src/pages/posts/index.tsx"
+    "src/components/EditPost.jsx",
+    "src/components/EditPost.jsx"
   ],
   "exclude": ["node_modules"]
 }

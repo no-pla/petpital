@@ -9,7 +9,7 @@ import {
   HeaderButton,
 } from "../../components/custom/CustomHeader";
 import CounselPost from "../../components/CounselPost";
-import { authService } from "@/firebase/firebase";
+import { authService } from "../../firebase/firebase";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { QuestionButton } from "./index";
 

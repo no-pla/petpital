@@ -9,6 +9,6 @@ const Kakao = axios.create({
 });
 
 // search image api
-export const imageSearch = (params) => {
+export const imageSearch = (params: any) => {
   return Kakao.get("/v2/search/image", { params });
 };

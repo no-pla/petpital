@@ -10,6 +10,8 @@ const nextConfig = {
       "i.pinimg.com",
       "upload.wikimedia.org",
       "user-images.githubusercontent.com",
+      "media.istockphoto.com",
+      "lh3.googleusercontent.com",
     ],
   },
 };

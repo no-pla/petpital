@@ -8,7 +8,7 @@ const CustomModal = ({
   children,
 }: {
   modalText1: string;
-  modalText2: string;
+  modalText2?: string;
   children: any;
 }) => {
   return (

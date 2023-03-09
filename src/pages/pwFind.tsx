@@ -18,7 +18,7 @@ import Logo2 from "../../public/Logo2.png";
 import app_logo from "../../public/app_logo.png";
 import loginBottomImg from "../../public/loginBottomImg.png";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
-import { LoginBottomImg } from "@/components/LoginBottomImg";
+import { LoginBottomImg } from "../components/LoginBottomImg";
 
 const Login = () => {
   const [email, setEmail] = useState("");

@@ -1,9 +1,9 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../firebase/firebase";
 import {
   useDeletCounsel,
   useGetCounselTarget,
   useEditCounsel,
-} from "@/hooks/usePetsult";
+} from "../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -12,7 +12,7 @@ import CustomModal, { ModalButton } from "./custom/ErrorModal";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Image from "next/image";
 import { RxShare2 } from "react-icons/rx";
-import { AiOutlineMore } from "react-icons/Ai";
+import { AiOutlineMore } from "react-icons/ai";
 import { REVIEW_SERVER, REVIEW_SITE } from "@/share/server";
 
 export const UserProfile = ({ profileLink }: any) => {
