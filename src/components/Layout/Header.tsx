@@ -16,7 +16,7 @@ export default function Header() {
     if (targetHospital.current?.value !== "") {
       router.push({
         pathname: "/searchHospital",
-        query: { hospitalName: targetHospital.current?.value + " 동물병원" },
+        query: { target: targetHospital.current?.value + " 동물병원" },
       });
       return;
     }

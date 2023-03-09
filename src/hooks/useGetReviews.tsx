@@ -32,7 +32,6 @@ export const useGetReviews = (limit: string) => {
     console.log("res", res);
     return res;
   });
-  console.log("eee", recentlyReview);
 
   return { recentlyReview, isLoading, recentlyRefetch };
 };

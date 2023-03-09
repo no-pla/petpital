@@ -121,9 +121,6 @@ const SearchHospital = () => {
   // console.log(hospitalRate, hospitalReview, hospitalReviewCount);
 
   useEffect(() => {
-    if (target) {
-      setPlace(target);
-    }
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
       navigator.geolocation.getCurrentPosition(
@@ -157,7 +154,7 @@ const SearchHospital = () => {
 
   const HospitalData = targetHospitalData;
   const userUid = useRecoilValue(currentUserUid);
-  console.log("userUid", userUid);
+  // console.log("userUid", userUid);
 
   // 바깥으로 빼라!
   const Input = () => {
@@ -178,6 +175,7 @@ const SearchHospital = () => {
     // 상세 페이지 열면 hospitalId => 병원 공유 통해서 들어왔을 때 or 병원 클릭 시
     if (hospitalName && placeId) {
       setPlace(hospitalName);
+      setIsSearchOpen(true);
       setIsDetailOpen(true);
     }
 
@@ -228,15 +226,22 @@ const SearchHospital = () => {
   }, [map]);
 
   useEffect(() => {
-    console.log("검색리로드 왜리로드안됨");
-
+    // console.log("검색리로드 왜리로드안됨");
+    if (target) {
+      setPlace(target);
+      setIsSearchOpen(true);
+    }
     // 병원을 검색했을 때 실행
+
     if (!place) return;
     if (!map) return;
+
     const ps = new kakao.maps.services.Places();
     // 키워드에 맞는 동물병원 표시
+
     ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
       if (data.length === 0) {
+        console.log(4, "비어있음");
         setHospitalList([]);
         // setPlace("");
         return;
@@ -267,10 +272,9 @@ const SearchHospital = () => {
         map.setBounds(bounds);
       }
     });
-  }, [place, target]);
+  }, [place, target, map]);
 
   useEffect(() => {
-    console.log("리로드 별점왜리로드안됨");
     const tempArray: any[] = [];
     const tempCountArray: any[] = [];
     // // 병원 아이디 가져오기
@@ -359,7 +363,7 @@ const SearchHospital = () => {
       setHospitalReview(tempArray);
     });
 
-    console.log(tempCountArray);
+    // console.log(tempCountArray);
   }, [hospitalList]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -435,7 +439,7 @@ const SearchHospital = () => {
   const totalReview = recentlyReview?.data.filter(
     (item: any) => item.hospitalId === placeId,
   ).length;
-  console.log("totalReview", totalReview);
+  // console.log("totalReview", totalReview);
 
   // // 유저별 방문수
   // const personTotalReview = recentlyReview?.data.filter(
@@ -488,7 +492,10 @@ const SearchHospital = () => {
           {/* <MapTypeControl position={kakao.maps.ControlPosition?.TOPRIGHT} /> */}
           <SearchForm onSubmit={onSubmit}>
             <button type="button">
-              <FormLogo backgroundImage="https://user-images.githubusercontent.com/88391843/224016702-e3591270-1b05-4d05-8bf0-ebe5a68aab54.png" />
+              <FormLogo
+                onClick={() => router.push("/")}
+                backgroundImage="https://user-images.githubusercontent.com/88391843/224016702-e3591270-1b05-4d05-8bf0-ebe5a68aab54.png"
+              />
             </button>
             <Input />
           </SearchForm>
@@ -507,7 +514,12 @@ const SearchHospital = () => {
                       <AiOutlineArrowLeft size={24} />
                       <div>이전으로</div>
                     </button>
-                    <button onClick={() => setIsSearchOpen((prev) => !prev)}>
+                    <button
+                      onClick={() => {
+                        setIsDetailOpen(false);
+                        setIsSearchOpen((prev) => !prev);
+                      }}
+                    >
                       <AiOutlineClose size={24} />
                     </button>
                   </DashBoardHeader>
@@ -829,27 +841,6 @@ const SearchHospital = () => {
             )}
           </BoardContainer>
           {/* 마커 표시 */}
-
-          {/* <MapMarker // 마커를 생성합니다
-            position={{
-              // 마커가 표시될 위치입니다
-              lat: 37.54699,
-              lng: 127.09598,
-            }}
-            image={{
-              src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
-              size: {
-                width: 64,
-                height: 69,
-              }, // 마커이미지의 크기입니다
-              options: {
-                offset: {
-                  x: 27,
-                  y: 69,
-                }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-              },
-            }}
-          ></MapMarker> */}
           {markers.map(
             (marker: {
               content:
@@ -863,27 +854,38 @@ const SearchHospital = () => {
                 | undefined;
               position: { lat: any; lng: any };
             }) => (
-              <MapMarker // 마커를 생성합니다
-                key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
-                position={{
-                  // 마커가 표시될 위치입니다
-                  lat: 37.54699,
-                  lng: 127.09598,
-                }}
-                image={{
-                  src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
-                  size: {
-                    width: 64,
-                    height: 69,
-                  }, // 마커이미지의 크기입니다
-                  options: {
-                    offset: {
-                      x: 27,
-                      y: 69,
-                    }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-                  },
-                }}
-              ></MapMarker>
+              <>
+                <CustomOverlayMap
+                  key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
+                  position={{
+                    lat: marker.position.lat,
+                    lng: marker.position.lng,
+                  }}
+                >
+                  <MarkerItem className="overlay">{marker.content}</MarkerItem>
+                </CustomOverlayMap>
+                <MapMarker // 마커를 생성합니다
+                  key={`marker-${marker.content}-${marker.position.lng},${marker.position.lat}`}
+                  position={{
+                    // 마커가 표시될 위치입니다
+                    lat: marker.position.lat,
+                    lng: marker.position.lng,
+                  }}
+                  image={{
+                    src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
+                    size: {
+                      width: 64,
+                      height: 69,
+                    }, // 마커이미지의 크기입니다
+                    options: {
+                      offset: {
+                        x: 27,
+                        y: 69,
+                      }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+                    },
+                  }}
+                ></MapMarker>
+              </>
             ),
           )}
           {/* 현재 접속 위치 표시 */}
@@ -912,6 +914,7 @@ const FormLogo = styled.div<{ backgroundImage: string }>`
   height: 40px;
   background-position: center;
   background-repeat: no-repeat;
+  cursor: pointer;
 `;
 
 const DashBoardHeaderContainer = styled.header`
