@@ -4,7 +4,7 @@ import Footer from "./Footer";
 import { useRouter } from "next/router";
 import { JsxElement } from "typescript";
 
-export default function Layout({ children }: JsxElement) {
+export default function Layout({ children }: any) {
   const router = useRouter();
   return (
     <>

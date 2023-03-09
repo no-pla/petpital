@@ -14,7 +14,7 @@ interface INewPetsult {
   }[];
 }
 
-// 상담 게시글 추가
+// 메인 화면에서 Q&A 가져옴
 
 export const useGetPetConsult = ({ limit }: any) => {
   const { data: petConsult, isLoading: isLoadingPetConsult } =
@@ -50,25 +50,24 @@ export const useGetCounselTarget = (id: any) => {
       // id가 존재할 때만 실행
       enabled: !!id,
       refetchOnWindowFocus: true,
-      refetchOnMount: true,
       cacheTime: 0,
       select: (data) => data?.data.createdAt,
     },
   );
 
-  const { data: CounselList } = useQuery(
-    ["infiniteComments", targetTime],
+  const { data: CounselList, isRefetching } = useQuery(
+    ["infiniteCounsel", targetTime],
     async () =>
       await axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
       ),
     {
-      enabled: !!targetTime,
+      // enabled: !!targetTime,
       select: (data) => data?.data,
     },
   );
 
-  return { CounselList };
+  return { CounselList, isRefetching };
 };
 
 // 상담 게시글 수정
@@ -83,9 +82,9 @@ export const useEditCounsel = () => {
     mutationFn: editCounsel,
     onMutate: async (newCounsel: any) => {
       // mutation 취소
-      await queryClient.cancelQueries({ queryKey: ["getCounsel"] });
-      const oldCounsel = queryClient.getQueriesData(["getCounsel"]);
-      queryClient.setQueriesData(["getCounsel"], newCounsel);
+      await queryClient.cancelQueries({ queryKey: ["getCounsels"] });
+      const oldCounsel = queryClient.getQueriesData(["getCounsels"]);
+      queryClient.setQueriesData(["getCounsels"], newCounsel);
       return { oldCounsel, newCounsel };
       // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
       //낙관적 업데이트를 통해 캐시 수정
@@ -98,15 +97,70 @@ export const useEditCounsel = () => {
       console.log(error);
     },
     onSettled() {
-      queryClient.invalidateQueries({ queryKey: ["infiniteComments"] });
+      queryClient.invalidateQueries({
+        queryKey: ["infiniteCounsel", "pagnationCounsel"],
+      });
     },
   });
 };
 
-// 상담 게시글 삭제
+// // 상담 게시글 삭제
+
+// const deleteCounsel = (targetId: any) => {
+//   console.log("deleteCounsel");
+//   return axios.delete(`${REVIEW_SERVER}qna/${targetId}`);
+// };
+
+// export const useDeletCounsel = () => {
+//   const queryClient = useQueryClient();
+//   return useMutation({
+//     // useMutation은 쿼리키, api호출함수, 옵션 3개의 인자를 답는다.
+//     mutationFn: deleteCounsel,
+//     mutationKey: ["infiniteCounsel"],
+//     onMutate: async (newCounsel) => {
+//       //     // mutation 취소
+//       await queryClient.cancelQueries({
+//         queryKey: ["infiniteCounsel"],
+//       });
+//       const oldCounsel = queryClient.getQueriesData([
+//         "infiniteCounsel",
+//         "pagnationCounsel",
+//       ]);
+//       queryClient.setQueriesData(
+//         ["infiniteCounsel", "pagnationCounsel"],
+//         newCounsel,
+//       );
+//       return { oldCounsel, newCounsel };
+//       //     // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
+//       //     // 낙관적 업데이트를 통해 캐시 수정
+//     },
+//     onSuccess: async (data, variables, context) => {
+//       // 성공 시 실행
+//       console.log("qna 삭제 성공");
+//       queryClient.invalidateQueries([
+//         "infiniteCounsel",
+//         "pagnationCounsel",
+//         "getCounsels",
+//       ]);
+//     },
+//     onError: async (error, newCounsel, context) => {
+//       // 실패 시 실행. 롤백을 해주어야 함
+//       console.log("실패", error, newCounsel, context);
+//       queryClient.invalidateQueries(["infiniteCounsel", "pagnationCounsel"]);
+//     },
+//     onSettled: async () => {
+//       // 무조건 실행
+//       console.log("qna 삭제 실행 끝");
+//       queryClient.invalidateQueries([
+//         "infiniteCounsel",
+//         "pagnationCounsel",
+//         "getCounsels",
+//       ]);
+//     },
+//   });
+// };
 
 const deleteCounsel = (targetId: any) => {
-  console.log("deleteCOunsel");
   return axios.delete(`${REVIEW_SERVER}qna/${targetId}`);
 };
 
@@ -115,30 +169,28 @@ export const useDeletCounsel = () => {
   return useMutation({
     // useMutation은 쿼리키, api호출함수, 옵션 3개의 인자를 답는다.
     mutationFn: deleteCounsel,
-    mutationKey: ["getCounsel"],
+    mutationKey: ["infiniteCounsel"],
     onMutate: async (newCounsel) => {
-      //     // mutation 취소
-      await queryClient.cancelQueries({ queryKey: ["getCounsel"] });
-      const oldCounsel = queryClient.getQueriesData(["getCounsel"]);
-      queryClient.setQueriesData(["getCounsel"], newCounsel);
+      // mutation 취소
+      await queryClient.cancelQueries({ queryKey: ["infiniteCounsel"] });
+      const oldCounsel = queryClient.getQueriesData(["infiniteCounsel"]);
+      queryClient.setQueriesData(["infiniteCounsel"], newCounsel);
       return { oldCounsel, newCounsel };
-      //     // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
-      //     // 낙관적 업데이트를 통해 캐시 수정
+      // 낙관적 업데이트를 하면 성공을 가졍하고 업데이트하는데 실패시 롤덱용 스냅샷을 만든다.
+      // 낙관적 업데이트를 통해 캐시 수정
     },
     onSuccess(data, variables, context) {
       // 성공 시 실행
-      console.log("qna 삭제 성공");
-      queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
+      //   console.log("성공");
     },
     onError: (error, newCounsel, context) => {
       // 실패 시 실행. 롤백을 해주어야 함
-      console.log("실패", error, newCounsel, context);
-      queryClient.setQueryData(["getCounsel"], context?.oldCounsel);
+      console.log("실패", error);
+      queryClient.setQueryData(["infiniteCounsel"], context?.oldCounsel);
     },
     onSettled: () => {
       // 무조건 실행
-      console.log("qna 삭제 실행");
-      // queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
+      queryClient.invalidateQueries({ queryKey: ["infiniteCounsel"] });
     },
   });
 };

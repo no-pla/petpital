@@ -56,15 +56,12 @@ const PetconsultDetail = () => {
   };
 
   const deleteCounselPost = async () => {
-    await deleteCounsel(targetId);
-    console.log("삭제 완료");
     if (id === targetId) {
       router.push("/petconsult");
     }
     setOpenModal((prev: any) => !prev);
+    await deleteCounsel(targetId);
   };
-
-  console.log("전체페이지 리렌더");
 
   return (
     <>

@@ -121,8 +121,6 @@ function Home() {
     setPage((prev) => prev + 1);
   };
 
-  console.log(mainPetpial);
-
   return (
     <>
       <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=80384910-8ef9-456e-8e2f-cb548d67e263">

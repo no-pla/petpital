@@ -22,7 +22,7 @@ export const useGetMainHospital = (page: number) => {
     },
     {
       keepPreviousData: true,
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
       select: (data) => data.data,
     },
   );

@@ -31,7 +31,6 @@ export default function Footer() {
 }
 
 const FooterContainer = styled.footer`
-  position: fixed;
   bottom: 0;
   left: 0;
   width: 100vw;

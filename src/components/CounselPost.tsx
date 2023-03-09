@@ -105,9 +105,9 @@ const CounselSettingButton = ({ counselData }: any) => {
 const CounselPost = () => {
   const router = useRouter();
   const id = router.query.id;
-  const { CounselList } = useGetCounselTarget(id);
-
-  console.log("포스트 리렌더");
+  const { CounselList, isRefetching } = useGetCounselTarget(id);
+  console.log("infiniteComments", isRefetching);
+  // console.log("포스트 리렌더");
 
   // const addLike = (linkedUser: string[], counselData: any) => {
   //   const newCounselData = {
@@ -158,30 +158,6 @@ const CounselPost = () => {
               </CounselSetting>
             </CounselHeader>
             {/* 좋아요 */}
-            {/* <div>{counselData?.linkedUser?.length}</div>
-            <div>
-              {counselData?.linkedUser?.includes(
-                authService?.currentUser?.uid,
-              ) ? (
-                <button
-                  disabled={authService.currentUser === null}
-                  onClick={() =>
-                    removeLike(counselData?.linkedUser, counselData)
-                  }
-                >
-                  이미 좋아요 누름
-                </button>
-              ) : (
-                <button
-                  disabled={authService.currentUser === null}
-                  onClick={() => addLike(counselData?.linkedUser, counselData)}
-                >
-                  {authService?.currentUser === null
-                    ? "가입하고 좋아요를 남겨보세요"
-                    : "좋와요"}
-                </button>
-              )}
-            </div> */}
             <CounselText>{String(counselData.content)}</CounselText>
             {/* 댓글 */}
             <CounselComments target={counselData.id} />

@@ -90,7 +90,8 @@ export const PageButton = styled.button`
   background-color: transparent;
   border: 2px solid #65d8df;
   border-radius: 50%;
-  margin-bottom: 80px;
+  margin-top: 20px;
+  margin-bottom: 16px;
   &:disabled {
     color: gray;
     border-color: gray;
@@ -217,7 +218,6 @@ function Petconsult() {
   } = useQuery(
     ["pagnationCounsel", page],
     () => {
-      console.log("pagnationCounsel 로드");
       return axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );

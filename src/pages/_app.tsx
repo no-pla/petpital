@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: Infinity,
-      notifyOnChangeProps: "tracked",
+      // notifyOnChangeProps: "tracked",
     },
   },
 });
