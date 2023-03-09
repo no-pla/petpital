@@ -15,8 +15,11 @@ import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
 import { authService } from "../firebase/firebase";
+import { REVIEW_SERVER } from "../share/server";
+import { BsArrowRightCircle } from "react-icons/bs";
+import { CounselItem } from "../components/custom/CounselItem";
 
-export default function Home() {
+function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const router = useRouter();
   const { recentlyReview, isLoading: isLoadingReviews } = useGetReviews(
@@ -28,6 +31,7 @@ export default function Home() {
 
   const [page, setPage] = useState(1);
   const [hospitaListImage, setHospitalImageList] = useState<any>([]);
+  const [arverageCost, setAverageCost] = useState<any>();
   const { data: mainPetpial, refetch } = useGetMainHospital(page);
 
   useEffect(() => {
@@ -35,6 +39,8 @@ export default function Home() {
     // 지역명 + 병원 이름이 담긴 배열을 만든다.
 
     const tempArray: string[] = [];
+    const idArray: any = [];
+    // const tempCostArray: any[] | PromiseLike<any[]> = [];
 
     if (mainPetpial?.documents) {
       mainPetpial?.documents.map((place: any) => {
@@ -44,10 +50,14 @@ export default function Home() {
           place.address_name.split(" ")[1] +
           " " +
           place.place_name;
+        // console.log(temp2.id);
+        idArray.push(place.id);
         tempArray.push(temp);
       });
     }
 
+    // promise.all을 사용해서 전부 실행이 끝난 다음에 실행시킨다.
+    // 지금까지 매번 다른 데이터가 떴던 이유: tempArray에 모든 데이터를 담기 전에 바로 axios를 싱행했기 때문
     const promises = tempArray.map(async (hospital) => {
       const res = await axios.get(
         `https://dapi.kakao.com/v2/search/image?sort=accuracy&size=1&query=${hospital}`,
@@ -59,11 +69,43 @@ export default function Home() {
       );
       return res?.data.documents[0]?.thumbnail_url;
     });
+    // 금액 정보 가져오기
+    const promiseCosts = idArray.map(async (hospital: any) => {
+      const tempCostArray: any[] | PromiseLike<any[]> = [];
 
-    Promise.all(promises).then((results) => {
+      await axios
+        .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
+        .then((res) =>
+          res.data.map((data: any) => {
+            tempCostArray.push(+data.totalCost);
+          }),
+        );
+      return tempCostArray;
+    });
+
+    Promise.all(promises).then(async (results) => {
       setHospitalImageList(results);
     });
 
+    Promise.all(promiseCosts).then(async (results) => {
+      const tempArray: (string | number)[] = [];
+      results.forEach((cost) => {
+        if (cost.length > 0) {
+          tempArray.push(
+            Number(
+              (
+                cost.reduce(
+                  (acc: string | number, cur: string | number) => +acc + +cur,
+                ) / cost.length
+              ).toFixed(0),
+            ).toLocaleString("ko-KR") + "원",
+          );
+        } else {
+          tempArray.push("정보 없음");
+        }
+      });
+      setAverageCost(tempArray);
+    });
     // 첫 랜더링 메인 병원리스트, 페이지가 될 때마다 리랜더링
   }, [mainPetpial, page, KAKAO_API_KEY]);
 
@@ -79,6 +121,8 @@ export default function Home() {
     setPage((prev) => prev + 1);
   };
 
+  console.log(mainPetpial);
+
   return (
     <>
       <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=80384910-8ef9-456e-8e2f-cb548d67e263">
@@ -93,8 +137,12 @@ export default function Home() {
             <br />
             리뷰도 확인해보세요
           </PetpitalSubTitle>
-          <MainCustomButton onClick={() => router.push("/searchMap")}>
+          <MainCustomButton onClick={() => router.push("/searchHospital")}>
             병원검색 하러가기
+            <BsArrowRightCircle
+              size={16}
+              style={{ marginTop: 1, marginLeft: 13 }}
+            />
           </MainCustomButton>
         </MainBanner>
       </MainBannerContiner>
@@ -104,7 +152,7 @@ export default function Home() {
           육각형 병원 여기 다 모여 있다냥 확인해보라냥🐱
         </SectionSubTitle>
         <PageButtonContainer
-          style={{ justifyContent: "right", marginBottom: "50px" }}
+          style={{ justifyContent: "right", marginBottom: "10px" }}
         >
           <PageButton disabled={page === 1} onClick={previousPage}>
             &larr;
@@ -123,8 +171,15 @@ export default function Home() {
                 key={petpital.id}
                 onClick={() =>
                   router.push({
-                    pathname: "/searchMap",
-                    query: { target: petpital.place_name },
+                    pathname: "/searchHospital",
+                    // 동일 이름 병원이 많아서 병원 이름 + 주소로 수정
+                    query: {
+                      hospitalName:
+                        petpital.place_name +
+                        " " +
+                        petpital.road_address_name.split(" ")[0],
+                      placeId: petpital.id,
+                    },
                   })
                 }
               >
@@ -138,20 +193,20 @@ export default function Home() {
                 />
                 <BestPetpitalName>
                   {petpital.place_name.length > 12
-                    ? petpital.place_name.slice(0, 12) + "..."
-                    : petpital.place_name}
+                    ? petpital?.place_name.slice(0, 12) + "..."
+                    : petpital?.place_name}
                 </BestPetpitalName>
                 <BestPetpitalAddress>
-                  {petpital.road_address_name === ""
+                  {petpital?.road_address_name === ""
                     ? "정보 없음"
-                    : petpital.road_address_name === undefined
+                    : petpital?.road_address_name === undefined
                     ? ""
-                    : petpital.road_address_name.split(" ")[0] +
+                    : petpital?.road_address_name?.split(" ")[0] +
                       " " +
-                      petpital.road_address_name.split(" ")[1]}
+                      petpital?.road_address_name?.split(" ")[1]}
                 </BestPetpitalAddress>
                 <BestPetpitalCost>
-                  {petpital.phone || "정보 없음"}
+                  {arverageCost?.length > 0 && arverageCost[index]}
                 </BestPetpitalCost>
               </BestPetpitalItem>
             );
@@ -162,34 +217,59 @@ export default function Home() {
         backgroundMinImg="
       https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fapp_banner.jpg?alt=media&token=1622f93e-970b-4a9d-a521-ada6094668fb"
         backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Freview_banner.jpg?alt=media&token=aa4b416c-5b37-4ca1-afae-9b040631d396"
-      />
+      >
+        <SubCustomButton
+          onClick={() =>
+            authService.currentUser === null
+              ? router.push("/login")
+              : router.push("/searchHospital")
+          }
+        >
+          리뷰 남기러가기
+          <BsArrowRightCircle
+            size={16}
+            style={{ marginTop: 1, marginLeft: 13 }}
+          />
+        </SubCustomButton>
+      </ReviewBanner>
       <Section>
-        <SectionTitle>내가 한번 가봤다냥</SectionTitle>
+        <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
         <CurrentReivewContainer>
-          {recentlyReview?.data.map((review) => {
+          {recentlyReview?.data?.map((review) => {
             return (
               <CurrentReview
-                onClick={() => router.push("/searchMap")}
+                onClick={() =>
+                  router.push({
+                    pathname: "/searchHospital",
+                    query: {
+                      hospitalName:
+                        review.hospitalName +
+                        " " +
+                        review?.hospitalAddress.split(" ")[0],
+                      placeId: review.hospitalId,
+                    },
+                  })
+                }
                 key={review.id}
               >
                 <CurrentImageContainer>
-                  <CurrentReviewImage src={review.downloadUrl} />
+                  <CurrentReviewImage src={review?.downloadUrl} />
                 </CurrentImageContainer>
                 <CurrentReviewComment>
-                  <CurrentReviewTitle>{review.title}</CurrentReviewTitle>
+                  <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
                   <CurrentReviewPetpitalDesc>
                     <CurrentReviewPetpitalName>
-                      {review.hospitalName}
+                      {review?.hospitalName}
                     </CurrentReviewPetpitalName>
                     <CurrentReviewPetpitalAddress>
-                      {/* {review?.hospitalAddress.split(" ")[0] +
+                      {review?.hospitalAddress?.split(" ")[0] +
                         " " +
-                        review?.hospitalAddress.split(" ")[1]} */}
+                        review?.hospitalAddress?.split(" ")[1]}
                     </CurrentReviewPetpitalAddress>
                   </CurrentReviewPetpitalDesc>
                   <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
                   <CurrentReviewCost>
-                    {Number(review.totalCost).toLocaleString("ko-KR")}
+                    {Number(review?.totalCost).toLocaleString("ko-KR")}
                   </CurrentReviewCost>
                 </CurrentReviewComment>
               </CurrentReview>
@@ -217,15 +297,8 @@ export default function Home() {
         </HeaderContainer>
         <CounselList>
           {!isLoadingPetConsult &&
-            petConsult?.data.map((counsel) => (
-              <Counsel key={counsel.id}>
-                <CounselTitle>{counsel.content}</CounselTitle>
-                <CounselButton
-                  onClick={() => router.push(`petconsult/${counsel.id}`)}
-                >
-                  답변하러가기
-                </CounselButton>
-              </Counsel>
+            petConsult?.data?.map((counsel, index) => (
+              <CounselItem key={counsel.id} counsel={counsel} index={index} />
             ))}
         </CounselList>
       </Section>
@@ -249,6 +322,7 @@ const ReviewBanner = styled.div<{
   background-position: center;
   object-fit: cover;
   height: calc(min(40vh, 200px));
+  position: relative;
 
   @media screen and (max-width: 550px) {
     background-image: url(${(props) => props.backgroundMinImg});
@@ -259,11 +333,13 @@ const ReviewBanner = styled.div<{
   }
 `;
 
+export default Home;
 // 최근 검색 병원
 const BestPetpitalContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 190px);
-  gap: 20px 24px;
+  grid-template-columns: repeat(6, 144px);
+  gap: 20px 18px;
+  justify-content: space-between;
   padding-bottom: 20px;
   @media screen and (max-width: 1200px) {
     overflow-x: scroll;
@@ -271,11 +347,11 @@ const BestPetpitalContainer = styled.div`
 `;
 
 const BestPetpitalItem = styled.div`
-  width: calc(max(100%, 140px));
+  width: calc(max(100%, 144px));
   border-radius: 4px;
   box-shadow: 0px 4px 4px 0px #0000001a;
   @media screen and (max-width: 800px) {
-    grid-template-columns: repeat(5, 200px);
+    grid-template-columns: repeat(6, 200px);
   }
 `;
 
@@ -286,6 +362,8 @@ const BestPetpitalImage = styled.img<{ ImgSrc: string }>`
   border-radius: 4px 4px 0 0;
   background-image: url(${(props) => props.ImgSrc});
   background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 const BestPetpitalName = styled.div`
@@ -304,12 +382,17 @@ const BestPetpitalAddress = styled.div`
   font-size: 0.8rem;
 `;
 const BestPetpitalCost = styled.div`
+  &::before {
+    content: "진료 평균 ";
+  }
+
   padding: 6px;
   font-size: 1rem;
+  text-align: center;
   border-radius: 0 0 4px 4px;
-  color: #15b5bf;
+  color: #fff;
   font-weight: 600;
-  background-color: #afe5e9;
+  background: #afe5e9;
   height: 30px;
 `;
 
@@ -317,7 +400,7 @@ const BestPetpitalCost = styled.div`
 const CurrentReivewContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 24px;
+  gap: 20px 25px;
   padding: 10px 0;
   @media screen and (max-width: 800px) {
     overflow-x: scroll;
@@ -333,11 +416,11 @@ const CurrentReview = styled.div`
 `;
 
 const CurrentImageContainer = styled.div`
-  width: 220px;
+  width: 160px;
 `;
 
 const CurrentReviewImage = styled.img`
-  width: 220px;
+  width: 160px;
   height: 100%;
   object-fit: cover;
   border-radius: 4px 0px 0px 4px;
@@ -386,9 +469,19 @@ const CurrentReviewDesc = styled.div`
 `;
 
 const CurrentReviewCost = styled.div`
-  margin-top: 6px;
+  &::before {
+    content: "진료비 ";
+  }
   position: absolute;
-  bottom: 10px;
+  bottom: 7px;
+  padding: 11px 15px;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  background: #15b5bf;
+  height: 40px;
 `;
 
 // 메인 설명
@@ -446,12 +539,13 @@ const HeaderContainer = styled.header`
 // 커스텀
 const Section = styled.section`
   width: 100%;
-  padding: 0 60px;
+  padding: 0 70px;
+  margin-bottom: 100px;
 `;
 
 export const MainCustomButton = styled.button`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.3);
@@ -463,12 +557,29 @@ export const MainCustomButton = styled.button`
   cursor: pointer;
 `;
 
+export const SubCustomButton = styled.button`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid #ffffff;
+  backdrop-filter: blur(20px);
+  border-radius: 999px;
+  height: 32px;
+  color: white;
+  cursor: pointer;
+  position: absolute;
+  right: 28px;
+  top: 45%;
+`;
+
 const SectionTitle = styled.h3`
   margin-top: 100px;
 `;
 
 const SectionSubTitle = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: -30px;
   color: #c5c5c5;
 `;
 

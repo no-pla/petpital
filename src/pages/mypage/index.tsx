@@ -8,6 +8,11 @@ import Review from "./Review";
 import AuthModal from "../../components/custom/AuthModal";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import { useRouter } from "next/router";
+import { hospitalData } from "../../share/atom";
+import { useRecoilValue } from "recoil";
+import { useGetPetConsult } from "../../hooks/usePetsult";
+import Image from "next/image";
+import { useGetReviews } from "../../hooks/useGetReviews";
 
 const Index = () => {
   const [modal, setModal] = useState(false);
@@ -22,6 +27,17 @@ const Index = () => {
   );
 
   const router = useRouter();
+
+  const myId = authService.currentUser?.uid;
+
+  const { recentlyReview, isLoading } = useGetReviews(
+    "?_sort=createdAt&_order=desc",
+  );
+
+  const { isLoadingPetConsult, petConsult } = useGetPetConsult({
+    limit: "",
+  });
+  console.log("petConsult:", petConsult);
 
   function useAuth() {
     const [currentUser, setCurrentUser] = useState<any>();
@@ -92,8 +108,17 @@ const Index = () => {
 
   const onLogOutClick = () => {
     authService.signOut();
+    localStorage.removeItem("currentUserUid");
     router.push("/");
   };
+
+  //프로필 변경 페이지 이동
+  const onProfileChangeClick = () => {
+    router.push("/mypage/Nickname");
+  };
+
+  const placesData = useRecoilValue(hospitalData);
+  console.log("placesData:", placesData);
 
   return (
     <>
@@ -138,22 +163,39 @@ const Index = () => {
                 </ImageWrap>
                 <ProfileId>
                   <ProfileIdBox>{userName}</ProfileIdBox>
-                  <ProfileIdBox>{userEmail}</ProfileIdBox>
+                  {/* <ProfileIdBox>{userEmail}</ProfileIdBox> */}
                 </ProfileId>
-                <ProfileModifyButton
-                  onClick={() => {
-                    setModal(true);
-                  }}
-                >
+                <ProfileModifyButton onClick={onProfileChangeClick}>
                   프로필 변경하기
                 </ProfileModifyButton>
-
-                <ProfileModifyButton onClick={onLogOutClick}>
+                {/* <ProfileModifyButton onClick={onLogOutClick}>
                   로그아웃
-                </ProfileModifyButton>
+                </ProfileModifyButton> */}
               </PicContainer>
             </div>
           </ProfileWrapper>
+          <LeaveWrap>
+            <LeaveContainer>
+              <LeaveBox>남긴 질문</LeaveBox>
+              <div>
+                +{" "}
+                {
+                  petConsult?.data.filter((counsel) => myId === counsel.uid)
+                    .length
+                }
+              </div>
+            </LeaveContainer>
+            <LeaveContainer>
+              <LeaveBox>남긴 리뷰</LeaveBox>
+              <div>
+                +{" "}
+                {
+                  recentlyReview?.data.filter((review) => myId === review.uid)
+                    .length
+                }
+              </div>
+            </LeaveContainer>
+          </LeaveWrap>
           <ButtonBox>
             <Button onClick={handleHospitalClick}>Q & A</Button>
             <Button onClick={handleReviewClick}>리뷰</Button>
@@ -193,7 +235,7 @@ const ProfileId = styled.span`
 `;
 
 const ProfileIdBox = styled.div`
-  margin-top: 10px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
 `;
@@ -218,7 +260,7 @@ const ButtonBox = styled.div`
   display: flex;
   justify-content: space-between;
   width: 160px;
-  margin-top: 130px;
+  margin-top: 80px;
 `;
 
 const Button = styled.button`
@@ -240,7 +282,7 @@ const MyPageBottom = styled.div`
 `;
 
 const PicContainer = styled.div`
-  width: 140px;
+  width: 440px;
   height: 20%;
 `;
 
@@ -298,4 +340,24 @@ const UploatBtn = styled.button`
 
 const NicknameInput = styled.input`
   margin-left: 5px;
+`;
+
+const LeaveWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const LeaveBox = styled.div`
+  width: 100px;
+`;
+
+const LeaveCount = styled.span``;
+
+const LeaveContainer = styled.div`
+  display: flex;
+  margin: 60px 20px 0px 5px;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
 `;

@@ -15,8 +15,8 @@ import {
   CustomHeader,
 } from "../../../components/custom/CustomHeader";
 import { SubBanner } from "../../../components/SubBanner";
-import { REVIEW_SERVER } from "@/share/server";
-import { UserProfile } from "@/components/CounselPost";
+import { REVIEW_SERVER } from "../../../share/server";
+import { UserProfile } from "../../../components/CounselPost";
 
 const EditCounsel = () => {
   const router = useRouter();
@@ -116,7 +116,12 @@ const EditCounsel = () => {
       </CustomHeader>
       <CounselHeader>
         <CounselInfo>
-          <UserProfile profileLink={authService.currentUser?.photoURL} />
+          <UserProfile
+            profileLink={
+              authService.currentUser?.photoURL ||
+              "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
+            }
+          />
           <UserInfo>
             <div>{authService.currentUser?.displayName}</div>
             <div>

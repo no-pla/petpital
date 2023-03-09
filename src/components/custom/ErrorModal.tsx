@@ -8,7 +8,7 @@ const CustomModal = ({
   children,
 }: {
   modalText1: string;
-  modalText2: string;
+  modalText2?: string;
   children: any;
 }) => {
   return (
@@ -33,22 +33,27 @@ const Backdrop = styled.div`
   left: 0;
   width: 100%;
   height: 100vh;
-  z-index: 10;
+  z-index: 100;
   background: rgba(159, 159, 159, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 10000;
 `;
 
 const ModalContianer = styled.div`
   width: calc(min(60vw, 300px));
   background-color: #ffffff;
   border-radius: 4px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ModalButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  align-items: stretch;
+
   button:first-of-type {
     color: #9f9f9f;
   }

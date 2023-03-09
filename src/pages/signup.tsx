@@ -3,22 +3,13 @@ import styled from "styled-components";
 import { authService } from "../firebase/firebase";
 import CustomButton from "../components/custom/CustomButton";
 import { emailRegex, pwRegex } from "../share/utils";
-import {
-  ButtonWrap,
-  ErrorMessage,
-  FormWrap,
-  Input,
-  ModalBackground,
-  ModalWrap,
-  OkMessage,
-  Title,
-} from "./login";
+import { ModalBackground } from "./login";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import AuthModal, { AuthTitle } from "../components/custom/AuthModal";
 import Link from "next/link";
 import { Router, useRouter } from "next/router";
 import Image from "next/image";
-import loginLogo from "../../public/loginLogo.jpg";
+import Logo2 from "../../public/Logo2.png";
 import { BiArrowBack } from "react-icons/bi";
 
 const Join = () => {
@@ -71,7 +62,7 @@ const Join = () => {
   return (
     <ModalBackground>
       <ModalWrap>
-        <BiArrowBack
+        {/* <BiArrowBack
           style={{
             position: "absolute",
             top: "20px",
@@ -83,34 +74,18 @@ const Join = () => {
           onClick={() => {
             router.push("/");
           }}
-        />
+        /> */}
         <Image
-          src={loginLogo}
+          src={Logo2}
           alt="loginLogo"
-          width={170}
-          height={40}
+          width={400}
+          height={81}
           style={{ marginBottom: 40 }}
         />
         <FormWrap onSubmit={onSubmitJoin}>
           <InputWrap>
-            <LabelText>닉네임</LabelText>
-            <Input
-              type="text"
-              name={nick}
-              placeholder="닉네임을 입력해 주세요."
-              value={nick}
-              onChange={(e) => {
-                const value = e.target.value;
-                setNick(value);
-              }}
-              onKeyPress={(e) => {
-                e.key === "Enter" && e.preventDefault();
-              }}
-            />
-          </InputWrap>
-          <InputWrap>
             <LabelText>이메일</LabelText>
-            <Input
+            <InputPassward
               type="text"
               name={email}
               placeholder="이메일을 입력해 주세요."
@@ -131,10 +106,26 @@ const Join = () => {
               <OkMessage>올바른 이메일 형식입니다.</OkMessage>
             )}
           </InputWrap>
+          <InputWrap>
+            <LabelText>닉네임</LabelText>
+            <InputEmail
+              type="text"
+              name={nick}
+              placeholder="닉네임을 입력해 주세요."
+              value={nick}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNick(value);
+              }}
+              onKeyPress={(e) => {
+                e.key === "Enter" && e.preventDefault();
+              }}
+            />
+          </InputWrap>
 
           <InputWrap>
             <LabelText>비밀번호</LabelText>
-            <Input
+            <InputPassward
               name={password}
               type="password"
               placeholder="비밀번호를 입력해 주세요."
@@ -158,7 +149,7 @@ const Join = () => {
 
           <InputWrap>
             <LabelText>비밀번호 확인</LabelText>
-            <Input
+            <InputPassward
               name={password}
               type="password"
               placeholder="비밀번호를 입력해 주세요."
@@ -230,6 +221,22 @@ const Join = () => {
 
 export default Join;
 
+export const ModalWrap = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 40px 20px 30px 20px;
+  background-color: #f5f5f5;
+  /* border-radius: 16px; */
+  color: #000;
+  /* border: 1px solid #15b5bf; */
+  width: 400px;
+  height: 1000px;
+  /* margin-top: 20px; */
+`;
+
 const InputWrap = styled.div`
   width: 100%;
   display: flex;
@@ -238,13 +245,16 @@ const InputWrap = styled.div`
   padding: 0 20px;
 `;
 
-const LabelText = styled.div`
-  font-size: 14px;
-  padding: 0 8px;
-  font-weight: 700;
+const FormWrap = styled.form`
+  display: flex;
+  flex-direction: column;
+  width: 530px;
+  margin: 1em 0;
+  /* background-color: red; */
+  gap: 30px;
 `;
 
-export const SignupButton = styled.button`
+const LoginButton = styled.button`
   flex: 1;
   cursor: pointer;
   background: #15b5bf;
@@ -254,5 +264,95 @@ export const SignupButton = styled.button`
   border-radius: 5px;
   font-size: 15px;
   font-weight: 600;
-  margin: 20px 25px 0 25px;
+  margin-top: 20px;
+`;
+
+const BottomButtonWrap = styled.div`
+  justify-content: center;
+  display: flex;
+`;
+
+const Singup = styled.button`
+  color: #15b5bf;
+  font-weight: 600;
+  margin-top: 16px;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  border: none;
+  width: 70px;
+`;
+
+const LabelText = styled.label`
+  font-size: 14px;
+  /* padding: 0 8px; */
+  font-weight: 700;
+  margin-bottom: 4px;
+`;
+
+const SignupButton = styled.button`
+  flex: 1;
+  cursor: pointer;
+  background: #15b5bf;
+  color: #fff;
+  padding: 15px;
+  border-style: none;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 20px 20px 0 20px;
+`;
+
+const ButtonWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 4px 0;
+  width: 100%;
+
+  > span {
+    cursor: pointer;
+  }
+`;
+
+const InputEmail = styled.input`
+  border: 1px solid lightgray;
+  background-color: #fafafa;
+  padding: 8px;
+  /* margin: 4px 4px 8px 4px; */
+  font-size: 16px;
+  height: 45px;
+  margin-top: 5px;
+  :focus {
+    outline: 1px solid #15b5bf;
+  }
+`;
+
+const InputPassward = styled.input`
+  border: 1px solid lightgray;
+  background-color: #fafafa;
+  padding: 8px;
+  /* margin: 4px 4px 8px 4px; */
+  font-size: 16px;
+  /* border-top: none; */
+  height: 45px;
+  margin-top: 5px;
+  :focus {
+    outline: 1px solid #15b5bf;
+  }
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 12px;
+  padding: 0 8px;
+  /* background-color: blue; */
+  height: 1px;
+  margin-top: 5px;
+`;
+const OkMessage = styled.p`
+  color: #33a264;
+  font-size: 12px;
+  padding: 0 8px;
+  height: 0.1px;
 `;

@@ -1,16 +1,18 @@
-import { authService } from "@/firebase/firebase";
+import { authService } from "../firebase/firebase";
 import {
   useDeletCounsel,
   useGetCounselTarget,
   useEditCounsel,
-} from "@/hooks/usePetsult";
+} from "../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import CounselComments, { ManageButtonContainer } from "./CounselComments";
+import CounselComments from "./CounselComments";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Image from "next/image";
+import { RxShare2 } from "react-icons/rx";
+import { AiOutlineMore } from "react-icons/ai";
 
 export const UserProfile = ({ profileLink }: any) => {
   return (
@@ -35,67 +37,102 @@ export function getServerSideProps({ query }: any) {
   }
   // obtain candidateId elsewhere, redirect or fallback to some default value:
   /* ... */
-  return { props: { router: { query: { id: "test" } } } };
+  return { props: { router: { query: { id: "id" } } } };
 }
 
-const CounselPost = () => {
+const CounselSettingButton = ({ counselData }: any) => {
   const router = useRouter();
-  const id = router.query.id;
-  const { CounselList } = useGetCounselTarget(id);
+  const [openSetting, setOpenSetting] = useState(false);
   const [targetId, setTargetId] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const id = router.query.id;
   const { mutate: deleteCounsel } = useDeletCounsel();
-  const { mutate: editCounsel } = useEditCounsel();
-
-  console.log("포스트 리렌더");
-
-  const onOpenInput = (targetId: string) => {
-    router.push(`/petconsult/edit/${targetId}`);
-  };
 
   const onDelete = (id: any) => {
     setOpenModal((prev: any) => !prev);
     setTargetId(id);
   };
 
-  const deleteCounselPost = () => {
-    deleteCounsel(targetId);
+  const onOpenInput = (targetId: string) => {
+    router.push(`/petconsult/edit/${targetId}`);
+  };
+
+  const deleteCounselPost = async () => {
+    // 추후 수정 예정 삭제보다 이동이 먼저 발생하고 있음
+    await deleteCounsel(targetId);
+
     if (id === targetId) {
-      router.push(`/petconsult`, undefined, { shallow: true });
+      await router.push(`/petconsult`);
     }
     setOpenModal((prev: any) => !prev);
   };
 
-  const addLike = (linkedUser: string[], counselData: any) => {
-    const newCounselData = {
-      ...counselData,
-      linkedUser: [...linkedUser, authService.currentUser?.uid],
-    };
-    editCounsel(newCounselData);
-  };
+  return (
+    <>
+      {counselData.uid === authService.currentUser?.uid && (
+        <PostSettingButtonContainer>
+          <ShareButton onClick={() => setOpenSetting((prev) => !prev)}>
+            <AiOutlineMore />
+          </ShareButton>
+          {openSetting && (
+            <PostSettingButtons>
+              <PostSettingButton onClick={() => onOpenInput(counselData.id)}>
+                수정하기
+              </PostSettingButton>
+              <PostSettingButton onClick={() => onDelete(counselData.id)}>
+                삭제하기
+              </PostSettingButton>
+            </PostSettingButtons>
+          )}
+        </PostSettingButtonContainer>
+      )}
+      {openModal && (
+        <CustomModal
+          modalText1={"입력하신 게시글을"}
+          modalText2={"삭제 하시겠습니까?"}
+        >
+          <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
+            취소
+          </ModalButton>
+          <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
+        </CustomModal>
+      )}
+    </>
+  );
+};
 
-  const removeLike = (linkedUser: string[], counselData: any) => {
-    const removeUser = linkedUser.filter(
-      (target) => target !== authService.currentUser?.uid,
-    );
-    const newCounselData = {
-      ...counselData,
-      linkedUser: [...removeUser],
-    };
+const CounselPost = () => {
+  const router = useRouter();
+  const id = router.query.id;
+  const { CounselList } = useGetCounselTarget(id);
 
-    editCounsel(newCounselData);
-  };
+  console.log("포스트 리렌더");
+
+  // const addLike = (linkedUser: string[], counselData: any) => {
+  //   const newCounselData = {
+  //     ...counselData,
+  //     linkedUser: [...linkedUser, authService.currentUser?.uid],
+  //   };
+  //   editCounsel(newCounselData);
+  // };
+
+  // const removeLike = (linkedUser: string[], counselData: any) => {
+  //   const removeUser = linkedUser.filter(
+  //     (target) => target !== authService.currentUser?.uid,
+  //   );
+  //   const newCounselData = {
+  //     ...counselData,
+  //     linkedUser: [...removeUser],
+  //   };
+
+  //   editCounsel(newCounselData);
+  // };
 
   return (
     <>
       {CounselList?.map((counselData: any) => {
         return (
           <Counsel key={counselData.id}>
-            <CopyToClipboard
-              text={`http://localhost:3000/petconsult/${counselData.id}`}
-            >
-              <button>클릭해서 공유</button>
-            </CopyToClipboard>
             <CounselHeader>
               <CounselInfo>
                 <UserProfile profileLink={counselData.profileImg} />
@@ -108,17 +145,19 @@ const CounselPost = () => {
                   </div>
                 </UserInfo>
               </CounselInfo>
-              {/* <div>{counselData?.linkedUser?.includes{authService?.currentUser?.uid}}</div> */}
-              {counselData.uid === authService.currentUser?.uid && (
-                <ManageButtonContainer>
-                  <button onClick={() => onDelete(counselData.id)}>삭제</button>
-                  <button onClick={() => onOpenInput(counselData.id)}>
-                    수정
-                  </button>
-                </ManageButtonContainer>
-              )}
+              <CounselSetting>
+                <CopyToClipboard
+                  text={`http://localhost:3000/petconsult/${counselData.id}`}
+                >
+                  <ShareButton>
+                    <RxShare2 size={16} />
+                  </ShareButton>
+                </CopyToClipboard>
+                <CounselSettingButton counselData={counselData} />
+              </CounselSetting>
             </CounselHeader>
-            <div>{counselData?.linkedUser?.length}</div>
+            {/* 좋아요 */}
+            {/* <div>{counselData?.linkedUser?.length}</div>
             <div>
               {counselData?.linkedUser?.includes(
                 authService?.currentUser?.uid,
@@ -141,29 +180,59 @@ const CounselPost = () => {
                     : "좋와요"}
                 </button>
               )}
-            </div>
+            </div> */}
             <CounselText>{String(counselData.content)}</CounselText>
+            {/* 댓글 */}
             <CounselComments target={counselData.id} />
           </Counsel>
         );
       })}
-      {openModal && (
-        <CustomModal
-          modalText1={"입력하신 게시글을"}
-          modalText2={"삭제 하시겠습니까?"}
-        >
-          <ModalButton onClick={() => setOpenModal((prev: any) => !prev)}>
-            취소
-          </ModalButton>
-          <ModalButton onClick={deleteCounselPost}>삭제</ModalButton>
-        </CustomModal>
-      )}
     </>
   );
 };
 
+const ShareButton = styled.button`
+  background-color: transparent;
+  border: none;
+`;
+
+const PostSettingButton = styled.button`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+  width: 104px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  font-family: "Pretendard";
+  font-size: 12px;
+  color: #9f9f9f;
+`;
+
+const PostSettingButtons = styled.div`
+  position: absolute;
+  top: 28px;
+  right: 0;
+  & button:nth-of-type(1) {
+    border-bottom: 0.4px solid #9f9f9f;
+  }
+  filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2));
+`;
+
+const PostSettingButtonContainer = styled.div`
+  position: relative;
+`;
+
+const CounselSetting = styled.div`
+  display: flex;
+  align-items: baseline;
+`;
+
 const CounselText = styled.div`
-  width: 80%;
+  width: 100%;
   height: 120px;
   background: #afe5e9;
   display: flex;
@@ -209,18 +278,19 @@ const Counsel = styled.div`
   min-height: 80vh;
   height: 100%;
   border-bottom: 1px solid #c5c5c5;
+  margin: 0 20px;
 `;
 
 export const CounselHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 0 20px;
+  align-items: flex-start;
   padding-top: 20px;
 `;
 
 export const CounselInfo = styled.div`
   display: flex;
-  margin: 0 20px;
+  margin-right: 20px;
 `;
 
 const CounselContainer = styled.div`

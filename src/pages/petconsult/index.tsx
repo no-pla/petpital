@@ -12,16 +12,20 @@ import { MainBannerContiner } from "../../components/MainBanner";
 import { MainCustomButton } from "..";
 import { authService } from "../../firebase/firebase";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER } from "../../share/server";
 import Head from "next/head";
+import { CounselItem } from "../../components/custom/CounselItem";
 
 // 고민 상담 스타일
 const CounselContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(6, 1fr);
   gap: 24px;
   justify-content: center;
   justify-items: center;
+  position: relative;
+  height: 100%;
   @media screen and (max-width: 880px) {
     display: flex;
     flex-direction: column;
@@ -38,17 +42,20 @@ export const CounselTitle = styled.div`
     content: "Q";
     color: #c5c5c5;
     font-size: 47px;
-    margin: 0 10px 0 15px;
+    margin: -15px 20px 0 15px;
   }
 `;
 
 export const Counsel = styled.div`
-  background-color: #fafafa;
+  margin-top: -15px;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
+  border-width: 4px;
+  border-color: #eee;
+  border-style: solid;
   width: 90%;
   height: 100%;
 `;
@@ -67,7 +74,7 @@ export const CounselButton = styled.button`
 export const PageButtonContainer = styled.div`
   width: 100%;
   text-align: center;
-  margin: 20px 0 96px 0;
+  margin: 20px 0 0px 0;
   display: flex;
   gap: 20px;
   justify-content: center;
@@ -83,7 +90,7 @@ export const PageButton = styled.button`
   background-color: transparent;
   border: 2px solid #65d8df;
   border-radius: 50%;
-
+  margin-bottom: 80px;
   &:disabled {
     color: gray;
     border-color: gray;
@@ -123,6 +130,68 @@ const DownButton = styled.button`
 `;
 
 const DownButtonImage = styled.img``;
+export const CurrentReviewContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  padding: 0 8px;
+  border-top: 1px solid #e4e4e4;
+  height: 80px;
+`;
+export const CurrentReview = styled.div`
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 4px;
+  margin: 12px 0;
+  width: 49%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-bottom: 4px;
+`;
+
+export const CurrentReviewNickname = styled.span`
+  font-weight: 600;
+  padding-right: 4px;
+`;
+
+export const CurrentReviewContent = styled.span``;
+
+export const QuestionButton = styled.button`
+  color: white;
+  position: fixed;
+  bottom: 100px;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #15b5bf;
+  border: none;
+  font-weight: 700;
+  gap: 8px;
+  cursor: pointer;
+
+  @media screen and (max-width: 1200px) {
+    /* margin-bottom: 120px; */
+    /* right: 12%; */
+    right: 40px;
+  }
+  @media screen and (min-width: 1200px) {
+    /* margin-bottom: 120px; */
+    right: 12%;
+  }
+  filter: drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.3));
+  &::before {
+    content: "Q";
+    font-size: 48px;
+    font-weight: 400;
+  }
+`;
 
 interface ICounsel {
   uid: string;
@@ -144,12 +213,12 @@ function Petconsult() {
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
+      console.log("pagnationCounsel");
       return axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
     },
     {
-      keepPreviousData: true,
       select: (data) => data?.data,
     },
   );
@@ -186,7 +255,6 @@ function Petconsult() {
       setIsLogin(true);
     }
   };
-
   return (
     <>
       {isLogin && (
@@ -225,29 +293,18 @@ function Petconsult() {
       </MainBannerContiner>
       <CustomHeader>
         <HeaderTitle>고민있음 털어놔보개!🐶</HeaderTitle>
-        <HeaderButton
-          disabled={!authService.currentUser === undefined}
-          onClick={goToNewQnAPage}
-        >
-          질문하기
-        </HeaderButton>
       </CustomHeader>
       <CounselContainer ref={targetRef}>
         {!isLoading &&
           petConsult?.map((counsel: any, index: number) => (
-            <Counsel key={counsel.id}>
-              <CounselTitle>{counsel.content}</CounselTitle>
-              <ul>
-                {commentList[index]?.length > 0 &&
-                  commentList[index]?.map((comment: any) => {
-                    return <li key={comment.content}>{comment.content}</li>;
-                  })}
-              </ul>
-              <CounselButton onClick={() => onClick(counsel.id)}>
-                답변하러가기
-              </CounselButton>
-            </Counsel>
+            <CounselItem
+              key={counsel.id}
+              counsel={counsel}
+              index={index}
+              page={page}
+            />
           ))}
+        <QuestionButton>질문하기</QuestionButton>
       </CounselContainer>
       <PageButtonContainer>
         <PageButton

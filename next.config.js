@@ -5,7 +5,12 @@ const nextConfig = {
     styledComponents: true,
   },
   images: {
-    domains: ["firebasestorage.googleapis.com", "i.pinimg.com"],
+    domains: [
+      "firebasestorage.googleapis.com",
+      "i.pinimg.com",
+      "upload.wikimedia.org",
+      "user-images.githubusercontent.com",
+    ],
   },
 };
 
