@@ -39,7 +39,7 @@ const NewPetsult = () => {
       newCounselRef.current?.value === undefined
     ) {
       setEmptyComment((prev) => !prev);
-    } else if (newCounselRef.current?.value.length > 40) {
+    } else if (newCounselRef.current?.value.length > 100) {
       setToLongComment(true);
       return;
     } else {
@@ -59,6 +59,7 @@ const NewPetsult = () => {
       await addCounsel(newCounsel);
 
       router.push(`/petconsult/${newCounsel.id}`);
+      console.log("이동");
     }
   };
 
@@ -86,7 +87,7 @@ const NewPetsult = () => {
       {tooLongComment && (
         <CustomModal
           modalText1={"글이 너무 깁니다."}
-          modalText2={"40자 이하로 작성해 주세요!"}
+          modalText2={"100자 이하로 작성해 주세요!"}
         >
           <ModalButton onClick={() => setToLongComment((prev) => !prev)}>
             닫기

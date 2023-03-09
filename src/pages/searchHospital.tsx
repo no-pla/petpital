@@ -28,7 +28,7 @@ import { hospitalData, modalState } from "../share/atom";
 import CreatePostModal from "../components/custom/CreatePostModal";
 import EditPostModal from "../components/custom/EditPostModal";
 import { useMutation, useQueryClient } from "react-query";
-import { REVIEW_SERVER } from "@/share/server";
+import { REVIEW_SERVER, REVIEW_SITE } from "@/share/server";
 import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
 import ConfirmModal from "@/components/custom/ConfirmModal";
@@ -515,7 +515,7 @@ const SearchHospital = () => {
                             <HospitalType>동물병원</HospitalType>
                           </div>
                           <CopyToClipboard
-                            text={`http://localhost:3000/searchHospital?hospitalName=${hospital.place_name}&placeId=${hospital.id}`}
+                            text={`${REVIEW_SITE}searchHospital/?hospitalName=${hospital.place_name}&placeId=${hospital.id}`}
                           >
                             <ShareButton>
                               <RxShare2 size={16} />

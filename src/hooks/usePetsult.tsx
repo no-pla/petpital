@@ -34,6 +34,7 @@ const addCounsel = (newCounsult: any) => {
 };
 
 export const useAddCounsel = () => {
+  console.log("작성 완료");
   return useMutation(addCounsel);
 };
 
@@ -126,7 +127,7 @@ export const useDeletCounsel = () => {
     },
     onSuccess(data, variables, context) {
       // 성공 시 실행
-      console.log("성공");
+      console.log("qna 삭제 성공");
       queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
     },
     onError: (error, newCounsel, context) => {
@@ -136,7 +137,8 @@ export const useDeletCounsel = () => {
     },
     onSettled: () => {
       // 무조건 실행
-      queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
+      console.log("qna 삭제 실행");
+      // queryClient.invalidateQueries(["infiniteComments", "pagnationCounsel"]);
     },
   });
 };

@@ -13,6 +13,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import Image from "next/image";
 import { RxShare2 } from "react-icons/rx";
 import { AiOutlineMore } from "react-icons/Ai";
+import { REVIEW_SERVER, REVIEW_SITE } from "@/share/server";
 
 export const UserProfile = ({ profileLink }: any) => {
   return (
@@ -147,7 +148,7 @@ const CounselPost = () => {
               </CounselInfo>
               <CounselSetting>
                 <CopyToClipboard
-                  text={`http://localhost:3000/petconsult/${counselData.id}`}
+                  text={`${REVIEW_SITE}searchHospital/${counselData.id}`}
                 >
                   <ShareButton>
                     <RxShare2 size={16} />

@@ -88,6 +88,7 @@ export const CounselTitle = styled.div`
   display: flex;
   font-size: 1.1rem;
   margin-top: 12px;
+  padding-right: 8px;
   &::before {
     content: "Q";
     color: #c5c5c5;
@@ -102,7 +103,7 @@ export const Counsel = styled.div`
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   width: 90%;
   height: 100%;
 `;
