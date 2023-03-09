@@ -1,6 +1,13 @@
 import chroma from "chroma-js";
 
-export const colourOptions = [
+interface ColourOption {
+  value: string;
+  label: string;
+  color: string;
+  isFixed?: boolean;
+}
+
+export const colourOptions: ColourOption[] = [
   { value: "깨끗해요", label: "깨끗해요", color: "#00B8D9", isFixed: true },
   // { value: "시설이좋아요", label: "시설이좋아요", color: "#00B8D9" },
   { value: "친절해요", label: "친절해요", color: "#00B8D9" },
@@ -13,13 +20,17 @@ export const colourOptions = [
   // { value: "silver", label: "Silver", color: "#666666" },
 ];
 
-export const colourStyles = {
-  control: (styles) => ({
+interface Styles {
+  [key: string]: (styles: any, data: any) => any;
+}
+
+export const colourStyles: Styles = {
+  control: (styles: any) => ({
     ...styles,
     backgroundColor: "#f5f2f0",
     opacity: "1",
   }),
-  option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+  option: (styles: any, { data, isDisabled, isFocused, isSelected }: any) => {
     const color = chroma(data.color);
     return {
       ...styles,
@@ -49,18 +60,18 @@ export const colourStyles = {
       },
     };
   },
-  multiValue: (styles, { data }) => {
+  multiValue: (styles: any, { data }: any) => {
     const color = chroma(data.color);
     return {
       ...styles,
       backgroundColor: color.alpha(0.1).css(),
     };
   },
-  multiValueLabel: (styles, { data }) => ({
+  multiValueLabel: (styles: any, { data }: any) => ({
     ...styles,
     color: data.color,
   }),
-  multiValueRemove: (styles, { data }) => ({
+  multiValueRemove: (styles: any, { data }: any) => ({
     ...styles,
     color: data.color,
     ":hover": {
