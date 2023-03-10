@@ -31,10 +31,7 @@ export default function Footer() {
 }
 
 const FooterContainer = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
+  width: 100%;
   height: 50px;
   background: white;
   backdrop-filter: blur(20px);
@@ -43,6 +40,7 @@ const FooterContainer = styled.footer`
   gap: 12px;
   justify-content: space-between;
   z-index: 100;
+  margin: 0 auto;
   @media screen and (max-width: 375px) {
     display: none;
   }
@@ -67,4 +65,7 @@ const FooterText = styled.div`
   font-weight: 700;
   margin-right: 10px;
   align-self: center;
+  @media screen and (max-width: 565px) {
+    display: none;
+  }
 `;

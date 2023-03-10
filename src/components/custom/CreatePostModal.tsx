@@ -15,6 +15,8 @@ import { useGetReviews } from "../../hooks/useGetReviews";
 import { useQueryClient } from "react-query";
 import { GrClose } from "react-icons/gr";
 import CustomModal, { ModalButton } from "./ErrorModal";
+import shortUUID from "short-uuid";
+const short = require("short-uuid");
 
 type CreatePostModalProps = {
   setCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -132,13 +134,13 @@ const CreatePostModal = ({ setCreateModalOpen }: CreatePostModalProps) => {
         profileImage: authService.currentUser?.photoURL,
         hospitalId: placesData.id,
         isEdit: false,
-        id: createdAt,
+        id: shortUUID.generate(),
         hospitalAddress: placesData.address_name,
         hospitalName: placesData.place_name,
       });
       // console.log("response", response);
       localStorage.removeItem("Photo");
-      console.log("포스트완료");
+      // console.log("포스트완료");
       // await recentlyRefetch();
       setCreateModalOpen(false);
       await queryClient.invalidateQueries(["getrecentlyReview"]);
@@ -189,11 +191,11 @@ const CreatePostModal = ({ setCreateModalOpen }: CreatePostModalProps) => {
         downloadUrl = await getDownloadURL(response.ref);
       }
       if (downloadUrl) {
-        console.log("downloadUrl", downloadUrl);
         handleSubmit(downloadUrl);
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
-        alert("사진을 업로드 해주세요");
+        setOpenModalPhoto((prev) => !prev);
+        // alert("사진을 업로드 해주세요");
         return;
       }
     } catch (error) {

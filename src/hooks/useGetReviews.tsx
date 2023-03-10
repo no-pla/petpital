@@ -11,7 +11,7 @@ interface IReview {
     selectedColors: string[];
     downloadUrl: string;
     hospitalId: string;
-    id: number;
+    id: string;
     userId: any;
     profileImage: string;
     displayName: string;
@@ -29,10 +29,9 @@ export const useGetReviews = (limit: string) => {
     refetch: recentlyRefetch,
   } = useQuery<IReview>(["getrecentlyReview", limit], async () => {
     const res = await axios.get(`${REVIEW_SERVER}posts${limit}`);
-    console.log("res", res);
+    // console.log("res", res);
     return res;
   });
-  console.log("eee", recentlyReview);
 
   return { recentlyReview, isLoading, recentlyRefetch };
 };

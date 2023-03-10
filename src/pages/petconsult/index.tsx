@@ -90,7 +90,8 @@ export const PageButton = styled.button`
   background-color: transparent;
   border: 2px solid #65d8df;
   border-radius: 50%;
-  margin-bottom: 80px;
+  margin-top: 20px;
+  margin-bottom: 16px;
   &:disabled {
     color: gray;
     border-color: gray;
@@ -161,11 +162,11 @@ export const CurrentReviewContent = styled.span``;
 export const QuestionButton = styled.button`
   color: white;
   position: fixed;
-  bottom: 100px;
-  width: 124px;
-  height: 124px;
+  bottom: 60px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  right: 15px;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -175,9 +176,9 @@ export const QuestionButton = styled.button`
   font-weight: 700;
   gap: 8px;
   cursor: pointer;
+  z-index: 1000;
 
   @media screen and (max-width: 1200px) {
-    /* margin-bottom: 120px; */
     /* right: 12%; */
     right: 40px;
   }
@@ -210,10 +211,13 @@ function Petconsult() {
   const [counselList, setCounselList] = useState<string[]>([]);
   const [commentList, setCommentList] = useState<string[][]>([]);
 
-  const { data: petConsult, isLoading } = useQuery(
+  const {
+    data: petConsult,
+    isLoading,
+    refetch,
+  } = useQuery(
     ["pagnationCounsel", page],
     () => {
-      console.log("pagnationCounsel");
       return axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
@@ -224,9 +228,9 @@ function Petconsult() {
   );
 
   useEffect(() => {
+    refetch();
     // forEach를 사용하면 이전 작업이 끝나는 것을 기다리고 실행되지 않기 때문에 Promise.all을 사용해주어야 한다.
     const tempArray: string[] = [];
-
     if (petConsult) {
       petConsult.map((counsel: any) => tempArray.push(counsel.id));
     }
@@ -242,7 +246,7 @@ function Petconsult() {
     Promise.all(promises).then((results) => {
       setCommentList(results);
     });
-  }, [page, petConsult]);
+  }, [page]);
 
   const onClick = (id: string) => {
     router.push(`petconsult/${id}`);
@@ -253,6 +257,7 @@ function Petconsult() {
       router.push("/petconsult/new");
     } else {
       setIsLogin(true);
+      return;
     }
   };
   return (
@@ -268,58 +273,62 @@ function Petconsult() {
           </ModalButton>
         </CustomModal>
       )}
-      <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=49a7be86-f7bc-44aa-b183-bc2a6ea13f08">
-        <MainBanner>
-          <MainBannerText>
-            키우면서 궁금했던 고민
-            <br />
-            여기에 다 있어요!
-          </MainBannerText>
-          <DownButton>
-            <DownButtonImage
-              src="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fscroll.png?alt=media&token=009aec51-d2e9-4733-917e-04be43cdbf5b"
-              alt="내려서 질문 모아보기"
-            />
-            <span>scroll</span>
-          </DownButton>
-          <MainCustomButton
-            onClick={() =>
-              targetRef.current?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            내려서 질문 모아보기
-          </MainCustomButton>
-        </MainBanner>
-      </MainBannerContiner>
-      <CustomHeader>
-        <HeaderTitle>고민있음 털어놔보개!🐶</HeaderTitle>
-      </CustomHeader>
-      <CounselContainer ref={targetRef}>
-        {!isLoading &&
-          petConsult?.map((counsel: any, index: number) => (
-            <CounselItem
-              key={counsel.id}
-              counsel={counsel}
-              index={index}
-              page={page}
-            />
-          ))}
-        <QuestionButton>질문하기</QuestionButton>
-      </CounselContainer>
-      <PageButtonContainer>
-        <PageButton
-          disabled={page === 1 && true}
-          onClick={() => setPage((prev) => prev - 1)}
-        >
-          &larr;
-        </PageButton>
-        <PageButton
-          disabled={petConsult?.length !== 10 && true}
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          &rarr;
-        </PageButton>
-      </PageButtonContainer>
+      {!isLoading && (
+        <>
+          <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=49a7be86-f7bc-44aa-b183-bc2a6ea13f08">
+            <MainBanner>
+              <MainBannerText>
+                키우면서 궁금했던 고민
+                <br />
+                여기에 다 있어요!
+              </MainBannerText>
+              <DownButton>
+                <DownButtonImage
+                  src="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fscroll.png?alt=media&token=009aec51-d2e9-4733-917e-04be43cdbf5b"
+                  alt="내려서 질문 모아보기"
+                />
+                <span>scroll</span>
+              </DownButton>
+              <MainCustomButton
+                onClick={() =>
+                  targetRef.current?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                내려서 질문 모아보기
+              </MainCustomButton>
+            </MainBanner>
+          </MainBannerContiner>
+          <CustomHeader>
+            <HeaderTitle>고민있음 털어놔보개!🐶</HeaderTitle>
+          </CustomHeader>
+          <CounselContainer ref={targetRef}>
+            {!isLoading &&
+              petConsult?.map((counsel: any, index: number) => (
+                <CounselItem
+                  key={counsel.id}
+                  counsel={counsel}
+                  index={index}
+                  page={page}
+                />
+              ))}
+            <QuestionButton onClick={goToNewQnAPage}>질문하기</QuestionButton>
+          </CounselContainer>
+          <PageButtonContainer>
+            <PageButton
+              disabled={page === 1 && true}
+              onClick={() => setPage((prev) => prev - 1)}
+            >
+              &larr;
+            </PageButton>
+            <PageButton
+              disabled={petConsult?.length !== 10 && true}
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              &rarr;
+            </PageButton>
+          </PageButtonContainer>
+        </>
+      )}
     </>
   );
 }

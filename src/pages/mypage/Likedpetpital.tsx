@@ -9,6 +9,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { authService } from "../../firebase/firebase";
 import { useRouter } from "next/router";
+import { CounselItem } from "@/components/custom/CounselItem";
 
 const Likedpetpital = () => {
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
@@ -19,26 +20,56 @@ const Likedpetpital = () => {
   const myId = authService.currentUser?.uid;
 
   return (
-    <>
+    <MyCounsel>
+      <WriteNewCounsel onClick={() => router.push("/petconsult/new")}>
+        궁금한 점 물어보러 가기
+      </WriteNewCounsel>
+
       {!isLoadingPetConsult &&
         petConsult?.data
           .filter((counsel) => myId === counsel.uid)
-          .map((counsel) => (
-            <CounselList key={counsel.id}>
-              <Counsel onClick={() => router.push(`petconsult/${counsel.id}`)}>
-                <CounselTitle>{counsel.content}</CounselTitle>
-              </Counsel>
-            </CounselList>
+          .map((counsel, index) => (
+            <CounselItem key={counsel.id} counsel={counsel} index={index} />
           ))}
-    </>
+    </MyCounsel>
   );
 };
 
+//counsel, index, page
+
 export default Likedpetpital;
+
+const MyCounsel = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60px;
+  min-height: 100vh;
+  gap: 12px;
+  width: 440px;
+  margin: 0 auto;
+`;
+
+const WriteNewCounsel = styled.button`
+  width: 90%;
+  padding: 12px 0;
+  background: #15b5bf;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  color: #ffffff;
+  margin-bottom: 36px;
+  border: 1px solid #afe5e9;
+  margin: 20px 0;
+  cursor: pointer;
+`;
 
 const CounselList = styled.div`
   display: flex;
   justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60px;
 `;
 
 const Counsel = styled.div`

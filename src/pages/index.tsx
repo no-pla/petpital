@@ -23,7 +23,7 @@ function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   const router = useRouter();
   const { recentlyReview, isLoading: isLoadingReviews } = useGetReviews(
-    "?_sort=createdAt&_order=desc&_limit=6",
+    "?_sort=date&_order=desc&_limit=6",
   );
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
     limit: "&_limit=3",
@@ -120,8 +120,6 @@ function Home() {
     setHospitalImageList(emptyArray);
     setPage((prev) => prev + 1);
   };
-
-  console.log(mainPetpial);
 
   return (
     <>
@@ -321,7 +319,7 @@ const ReviewBanner = styled.div<{
   background-repeat: no-repeat;
   background-position: center;
   object-fit: cover;
-  height: calc(min(40vh, 200px));
+  height: calc(min(40vh, 150px));
   position: relative;
 
   @media screen and (max-width: 550px) {
@@ -330,6 +328,7 @@ const ReviewBanner = styled.div<{
     width: 100vw;
     object-fit: cover;
     margin-top: 80px;
+    height: 240px;
   }
 `;
 
@@ -350,6 +349,7 @@ const BestPetpitalItem = styled.div`
   width: calc(max(100%, 144px));
   border-radius: 4px;
   box-shadow: 0px 4px 4px 0px #0000001a;
+  cursor: pointer;
   @media screen and (max-width: 800px) {
     grid-template-columns: repeat(6, 200px);
   }
@@ -387,7 +387,7 @@ const BestPetpitalCost = styled.div`
   }
 
   padding: 6px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   text-align: center;
   border-radius: 0 0 4px 4px;
   color: #fff;
@@ -397,7 +397,7 @@ const BestPetpitalCost = styled.div`
 `;
 
 // 메인 리뷰
-const CurrentReivewContainer = styled.div`
+export const CurrentReivewContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px 25px;
@@ -408,30 +408,31 @@ const CurrentReivewContainer = styled.div`
   }
 `;
 
-const CurrentReview = styled.div`
+export const CurrentReview = styled.div`
   display: flex;
   background-color: #fafafa;
   border-radius: 4px;
   height: 180px;
+  cursor: pointer;
 `;
 
-const CurrentImageContainer = styled.div`
+export const CurrentImageContainer = styled.div`
   width: 160px;
 `;
 
-const CurrentReviewImage = styled.img`
+export const CurrentReviewImage = styled.img`
   width: 160px;
   height: 100%;
   object-fit: cover;
   border-radius: 4px 0px 0px 4px;
 `;
 
-const CurrentReviewComment = styled.div`
+export const CurrentReviewComment = styled.div`
   padding: 15px 8px;
   position: relative;
 `;
 
-const CurrentReviewTitle = styled.div`
+export const CurrentReviewTitle = styled.div`
   font-weight: 600;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -440,25 +441,25 @@ const CurrentReviewTitle = styled.div`
   width: 220px;
 `;
 
-const CurrentReviewPetpitalDesc = styled.div`
+export const CurrentReviewPetpitalDesc = styled.div`
   display: flex;
   align-items: center;
   gap: 0 15px;
   margin: 9px 0;
 `;
 
-const CurrentReviewPetpitalName = styled.div`
+export const CurrentReviewPetpitalName = styled.div`
   color: #9f9f9f;
   font-weight: 400;
   font-size: 14px;
 `;
 
-const CurrentReviewPetpitalAddress = styled.div`
+export const CurrentReviewPetpitalAddress = styled.div`
   font-weight: 300;
   font-size: 12px;
 `;
 
-const CurrentReviewDesc = styled.div`
+export const CurrentReviewDesc = styled.div`
   font-weight: 300;
   font-size: 14px;
   color: #c5c5c5;
@@ -468,7 +469,7 @@ const CurrentReviewDesc = styled.div`
   overflow: hidden;
 `;
 
-const CurrentReviewCost = styled.div`
+export const CurrentReviewCost = styled.div`
   &::before {
     content: "진료비 ";
   }
@@ -476,12 +477,13 @@ const CurrentReviewCost = styled.div`
   bottom: 7px;
   padding: 11px 15px;
   font-size: 13px;
-  text-align: center;
+  text-align: left;
   border-radius: 6px;
   color: #fff;
   font-weight: 600;
   background: #15b5bf;
   height: 40px;
+  width: 140px;
 `;
 
 // 메인 설명
@@ -502,7 +504,6 @@ const PetpitalSubTitle = styled.h2`
 `;
 
 const CounselList = styled.div`
-  margin-bottom: 180px;
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, 1fr);
@@ -571,7 +572,10 @@ export const SubCustomButton = styled.button`
   cursor: pointer;
   position: absolute;
   right: 28px;
-  top: 45%;
+  top: 60px;
+  @media screen and (max-width: 550px) {
+    top: 140px;
+  }
 `;
 
 const SectionTitle = styled.h3`

@@ -1,25 +1,24 @@
-import React, { useRef, useState, useEffect, ChangeEvent } from "react";
+import { BackButton } from "@/components/custom/CustomHeader";
+import CustomModal, { ModalButton } from "@/components/custom/ErrorModal";
+import { authService, storageService } from "@/firebase/firebase";
 import styled from "@emotion/styled";
+import { getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { useRouter } from "next/router";
+import React, { useEffect, useRef, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
 import { BsArrowLeftCircle } from "react-icons/bs";
-import { authService, storageService } from "../../firebase/firebase";
-import { onAuthStateChanged, updateProfile, User } from "firebase/auth";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import AuthModal from "../../components/custom/AuthModal";
 
 const Nickname = () => {
   const router = useRouter();
-  const [inputCount, setInputCount] = useState(0);
-  const [profilePhoto, setProfilePhoto] = useState("");
   const [newNickname, setNewNickname] = useState("");
-  const [modal, setModal] = useState(false);
-
-  const [photoURL, setPhotoURL] = useState<any>(
-    "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
-  );
-  const [photo, setPhoto] = useState<any>(null);
+  const [photoURL, setPhotoURL] = useState<any>("");
+  // const [newNickName, setNewNickName] = useState("");
+  const [success, setSucess] = useState(false);
+  const [error, setError] = useState(false);
+  const [url, setUrl] = useState();
   const currentUser = useAuth();
-  const [loading, setLoading] = useState(false);
+  const auth = getAuth();
 
   function useAuth() {
     const [currentUser, setCurrentUser] = useState<any>();
@@ -33,249 +32,208 @@ const Nickname = () => {
     return currentUser;
   }
 
-  //바뀐 사진 넣기
-  const photoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setProfilePhoto(event.target.value);
-  };
-
-  // 뒤로가기
-  const onBackPageClick = () => {
-    router.back();
-  };
-
-  // 마이페이지 이동
-  const onMyPageClick = () => {
-    router.push("/mypage").then(() => {
-      router.reload();
-    });
-  };
-
-  // 닉네임 글자수 제한, 닉네임변경
-  const onInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputCount(e.target.value.length);
-    setNewNickname(e.target.value);
-    // console.log(newNickname);
-  };
-
-  //   //바이트로 실시간변환
-  //   const onTextareaHandler = (e:any) => {
-  //     setInputCount(
-  //       e.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length,
-  //     );
-  //   };
-
-  //닉네임변경
-  //   const userName = authService.currentUser?.displayName;
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onUploadNewProfilePhoto = async (event: any) => {
     event.preventDefault();
-    await updateProfile(authService.currentUser as any, {
-      displayName: newNickname,
-      // photoURL: userPhotoURL,
-    });
-  };
-
-  const fileInput = useRef(null);
-
-  //1111111111
-  async function upload(file: any, currentUser: any, setLoading: any) {
-    const fileRef = ref(storageService, currentUser.uid + ".png");
-
-    setLoading(true);
-
-    const snapshot = await uploadBytes(fileRef, file);
-    const photoURL = await getDownloadURL(fileRef);
-
-    updateProfile(currentUser, { photoURL });
-    setPhotoURL(photoURL);
-    setLoading(false);
-  }
-
-  async function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e?.target?.files?.[0]) {
-      setPhoto(e?.target?.files?.[0]);
-    }
-  }
-
-  async function handleClick() {
-    upload(photo, currentUser, setLoading);
-  }
-
-  useEffect(() => {
-    if (currentUser?.photoURL) {
-      setPhotoURL(currentUser.photoURL);
-    }
-  }, [currentUser]);
-
-  //   //실시간 업데이트 프로필 사진 표시
-
-  const onChange = (e: any) => {
-    if (e.target.files[0]) {
-      setPhotoURL(e.target.files[0]);
-    } else {
-      //업로드 취소할 시
-      setPhotoURL(
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      );
+    if (!event.target.files || event.target.files.length === 0) {
       return;
     }
-    //화면에 프로필 사진 표시
+    const theFile = event.target.files[0];
     const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setPhotoURL(reader.result);
+    reader.readAsDataURL(theFile); // file 객체를 브라우저가 읽을 수 있는 data URL로 읽음.
+
+    reader.onloadend = (finishedEvent: any) => {
+      // 파일리더가 파일객체를 data URL로 변환 작업을 끝났을 때
+      const contentimgDataUrl = finishedEvent?.currentTarget?.result;
+      localStorage.setItem("newProfilePhoto", contentimgDataUrl);
+      const previewPhoto = document.querySelector(
+        "#preview-photo",
+      ) as HTMLImageElement;
+      if (previewPhoto) {
+        previewPhoto.src = contentimgDataUrl;
       }
     };
-    reader.readAsDataURL(e.target.files[0]);
   };
 
-  //현재 로그인한거 불러오기
-  const [myInformation, setMyInformation] = useState<User>();
+  const ChangeProfile = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-  useEffect(() => {
-    onAuthStateChanged(authService, (user) => {
-      if (user) {
-        setMyInformation(user);
-        console.log("로그인됨");
-      } else {
-        console.log("안됨");
-      }
-    });
-  }, []);
+    if (!auth.currentUser) {
+      return;
+    }
 
-  // // 프로필 업로드 아직 미완성
-  // updateProfile(authService.currentUser, {userPhotoURL}).then(() => {
-  //   console.log("사진 업데이트 성공");
-  // }).catch((error) => {
-  //      console.log("사진 업데이트 실패 ㅜㅜ");
-  // });
+    // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
+    // 그 값 가져와서 firestore에 업로드
+    let newPhoto = localStorage.getItem("newProfilePhoto");
+    const imgRef = ref(
+      storageService,
+      `${authService.currentUser?.uid}/${Date.now()}`,
+    );
+
+    let downloadUrl;
+    if (newPhoto) {
+      const response = await uploadString(imgRef, newPhoto, "data_url");
+      downloadUrl = await getDownloadURL(response.ref);
+    }
+
+    // 새로운 닉네임과 프로필 사진이 없으면 리턴
+    await updateProfile(auth.currentUser, {
+      displayName:
+        newNickname === "" ? auth.currentUser.displayName : newNickname,
+      photoURL:
+        downloadUrl === undefined ? auth.currentUser.photoURL : downloadUrl,
+    })
+      .then(() => {
+        setNewNickname("");
+        router.push("/mypage");
+      })
+      .catch((error) => {
+        // alert("에러가 발생했습니다. 다시 시도해 주세요.");
+        console.log(error);
+        setError((prev) => !prev);
+      });
+  };
 
   return (
-    <MyPageContainer>
-      <IconBox onClick={onBackPageClick}>
-        <BsArrowLeftCircle size="20px" />
-        <BackTitle>이전으로</BackTitle>
-      </IconBox>
-      <MyPageTop>
-        <Title>프로필 변경</Title>
-        <PicContainer>
-          <ImageWrap>
+    <>
+      <ChangeProfileContainer>
+        <ChangeProfileHeader>
+          <BackButton
+            style={{
+              marginLeft: "40px",
+            }}
+            onClick={() => router.push("/mypage")}
+          >
+            <BsArrowLeftCircle style={{ marginLeft: "20px" }} color="black" />
+            <span>이전으로</span>
+          </BackButton>
+          <div>프로필 변경</div>
+        </ChangeProfileHeader>
+        <UserChangeProfileContainer>
+          <UserChangeProfile>
+            <PreviewProfileImage
+              id="preview-photo"
+              src={currentUser?.photoURL}
+            />
             <input
               type="file"
+              id="add-profile"
+              accept="image/jpg, image/png, image/jpeg"
+              onChange={(event) => onUploadNewProfilePhoto(event)}
               style={{ display: "none" }}
-              onChange={(e) => {
-                onChange(e);
-                handleChange(e);
-              }}
-              id="input-file"
             />
-            <label htmlFor="input-file">
-              <ProfileImage
-                src={photoURL}
-                width={150}
-                height={130}
-                onClick={handleClick}
-              />
-            </label>
-          </ImageWrap>
-        </PicContainer>
-        <NicknameInput
-          onChange={onInputHandler}
-          type="text"
-          value={newNickname}
-          maxLength={20}
-        />
-        <NicknameLength>
-          {inputCount} / <NicknameLengthMax>20</NicknameLengthMax>
-        </NicknameLength>
-        <SaveButton
-          onClick={() => {
-            setModal(true);
-          }}
+            <AddProfileImage htmlFor="add-profile">
+              <AiOutlinePlus size={20} color="white" />
+            </AddProfileImage>
+          </UserChangeProfile>
+        </UserChangeProfileContainer>
+        <ChageNickNameForm onSubmit={(event) => ChangeProfile(event)}>
+          <div>
+            <NicknameInput
+              placeholder={currentUser?.displayName}
+              onChange={(event) => setNewNickname(event.target.value)}
+            />
+            <NicknameLength>
+              {newNickname.length} / <NicknameLengthMax>20</NicknameLengthMax>
+            </NicknameLength>
+          </div>
+          <SubmitButton>저장하기</SubmitButton>
+        </ChageNickNameForm>
+      </ChangeProfileContainer>
+      {error && (
+        <CustomModal
+          modalText1={"에러가 발생했습니다."}
+          modalText2={"다시 시도해 주세요."}
         >
-          저장하기
-        </SaveButton>
-        {modal ? (
-          <AuthModal>
-            <ModalBox>
-              <span>프로필을</span>
-              <span>변경 하시겠습니까?</span>
-            </ModalBox>
-            <form onSubmit={handleSubmit}>
-              <ModalButton onClick={() => setModal(false)}>
-                나중에 변경할래요
-              </ModalButton>
-              <ModalButton
-                type="submit"
-                onClick={() => {
-                  onMyPageClick();
-                  handleClick();
-                }}
-              >
-                변경할래요
-              </ModalButton>
-            </form>
-          </AuthModal>
-        ) : null}
-      </MyPageTop>
-    </MyPageContainer>
+          <ModalButton onClick={() => setError(false)}>취소</ModalButton>
+        </CustomModal>
+      )}
+    </>
   );
 };
+
 export default Nickname;
 
-const MyPageContainer = styled.div`
-  height: 100vh;
-  background-color: #fafafa;
+const PreviewProfileImage = styled.img`
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
-const MyPageTop = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const IconBox = styled.div`
-  margin-top: 100px;
-  margin-left: 30px;
-  size: 200px;
-  display: flex;
-  justify-content: flex-start;
+const SubmitButton = styled.button`
+  width: 400px;
+  padding: 20.5px 0;
+  border: 1px solid #afe5e9;
+  background: #15b5bf;
+  font-weight: 500;
+  font-size: 16px;
+  color: #ffffff;
+  box-sizing: border-box;
   cursor: pointer;
-  &:hover {
-    color: #9c88ff;
-    transition: 0.5s;
+`;
+
+const ChageNickNameForm = styled.form`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  height: 50%;
+  & > div:nth-of-type(1) {
+    display: flex;
+    flex-direction: column;
   }
 `;
 
-const BackTitle = styled.div`
-  font-size: 20px;
-  margin-left: 20px;
+const UserChangeProfileContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-const Title = styled.span`
-  margin-top: 120px;
-  color: black;
-  font-size: 20px;
-`;
-
-const ImageWrap = styled.div`
-  width: 140px;
-  height: 140px;
-  margin: 0 auto;
-`;
-
-const ProfileImage = styled.img`
-  width: 140px;
-  height: 140px;
+const AddProfileImage = styled.label`
+  background-color: #15b5bf;
+  border: none;
   border-radius: 50%;
-  border: 1px solid #d0d0d0;
-  object-fit: cover;
+  display: flex;
+  position: absolute;
+  top: 16px;
+  right: 32px;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
 `;
 
-const PicContainer = styled.div`
-  width: 140px;
-  height: 20%;
-  margin-top: 25px;
+const UserChangeProfile = styled.div`
+  position: relative;
+  width: 200px;
+  height: 200px;
+`;
+
+const ChangeProfileContainer = styled.div`
+  height: 100vh;
+`;
+
+const ChangeProfileHeader = styled.div`
+  display: flex;
+  margin: 110px 0 37px 0;
+  width: 100%;
+  justify-content: center;
+  flex-direction: column;
+  & span {
+    color: black;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  & div:nth-of-type(1) {
+    margin: -26px auto 0 auto;
+    color: black;
+    font-weight: 600;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+  }
 `;
 
 const NicknameInput = styled.input`
@@ -295,39 +253,4 @@ const NicknameLength = styled.span`
 
 const NicknameLengthMax = styled.span`
   color: #c5c5c5;
-`;
-
-const SaveButton = styled.button`
-  margin-top: 200px;
-  margin-bottom: 100px;
-  width: 400px;
-  height: 40px;
-  background-color: #15b5bf;
-  border: none;
-  color: white;
-  cursor: pointer;
-  &:hover {
-    color: #9c88ff;
-    transition: 0.5s;
-  }
-`;
-
-const ModalBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 50px;
-  width: 300px;
-  font-size: 18px;
-`;
-
-const ModalButton = styled.button`
-  border: none;
-  background-color: white;
-  color: #c5c5c5;
-  font-size: 18px;
-  cursor: pointer;
-  &:hover {
-    color: #15b5bf;
-    transition: 0.5s;
-  }
 `;
