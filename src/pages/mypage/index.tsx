@@ -12,39 +12,42 @@ import { BsArrowLeftCircle } from "react-icons/bs";
 import Likedpetpital from "./Likedpetpital";
 import Review from "./Review";
 
+function useAuth() {
+  const [currentUser, setCurrentUser] = useState<any>();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(authService, (user) =>
+      setCurrentUser(user),
+    );
+    return unsub;
+  }, []);
+
+  return currentUser;
+}
+
 //카테고리 버튼
 const Mypage = () => {
   const router = useRouter();
   const currentUser = useAuth();
   const [selected, setSelected] = useState("");
   const { recentlyReview, isLoading } = useGetReviews(
-    "?_sort=date&_order=desc",
+    `?_sort=date&_order=desc&userId=${currentUser?.uid}`,
   );
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
-    limit: "",
+    limit: `&uid=${currentUser?.uid}`,
   });
+
   //프로필 변경 페이지 이동
   const onProfileChangeClick = () => {
-    router.push("/mypage/Nickname");
+    router.push("/mypage/Nickname", undefined, { shallow: true });
   };
-
-  function useAuth() {
-    const [currentUser, setCurrentUser] = useState<any>();
-    useEffect(() => {
-      const unsub = onAuthStateChanged(authService, (user) =>
-        setCurrentUser(user),
-      );
-      return unsub;
-    }, []);
-
-    return currentUser;
-  }
 
   return (
     <MyPageContainer>
       <HeaderContainer>
         <MyPageHeader>
-          <BackButton onClick={() => router.push("/")}>
+          <BackButton
+            onClick={() => router.push("/", undefined, { shallow: true })}
+          >
             <BsArrowLeftCircle color="white" />
             <span>이전으로</span>
           </BackButton>
@@ -61,23 +64,11 @@ const Mypage = () => {
           <UserWritten>
             <CountPost>
               <span>남긴 질문 +</span>
-              <span>
-                {
-                  petConsult?.data.filter(
-                    (counsel) => authService.currentUser?.uid === counsel.uid,
-                  ).length
-                }
-              </span>
+              <span>{petConsult?.data.length}</span>
             </CountPost>
             <CountPost>
               <span>남긴 리뷰 +</span>
-              <span>
-                {
-                  recentlyReview?.data.filter(
-                    (review) => authService.currentUser?.uid === review.uid,
-                  ).length
-                }
-              </span>
+              <span>{recentlyReview?.data.length}</span>
             </CountPost>
           </UserWritten>
         </UserProfile>
@@ -163,8 +154,8 @@ export const HeaderContainer = styled.div`
 `;
 
 const MyPageContainer = styled.div`
-  /* min-height: 100vh; */
-  width: 100vh;
+  width: 100%;
+  margin: 0 auto;
 `;
 
 export const MyPageHeader = styled.div`

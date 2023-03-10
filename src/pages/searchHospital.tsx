@@ -35,6 +35,7 @@ import { RxShare2 } from "react-icons/rx";
 import Image from "next/image";
 import { AiOutlineArrowLeft, AiOutlineClose } from "react-icons/ai";
 import { authService } from "@/firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface IHospital {
   address_name: string;
@@ -51,9 +52,17 @@ interface IHospital {
   y: string;
 }
 
-/* 
-  3. 스카이뷰 지도 전환 컨트롤
-*/
+function useAuth() {
+  const [currentUser, setCurrentUser] = useState<any>();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(authService, (user) =>
+      setCurrentUser(user),
+    );
+    return unsub;
+  }, []);
+
+  return currentUser;
+}
 
 export function getServerSideProps({ query }: any) {
   // if query object was received, return it as a router prop:
@@ -81,6 +90,7 @@ declare const window: typeof globalThis & {
 
 const SearchHospital = () => {
   const router = useRouter();
+  const currentUser = useAuth();
   const {
     query: { target, hospitalName, placeId },
   } = router;
@@ -108,7 +118,9 @@ const SearchHospital = () => {
   const [hospitalReview, setHospitalReview] = useState<any[]>([]);
   const [hospitalReviewCount, setHospitalReviewCount] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
-  const { recentlyReview, isLoading, recentlyRefetch } = useGetReviews("");
+  const { recentlyReview, isLoading, recentlyRefetch } = useGetReviews(
+    `?_sort=date&_order=desc&hospitalId=${placeId}`,
+  );
   const [openDeleteReivewModal, setOpenDeleteReivewModal] = useState(true);
   const [deleteTargetId, setDeleteTargetId] = useState("");
   const [state, setState] = useState({
@@ -561,7 +573,7 @@ const SearchHospital = () => {
                       );
                     })
                   ) : (
-                    <NoData>검색 결과가 없습니다.</NoData>
+                    <NoData>로딩중</NoData>
                   )}
                 </DashBoard>
               )}
@@ -641,9 +653,6 @@ const SearchHospital = () => {
 
                 {!isLoading &&
                   recentlyReview?.data
-                    .filter(
-                      (target) => target?.hospitalId === targetHospitalData?.id,
-                    )
                     .map((review) => {
                       return (
                         <>
@@ -662,6 +671,7 @@ const SearchHospital = () => {
                                     height={40}
                                     style={{
                                       borderRadius: "50%",
+                                      objectFit: "cover",
                                     }}
                                   ></Image>
                                   <div style={{ marginLeft: "10px" }}>
@@ -681,6 +691,7 @@ const SearchHospital = () => {
                                   alt="게시글 이미지"
                                   width={339}
                                   height={200}
+                                  style={{ objectFit: "cover" }}
                                 />
                                 <div>{review?.title}</div>
                                 <div
@@ -1081,6 +1092,7 @@ const SearchForm = styled.form`
   background-color: #15b5bf;
   display: flex;
   box-sizing: border-box;
+  border: none;
   > button {
     background-color: transparent;
     border: none;

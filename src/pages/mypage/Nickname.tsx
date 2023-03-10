@@ -1,7 +1,11 @@
 import { BackButton } from "@/components/custom/CustomHeader";
 import CustomModal, { ModalButton } from "@/components/custom/ErrorModal";
 import { authService, storageService } from "@/firebase/firebase";
+import { useGetReviews } from "@/hooks/useGetReviews";
+import { useGetPetConsult } from "@/hooks/usePetsult";
+import { REVIEW_SERVER } from "@/share/server";
 import styled from "@emotion/styled";
+import axios from "axios";
 import { getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { useRouter } from "next/router";
@@ -31,7 +35,6 @@ const Nickname = () => {
 
     return currentUser;
   }
-
   const onUploadNewProfilePhoto = async (event: any) => {
     event.preventDefault();
     if (!event.target.files || event.target.files.length === 0) {
@@ -57,9 +60,7 @@ const Nickname = () => {
   const ChangeProfile = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!auth.currentUser) {
-      return;
-    }
+    if (!auth.currentUser) return;
 
     // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
     // 그 값 가져와서 firestore에 업로드
@@ -69,22 +70,33 @@ const Nickname = () => {
       `${authService.currentUser?.uid}/${Date.now()}`,
     );
 
-    let downloadUrl;
+    let downloadUrl: string | null | undefined;
     if (newPhoto) {
       const response = await uploadString(imgRef, newPhoto, "data_url");
       downloadUrl = await getDownloadURL(response.ref);
     }
 
+    const changeProfile = {
+      id: currentUser.uid,
+      nickname: newNickname === "" ? currentUser.displayName : newNickname,
+      profileImage:
+        downloadUrl === undefined ? currentUser.photoURL : downloadUrl,
+    };
+
     // 새로운 닉네임과 프로필 사진이 없으면 리턴
     await updateProfile(auth.currentUser, {
-      displayName:
-        newNickname === "" ? auth.currentUser.displayName : newNickname,
-      photoURL:
-        downloadUrl === undefined ? auth.currentUser.photoURL : downloadUrl,
+      displayName: newNickname === "" ? currentUser.displayName : newNickname,
+      photoURL: downloadUrl === undefined ? currentUser.photoURL : downloadUrl,
     })
-      .then(() => {
+      .then(async () => {
         setNewNickname("");
         router.push("/mypage");
+
+        await axios.patch(
+          `${REVIEW_SERVER}users/${currentUser.uid}`,
+          changeProfile,
+        );
+        // 이전 게시글 수정
       })
       .catch((error) => {
         // alert("에러가 발생했습니다. 다시 시도해 주세요.");
