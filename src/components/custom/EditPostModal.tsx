@@ -16,6 +16,16 @@ import { useMutation, useQueryClient } from "react-query";
 import { GrClose } from "react-icons/gr";
 import CustomModal, { ModalButton } from "./ErrorModal";
 
+interface EditPostModalProps {
+  setIsEdit: (value: boolean) => void;
+  id: string;
+  postTitle: any;
+  postContents: any;
+  postTotalCost: any;
+  postDownloadUrl: any;
+  postRating: any;
+}
+
 const EditPostModal = ({
   setIsEdit,
   id,
@@ -24,13 +34,13 @@ const EditPostModal = ({
   postTotalCost,
   postDownloadUrl,
   postRating,
-}) => {
+}: EditPostModalProps) => {
   // console.log("지금궁금", postRating);
   const [editTitle, setEditTitle] = useState(postTitle);
   const [editContents, setEditContents] = useState(postContents);
   const [editTotalCost, setEditTotalCost] = useState(postTotalCost);
-  const [editRatings, setEditRatings] = useState(postRating);
-  const [editSelectValue, setEditSelectValue] = useState([]);
+  const [editRatings, setEditRatings] = useState<any>(postRating);
+  const [editSelectValue, setEditSelectValue] = useState<any[]>([]);
   // const [editDownloadUrl, setEditDownloadUrl] = useState(postDownloadUrl);
   const [openModalTitle, setOpenModalTitle] = useState(false);
   const [openModalContents, setOpenModalContents] = useState(false);
@@ -39,9 +49,9 @@ const EditPostModal = ({
   const [openModalSelectValue, setOpenModalSelectValue] = useState(false);
   const [openModalPhoto, setOpenModalPhoto] = useState(false);
 
-  const focusTitle = useRef();
-  const focusContents = useRef();
-  const focusTotalCost = useRef();
+  const focusTitle = useRef<HTMLTextAreaElement>(null);
+  const focusContents = useRef<HTMLTextAreaElement>(null);
+  const focusTotalCost = useRef<HTMLTextAreaElement>(null);
   //   const ref = useRef(null);
 
   const router = useRouter();
@@ -52,11 +62,9 @@ const EditPostModal = ({
   // console.log("placesData", placesData);
   const { recentlyRefetch } = useGetReviews("");
 
-  console.log("placesData", placesData);
-
-  const handleBackgroundClick = (e) => {
+  const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      isEdit(false);
+      setIsEdit(false);
     }
   };
 
@@ -83,7 +91,12 @@ const EditPostModal = ({
   //   };
   // }, []);
 
-  const Star = ({ selected, onClick }) => (
+  interface StarProps {
+    selected: boolean;
+    onClick: () => void;
+  }
+
+  const Star = ({ selected, onClick }: StarProps) => (
     <div
       style={{
         color: selected ? "#15B5BF" : "#e4e5e9",
@@ -93,10 +106,9 @@ const EditPostModal = ({
       <span style={{ fontSize: "50px", padding: "7px" }}>&#9733;</span>
     </div>
   );
-
   // 게시글 업데이트
   const { mutate: updateMutate } = useMutation(
-    (data) =>
+    (data: any) =>
       axios.put(`${REVIEW_SERVER}posts/${id}`, data).then((res) => res.data),
     {
       onSuccess: () => {
@@ -116,7 +128,7 @@ const EditPostModal = ({
   }).format(createdAt);
 
   // DB에 저장
-  const handleEditSubmit = async (downloadUrl) => {
+  const handleEditSubmit = async (downloadUrl: string) => {
     if (editTitle.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
 
@@ -130,7 +142,7 @@ const EditPostModal = ({
     ) {
       setOpenModalTotalCost(true);
       return;
-    } else if (editRatings.length === 0) {
+    } else if (editRatings === 0) {
       setOpenModalStarRating(true);
       return;
     } else if (editSelectValue.length === 0) {
@@ -157,7 +169,7 @@ const EditPostModal = ({
     // console.log("response", response);
     await queryClient.invalidateQueries(["getrecentlyReview"]);
     localStorage.removeItem("Photo");
-    console.log("포스트완료");
+    // console.log("포스트완료");
     // await recentlyRefetch();
     setIsEdit(false);
 
@@ -166,74 +178,89 @@ const EditPostModal = ({
   };
 
   // 이미지 업로드(이미지를 로컬에 임시 저장)
-  const uploadPhoto = async (event) => {
+  const uploadPhoto = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> => {
     try {
-      const theFile = event.target.files[0];
+      const theFile = event.target.files?.[0];
       const reader = new FileReader();
-      reader.readAsDataURL(theFile); // file 객체를 브라우저가 읽을 수 있는 data URL로 읽음.
+      reader.readAsDataURL(theFile!); // file 객체를 브라우저가 읽을 수 있는 data URL로 읽음.
 
-      reader.onloadend = (finishedEvent) => {
+      reader.onloadend = (finishedEvent: ProgressEvent<FileReader>) => {
         // 파일리더가 파일객체를 data URL로 변환 작업을 끝났을 때
-        const contentimgDataUrl = finishedEvent.currentTarget.result;
+        const contentimgDataUrl = (finishedEvent.currentTarget as FileReader)
+          ?.result as string;
         localStorage.setItem("Photo", contentimgDataUrl);
-        document.getElementById("preview-photo").src = contentimgDataUrl; //useref 사용해서 DOM에 직접 접근 하지 말기
+        const previewPhoto = document.getElementById(
+          "preview-photo",
+        ) as HTMLImageElement;
+        if (previewPhoto) {
+          previewPhoto.src = contentimgDataUrl; // useRef 사용해서 DOM에 직접 접근하지 말기
+        }
       };
     } catch (error) {
       console.error(error);
     }
   };
 
-  const ChangePhoto = async (event) => {
+  const ChangePhoto = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
     // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
     // 그 값 가져와서 firestore에 업로드
     try {
-      let newPhoto = localStorage.getItem("Photo");
-      const imgRef = ref(storageService, `${Date.now()}`);
-
-      let downloadUrl;
-      if (newPhoto) {
-        const response = await uploadString(imgRef, newPhoto, "data_url");
-        downloadUrl = await getDownloadURL(response.ref);
-      }
-      if (downloadUrl) {
-        console.log("downloadUrl", downloadUrl);
-        // setEditDownloadUrl(downloadUrl);
-        handleEditSubmit(downloadUrl);
-      } else if (downloadUrl === undefined) {
-        // 새로운 사진이 없으면 리턴
+      const newPhoto = localStorage.getItem("Photo");
+      if (!newPhoto) {
         alert("사진을 업로드 해주세요");
         return;
+      }
+      const imgRef = ref(storageService, `${Date.now()}`);
+
+      const response = await uploadString(imgRef, newPhoto, "data_url");
+      const downloadUrl = await getDownloadURL(response.ref);
+
+      if (downloadUrl) {
+        // console.log("downloadUrl", downloadUrl);
+        // setEditDownloadUrl(downloadUrl);
+        handleEditSubmit(downloadUrl);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const ModalTitleEmpty = () => {
+  const ModalTitleEmpty = (): void => {
     setOpenModalTitle(false);
-    focusTitle.current.focus();
+    const titleInput = focusTitle.current;
+    if (titleInput) {
+      titleInput.focus();
+    }
   };
 
-  const ModalContentsEmpty = () => {
+  const ModalContentsEmpty = (): void => {
     setOpenModalContents(false);
-    focusContents.current.focus();
+    const contentsInput = focusContents.current;
+    if (contentsInput) {
+      contentsInput.focus();
+    }
   };
 
-  const ModalTotalCostEmpty = () => {
+  const ModalTotalCostEmpty = (): void => {
     setOpenModalTotalCost(false);
-    focusTotalCost.current.focus();
+    const totalCostInput = focusTotalCost.current;
+    if (totalCostInput) {
+      totalCostInput.focus();
+    }
   };
 
-  const ModalStarRatingEmpty = () => {
+  const ModalStarRatingEmpty = (): void => {
     setOpenModalStarRating(false);
   };
 
-  const ModalSelectValueEmpty = () => {
+  const ModalSelectValueEmpty = (): void => {
     setOpenModalSelectValue(false);
   };
 
-  const ModalPhotoEmpty = () => {
+  const ModalPhotoEmpty = (): void => {
     setOpenModalPhoto(false);
   };
 
@@ -312,14 +339,13 @@ const EditPostModal = ({
                     눈에 띄는 제목으로 다른 회원님들에게 도움을 주세요.
                   </p>
                   <TitleBox
-                    type="text"
                     ref={focusTitle}
                     defaultValue={editTitle}
                     placeholder="20자 이내로 제목을 입력해 주세요."
                     onChange={(event) => setEditTitle(event.target.value)}
                     id="title"
-                    rows="1"
-                    maxLength="50"
+                    rows={1}
+                    maxLength={50}
                     style={{
                       border: "none",
                       backgroundColor: "#e8e7e6",
@@ -336,13 +362,12 @@ const EditPostModal = ({
                     자세한 후기로 회원님들에게 도움을 주세요.
                   </p>
                   <ContentBox
-                    type="text"
                     ref={focusContents}
                     defaultValue={editContents}
                     placeholder="150자 이내로 내용을 입력해 주세요."
                     onChange={(event) => setEditContents(event.target.value)}
-                    rows="8"
-                    maxLength="500"
+                    rows={8}
+                    maxLength={500}
                     style={{
                       border: "none",
                       backgroundColor: "#e8e7e6",
@@ -359,13 +384,12 @@ const EditPostModal = ({
                     진료 총액을 숫자로 입력해 주세요.
                   </p>
                   <TotalCostBox
-                    type="text"
                     ref={focusTotalCost}
                     defaultValue={editTotalCost}
                     placeholder="금액을 입력해 주세요"
                     onChange={(event) => setEditTotalCost(event.target.value)}
-                    rows="1"
-                    maxLength="7"
+                    rows={1}
+                    maxLength={7}
                     style={{
                       border: "none",
                       backgroundColor: "#e8e7e6",
@@ -386,8 +410,8 @@ const EditPostModal = ({
                   {starArray.map((star) => (
                     <Star
                       key={star}
-                      selected={star <= editRatings}
-                      onClick={() => setEditRatings(star)}
+                      selected={star <= (editRatings[0] || 0)}
+                      onClick={() => setEditRatings([star])}
                     />
                   ))}
                 </StarRating>
@@ -404,7 +428,9 @@ const EditPostModal = ({
                   <Select
                     value={editSelectValue}
                     onChange={(selectedOptions) =>
-                      setEditSelectValue(selectedOptions)
+                      setEditSelectValue(
+                        Array.isArray(selectedOptions) ? selectedOptions : [],
+                      )
                     }
                     closeMenuOnSelect={false}
                     defaultValue={[colourOptions[0], colourOptions[1]]}

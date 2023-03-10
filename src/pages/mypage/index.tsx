@@ -1,43 +1,32 @@
-import { onAuthStateChanged, updateProfile } from "firebase/auth";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { authService, storageService } from "../../firebase/firebase";
-import React, { useEffect, useState, ChangeEvent } from "react";
-import Likedpetpital from "./Likedpetpital";
+import { BackButton } from "@/components/custom/CustomHeader";
+import { authService } from "@/firebase/firebase";
+import { useGetReviews } from "@/hooks/useGetReviews";
+import { useGetPetConsult } from "@/hooks/usePetsult";
 import styled from "@emotion/styled";
-import Review from "./Review";
-import AuthModal from "../../components/custom/AuthModal";
-import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
-import { useRouter } from "next/router";
-import { hospitalData } from "../../share/atom";
-import { useRecoilValue } from "recoil";
-import { useGetPetConsult } from "../../hooks/usePetsult";
+import { onAuthStateChanged } from "firebase/auth";
 import Image from "next/image";
-import { useGetReviews } from "../../hooks/useGetReviews";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { AiOutlineSetting } from "react-icons/ai";
+import { BsArrowLeftCircle } from "react-icons/bs";
+import Likedpetpital from "./Likedpetpital";
+import Review from "./Review";
 
-const Index = () => {
-  const [modal, setModal] = useState(false);
-  const currentUser = useAuth();
-  const [newNickname, setNewNickname] = useState("");
-  const [checkImageModal, setCheckImageModal] = useState<any>(false);
-  const [photo, setPhoto] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const userEmail = authService.currentUser?.email;
-  const [photoURL, setPhotoURL] = useState(
-    "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
-  );
-
+//카테고리 버튼
+const Mypage = () => {
   const router = useRouter();
-
-  const myId = authService.currentUser?.uid;
-
+  const currentUser = useAuth();
+  const [selected, setSelected] = useState("");
   const { recentlyReview, isLoading } = useGetReviews(
-    "?_sort=createdAt&_order=desc",
+    "?_sort=date&_order=desc",
   );
-
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
     limit: "",
   });
-  console.log("petConsult:", petConsult);
+  //프로필 변경 페이지 이동
+  const onProfileChangeClick = () => {
+    router.push("/mypage/Nickname");
+  };
 
   function useAuth() {
     const [currentUser, setCurrentUser] = useState<any>();
@@ -51,313 +40,188 @@ const Index = () => {
     return currentUser;
   }
 
-  async function upload(file: any, currentUser: any, setLoading: any) {
-    const fileRef = ref(storageService, currentUser.uid + ".png");
-
-    setLoading(true);
-
-    const snapshot = await uploadBytes(fileRef, file);
-    const photoURL = await getDownloadURL(fileRef);
-
-    updateProfile(currentUser, { photoURL });
-    setPhotoURL(photoURL);
-    setLoading(false);
-    setCheckImageModal(true);
-  }
-
-  async function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e?.target?.files?.[0]) {
-      setPhoto(e?.target?.files?.[0]);
-    }
-  }
-
-  async function handleClick() {
-    upload(photo, currentUser, setLoading);
-  }
-
-  useEffect(() => {
-    if (currentUser?.photoURL) {
-      setPhotoURL(currentUser.photoURL);
-    }
-  }, [currentUser]);
-
-  //카테고리 버튼
-  const [selected, setSelected] = useState("");
-  const handleHospitalClick = () => {
-    setSelected("hospital");
-  };
-  const handleReviewClick = () => {
-    setSelected("review");
-  };
-
-  //닉네임변경
-  const userName = authService.currentUser?.displayName;
-
-  const nicknameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewNickname(event.target.value);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (userName !== newNickname) {
-      await updateProfile(authService.currentUser as any, {
-        displayName: newNickname,
-      });
-    }
-  };
-
-  const onLogOutClick = () => {
-    authService.signOut();
-    localStorage.removeItem("currentUserUid");
-    router.push("/");
-  };
-
-  //프로필 변경 페이지 이동
-  const onProfileChangeClick = () => {
-    router.push("/mypage/Nickname");
-  };
-
-  const placesData = useRecoilValue(hospitalData);
-  console.log("placesData:", placesData);
-
   return (
-    <>
-      <MyPageContainer>
-        <MyPageTop>
-          {modal == true ? (
-            <AuthModal>
-              <form onSubmit={handleSubmit}>
-                <label>
-                  닉네임 :
-                  <NicknameInput
-                    type="text"
-                    value={newNickname}
-                    onChange={nicknameChange}
-                  />
-                </label>
-                <UploatBtn type="submit">닉네임 변경</UploatBtn>
-              </form>
-              <ButtonWrap>
-                <FileSelectBtn htmlFor="input-file">
-                  사진 선택
-                  <input
-                    type="file"
-                    hidden
-                    id="input-file"
-                    onChange={handleChange}
-                  />
-                </FileSelectBtn>
-                <UploatBtn disabled={loading || !photo} onClick={handleClick}>
-                  사진 등록
-                </UploatBtn>
-              </ButtonWrap>
-              <ModalButton onClick={() => setModal(false)}>완료</ModalButton>
-            </AuthModal>
-          ) : null}
-          <ProfileImageContainer></ProfileImageContainer>
-          <ProfileWrapper>
-            <div>
-              <PicContainer>
-                <ImageWrap>
-                  <ProfileImage src={photoURL} width={150} height={130} />
-                </ImageWrap>
-                <ProfileId>
-                  <ProfileIdBox>{userName}</ProfileIdBox>
-                  {/* <ProfileIdBox>{userEmail}</ProfileIdBox> */}
-                </ProfileId>
-                <ProfileModifyButton onClick={onProfileChangeClick}>
-                  프로필 변경하기
-                </ProfileModifyButton>
-                {/* <ProfileModifyButton onClick={onLogOutClick}>
-                  로그아웃
-                </ProfileModifyButton> */}
-              </PicContainer>
-            </div>
-          </ProfileWrapper>
-          <LeaveWrap>
-            <LeaveContainer>
-              <LeaveBox>남긴 질문</LeaveBox>
-              <div>
-                +{" "}
+    <MyPageContainer>
+      <HeaderContainer>
+        <MyPageHeader>
+          <BackButton onClick={() => router.push("/")}>
+            <BsArrowLeftCircle color="white" />
+            <span>이전으로</span>
+          </BackButton>
+          <div>마이페이지</div>
+        </MyPageHeader>
+        <UserProfile>
+          <ImageContainer>
+            <UserProfileImage src={currentUser?.photoURL} />
+            <SettingButton onClick={onProfileChangeClick}>
+              <AiOutlineSetting size={20} color="#15b5bf" />
+            </SettingButton>
+          </ImageContainer>
+          <UserNickName>{authService.currentUser?.displayName}</UserNickName>
+          <UserWritten>
+            <CountPost>
+              <span>남긴 질문 +</span>
+              <span>
                 {
-                  petConsult?.data.filter((counsel) => myId === counsel.uid)
-                    .length
+                  petConsult?.data.filter(
+                    (counsel) => authService.currentUser?.uid === counsel.uid,
+                  ).length
                 }
-              </div>
-            </LeaveContainer>
-            <LeaveContainer>
-              <LeaveBox>남긴 리뷰</LeaveBox>
-              <div>
-                +{" "}
+              </span>
+            </CountPost>
+            <CountPost>
+              <span>남긴 리뷰 +</span>
+              <span>
                 {
-                  recentlyReview?.data.filter((review) => myId === review.uid)
-                    .length
+                  recentlyReview?.data.filter(
+                    (review) => authService.currentUser?.uid === review.uid,
+                  ).length
                 }
-              </div>
-            </LeaveContainer>
-          </LeaveWrap>
-          <ButtonBox>
-            <Button onClick={handleHospitalClick}>Q & A</Button>
-            <Button onClick={handleReviewClick}>리뷰</Button>
-          </ButtonBox>
-        </MyPageTop>
-        <MyPageBottom>
-          {selected === "hospital" && <Likedpetpital />}
-          {selected === "review" && <Review />}
-        </MyPageBottom>
-      </MyPageContainer>
-    </>
+              </span>
+            </CountPost>
+          </UserWritten>
+        </UserProfile>
+        <ToggleButtonContainer>
+          <ToggleButton
+            style={{
+              borderBottom:
+                selected === "hospital" ? "4px solid #FFFFFF" : "none",
+            }}
+            onClick={() => setSelected("hospital")}
+          >
+            남긴 질문
+          </ToggleButton>
+          <ToggleButton
+            style={{
+              borderBottom:
+                selected === "review" ? "4px solid #FFFFFF" : "none",
+            }}
+            onClick={() => setSelected("review")}
+          >
+            리뷰
+          </ToggleButton>
+        </ToggleButtonContainer>
+      </HeaderContainer>
+      <SectionContainer>
+        {selected === "hospital" && <Likedpetpital />}
+        {selected === "review" && <Review />}
+      </SectionContainer>
+    </MyPageContainer>
   );
 };
 
-export default Index;
+export default Mypage;
+
+export const SettingButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 90px;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+export const ImageContainer = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+const ToggleButton = styled.button`
+  font-size: 16px;
+  line-height: 19px;
+  color: #ffffff;
+  background-color: transparent;
+  border: none;
+  font-weight: 500;
+  padding: 8px 8px 16px;
+  cursor: pointer;
+  width: 76px;
+`;
+
+const CountPost = styled.div`
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 5px 7px;
+  color: #ffffff;
+  width: 144px;
+  display: flex;
+  gap: 8px;
+`;
+
+export const HeaderContainer = styled.div`
+  background: #15b5bf;
+  margin-top: 80px;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
 
 const MyPageContainer = styled.div`
-  height: 100%;
-  position: relative;
-  background-color: #15b5bf;
+  /* min-height: 100vh; */
+  width: 100vh;
 `;
-const MyPageTop = styled.div`
-  height: 500px;
 
+export const MyPageHeader = styled.div`
+  display: flex;
+  margin: 30px 0 37px 0;
+  width: 100%;
+  justify-content: center;
+  flex-direction: column;
+  & span {
+    color: white;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  & div:nth-of-type(1) {
+    margin: -26px auto 0 auto;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+  }
+`;
+export const UserProfile = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  background-position: center;
 `;
 
-const ProfileImageContainer = styled.div`
-  margin-top: 100px;
-`;
-
-const ProfileId = styled.span`
-  color: white;
-  font-weight: 600;
-`;
-
-const ProfileIdBox = styled.div`
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-`;
-
-const ProfileModifyButton = styled.div`
-  margin-top: 30px;
-  display: flex;
-  color: white;
-  justify-content: center;
-  cursor: pointer;
-  &:hover {
-    color: #9c88ff;
-    transition: 0.5s;
-  }
-`;
-
-const ProfileWrapper = styled.div`
-  margin-top: 30px;
-`;
-
-const ButtonBox = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 160px;
-  margin-top: 80px;
-`;
-
-const Button = styled.button`
-  border: none;
-  color: #15b5bf;
-  font-size: 20px;
-  background-color: white;
-  cursor: pointer;
-  &:hover {
-    color: #9c88ff;
-    transition: 0.5s;
-  }
-`;
-
-const MyPageBottom = styled.div`
-  background-color: white;
-  width: 100%;
-  padding-top: 70px;
-`;
-
-const PicContainer = styled.div`
-  width: 440px;
-  height: 20%;
-`;
-
-const ImageWrap = styled.div`
-  width: 140px;
-  height: 140px;
-  margin: 0 auto;
-`;
-
-const ProfileImage = styled.img`
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  border: 1px solid #d0d0d0;
+export const UserProfileImage = styled.img`
   object-fit: cover;
+  width: 128px;
+  height: 128px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  background-position: center;
+  background-repeat: no-repeat;
 `;
-
-const ButtonWrap = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 12px;
-`;
-
-const FileSelectBtn = styled.label`
-  padding: 4px 12px;
-  font-size: 12px;
-  color: #262b7f;
-  background-color: #fff;
-  border: 1px solid #d0d0d0;
-  border-radius: 10px;
-  cursor: pointer;
-  :hover {
-    color: #fff;
-    background-color: #262b7f;
-    border: 1px solid #262b7f;
-  }
-`;
-
-const UploatBtn = styled.button`
-  padding: 4px 12px;
-  margin-left: 10px;
-  font-size: 12px;
-  color: #262b7f;
-  background-color: #fff;
-  border: 1px solid #d0d0d0;
-  border-radius: 10px;
-  cursor: pointer;
-  :hover {
-    color: #fff;
-    background-color: #262b7f;
-    border: 1px solid #262b7f;
-  }
-`;
-
-const NicknameInput = styled.input`
-  margin-left: 5px;
-`;
-
-const LeaveWrap = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const LeaveBox = styled.div`
-  width: 100px;
-`;
-
-const LeaveCount = styled.span``;
-
-const LeaveContainer = styled.div`
-  display: flex;
-  margin: 60px 20px 0px 5px;
-  background-color: rgba(255, 255, 255, 0.3);
+const UserNickName = styled.div`
+  margin: 24px 0 48px 0;
+  text-align: center;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1.3rem;
   color: white;
-  padding: 5px;
-  border-radius: 5px;
+`;
+const UserWritten = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 70px;
+`;
+const ToggleButtonContainer = styled.div``;
+const SectionContainer = styled.div`
+  padding-bottom: 40px;
+`;
+const Section = styled.div`
+  margin-bottom: 20px;
 `;

@@ -3,10 +3,22 @@ import React from "react";
 import styled from "@emotion/styled";
 import { authService } from "../../firebase/firebase";
 import { useRouter } from "next/router";
+import {
+  CurrentImageContainer,
+  CurrentReview,
+  CurrentReviewComment,
+  CurrentReviewCost,
+  CurrentReviewDesc,
+  CurrentReviewImage,
+  CurrentReviewPetpitalAddress,
+  CurrentReviewPetpitalDesc,
+  CurrentReviewPetpitalName,
+  CurrentReviewTitle,
+} from "..";
 
 const Review = () => {
   const { recentlyReview, isLoading } = useGetReviews(
-    "?_sort=createdAt&_order=desc",
+    "?_sort=date&_order=desc",
   );
 
   const router = useRouter();
@@ -14,40 +26,50 @@ const Review = () => {
   const myId = authService.currentUser?.uid;
 
   return (
-    <div>
+    <MyReivew>
       {isLoading
         ? "로딩중"
         : recentlyReview?.data
             .filter((review) => myId === review.userId)
             .map((review: any) => (
-              <ReviewContainer key={review.id}>
-                <ReviewBox onClick={() => router.push(`/`)}>
-                  <ReviewId>
-                    <ReviewImg src={review.downloadUrl} alt="" />
-                    <ReviewInfo>
-                      <ReviewTitle>{review.title}</ReviewTitle>
-                      <PetpitalInfo>
-                        <PetpitalAddressName>
-                          {review.hospitalName}
-                        </PetpitalAddressName>
-                        <PetpitalAddress>
-                          {review.hospitalAddress}
-                        </PetpitalAddress>
-                      </PetpitalInfo>
-                      <ReviewDesc>{review.contents}</ReviewDesc>
-                      {/* <div>별점 : {review.rating} / 5</div> */}
-                      <PetpitalPrice>
-                        <PetpitalHighPrice>
-                          {review.totalCost}
-                        </PetpitalHighPrice>
-                      </PetpitalPrice>
-                      {/* {review.selectedColors.map((e)=> (<div>{e}</div>))} */}
-                    </ReviewInfo>
-                  </ReviewId>
-                </ReviewBox>
-              </ReviewContainer>
+              <CurrentReview
+                onClick={() =>
+                  router.push({
+                    pathname: "/searchHospital",
+                    query: {
+                      hospitalName:
+                        review.hospitalName +
+                        " " +
+                        review?.hospitalAddress.split(" ")[0],
+                      placeId: review.hospitalId,
+                    },
+                  })
+                }
+                key={review.id}
+              >
+                <CurrentImageContainer>
+                  <CurrentReviewImage src={review?.downloadUrl} />
+                </CurrentImageContainer>
+                <CurrentReviewComment>
+                  <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
+                  <CurrentReviewPetpitalDesc>
+                    <CurrentReviewPetpitalName>
+                      {review?.hospitalName}
+                    </CurrentReviewPetpitalName>
+                    <CurrentReviewPetpitalAddress>
+                      {review?.hospitalAddress?.split(" ")[0] +
+                        " " +
+                        review?.hospitalAddress?.split(" ")[1]}
+                    </CurrentReviewPetpitalAddress>
+                  </CurrentReviewPetpitalDesc>
+                  <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                  <CurrentReviewCost>
+                    {Number(review?.totalCost).toLocaleString("ko-KR")}
+                  </CurrentReviewCost>
+                </CurrentReviewComment>
+              </CurrentReview>
             ))}
-    </div>
+    </MyReivew>
   );
 };
 
@@ -55,7 +77,16 @@ export default Review;
 
 // 리뷰 스타일
 
-const ReviewContainer = styled.div`
+const MyReivew = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 440px;
+  margin: 0 auto;
+  margin-top: 20px;
+`;
+
+const ReviewCoMyReivewntainer = styled.div`
   display: flex;
   justify-content: center;
 `;

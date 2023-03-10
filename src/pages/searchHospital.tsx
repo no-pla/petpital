@@ -5,13 +5,13 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, {
-  ReactElement,
-  JSXElementConstructor,
-  ReactFragment,
-  ReactPortal,
   useState,
   useEffect,
   useRef,
+  ReactElement,
+  ReactFragment,
+  ReactPortal,
+  JSXElementConstructor,
 } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import {
@@ -27,11 +27,14 @@ import { hospitalData, modalState } from "../share/atom";
 import CreatePostModal from "../components/custom/CreatePostModal";
 import EditPostModal from "../components/custom/EditPostModal";
 import { useMutation, useQueryClient } from "react-query";
-import { REVIEW_SERVER } from "../share/server";
+import { REVIEW_SERVER, REVIEW_SITE } from "../share/server";
 import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
 import shortUUID from "short-uuid";
 import { RxShare2 } from "react-icons/rx";
+import Image from "next/image";
+import { AiOutlineArrowLeft, AiOutlineClose } from "react-icons/ai";
+import { authService } from "@/firebase/firebase";
 
 interface IHospital {
   address_name: string;
@@ -49,9 +52,7 @@ interface IHospital {
 }
 
 /* 
-  2. 내 위치 표시
   3. 스카이뷰 지도 전환 컨트롤
-  4. 페이지네이션
 */
 
 export function getServerSideProps({ query }: any) {
@@ -92,6 +93,7 @@ const SearchHospital = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [hospitalList, setHospitalList] = useState<any>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [postId, setPostId] = useState<any>("");
   const [postTitle, setPostTitle] = useState([]);
@@ -107,6 +109,8 @@ const SearchHospital = () => {
   const [hospitalReviewCount, setHospitalReviewCount] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
   const { recentlyReview, isLoading, recentlyRefetch } = useGetReviews("");
+  const [openDeleteReivewModal, setOpenDeleteReivewModal] = useState(true);
+  const [deleteTargetId, setDeleteTargetId] = useState("");
   const [state, setState] = useState({
     center: {
       lat: 33.450701,
@@ -117,12 +121,7 @@ const SearchHospital = () => {
   });
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
-  // console.log(hospitalRate, hospitalReview, hospitalReviewCount);
-
   useEffect(() => {
-    if (target) {
-      setPlace(target);
-    }
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
       navigator.geolocation.getCurrentPosition(
@@ -155,8 +154,9 @@ const SearchHospital = () => {
   }, []);
 
   const HospitalData = targetHospitalData;
-  const userUid = useRecoilValue(currentUserUid);
-  console.log("userUid", userUid);
+  const userUid = authService.currentUser?.uid;
+
+  // console.log("userUid", userUid);
 
   // 바깥으로 빼라!
   const Input = () => {
@@ -172,11 +172,10 @@ const SearchHospital = () => {
   };
 
   useEffect(() => {
-    console.log("id리로드 왜리로드안됨");
-
     // 상세 페이지 열면 hospitalId => 병원 공유 통해서 들어왔을 때 or 병원 클릭 시
     if (hospitalName && placeId) {
       setPlace(hospitalName);
+      setIsSearchOpen(true);
       setIsDetailOpen(true);
     }
 
@@ -227,17 +226,24 @@ const SearchHospital = () => {
   }, [map]);
 
   useEffect(() => {
-    console.log("검색리로드 왜리로드안됨");
-
+    // console.log("검색리로드 왜리로드안됨");
+    if (target) {
+      setPlace(target);
+      setIsSearchOpen(true);
+    }
     // 병원을 검색했을 때 실행
+
     if (!place) return;
     if (!map) return;
+
     const ps = new kakao.maps.services.Places();
     // 키워드에 맞는 동물병원 표시
+
     ps.keywordSearch(place + " 동물병원", (data, status, pagination) => {
+      setNewSearch(place);
+
       if (data.length === 0) {
         setHospitalList([]);
-        // setPlace("");
         return;
       }
       if (status === kakao.maps.services.Status.OK) {
@@ -266,37 +272,48 @@ const SearchHospital = () => {
         map.setBounds(bounds);
       }
     });
-  }, [place, target]);
+  }, [place, target, map]);
 
   useEffect(() => {
-    console.log("리로드 별점왜리로드안됨");
     const tempArray: any[] = [];
-    const tempCountArray: any[] = [];
     // // 병원 아이디 가져오기
     hospitalList.map((hospital: IHospital) => {
       tempArray.push(hospital.id);
     });
 
-    // 별점 저장 / 리뷰 수 저장
+    // 별점 저장 / 리뷰 저장
     const promiseCosts = tempArray.map(async (hospital: any) => {
-      const tempCostArray: any[] | PromiseLike<any[]> = [];
+      const tempRateArray: any[] | PromiseLike<any[]> = [];
+      const tempCountArray: any[] = [];
+
       await axios
-        .get(`${REVIEW_SERVER}posts?hospitalId=${hospital}`)
+        .get(
+          `${REVIEW_SERVER}posts?_sort=date&_order=desc&hospitalId=${hospital}`,
+        )
         .then((res) =>
           res.data.map((data: any) => {
-            // console.log(data);
-            tempCountArray.push(data);
-            tempCostArray.push(data.rating);
+            tempCountArray.push({
+              nickname: data.displayName,
+              reviewImage: data.downloadUrl,
+              profileImage: data.profileImage,
+              id: data.id,
+            });
+            tempRateArray.push(data.rating);
           }),
         );
-      return tempCostArray;
+      return [tempRateArray, tempCountArray];
     });
 
     Promise.all(promiseCosts).then(async (results) => {
-      // console.log(results);
+      const tempRate = results.map((item) => item[0]); // 첫 번째 배열들을 묶음
+      const tempReview = results.map((item) => item[1]); // 두 번째 배열들을 묶음
+
       const tempArray: (string | number)[] = [];
       const tempCount: (string | number)[] = [];
-      results.forEach((cost) => {
+      const tempCurrentReview: any[] = [];
+
+      tempRate.forEach((cost) => {
+        // console.log(cost);
         tempCount.push(cost.length);
         if (cost.length > 0) {
           tempArray.push(
@@ -312,54 +329,26 @@ const SearchHospital = () => {
           tempArray.push("정보 없음");
         }
       });
-      setHospitalReviewCount(tempCount);
-      setHospitalRate(tempArray);
-    });
-
-    // 리뷰 저장
-    const promiseReview = tempArray.map(async (hospital: any) => {
-      const tempReviewArray: any[] = [];
-
-      await axios
-        .get(
-          `${REVIEW_SERVER}posts?_sort=createdAt&_order=desc&hospitalId=${hospital}`,
-        )
-        .then((res) =>
-          res.data.map((data: any) => {
-            if (tempReviewArray.length < 3) {
-              const tempObj = {
-                id: data.id,
-                nickname: data.displayName,
-                profileImage: data.profileImage,
-                photo: data.downloadUrl,
-              };
-              tempReviewArray.push(tempObj);
-            }
-          }),
-        );
-      return tempReviewArray;
-    });
-
-    Promise.all(promiseReview).then(async (results) => {
-      const tempArray: any[] = [];
-      results.forEach((review: string | any[]) => {
+      tempReview.forEach((review: string | any[]) => {
         if (review.length > 0) {
-          tempArray.push(review);
+          tempCurrentReview.push(review.slice(0, 3));
         } else {
-          tempArray.push([
+          tempCurrentReview.push([
             {
-              photo:
+              reviewImage:
                 "https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2Fno_image_info.svg?alt=media&token=c770159e-01d1-443e-89d9-0e14dea7ebdd",
-              id: shortUUID,
+              id: shortUUID.generate(),
             },
           ]);
         }
       });
-      setHospitalReview(tempArray);
+      setHospitalReviewCount(tempCount);
+      setHospitalRate(tempArray);
+      setHospitalReview(tempCurrentReview);
     });
-
-    console.log(tempCountArray);
   }, [hospitalList]);
+
+  // console.log(hospitalReview);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -367,6 +356,7 @@ const SearchHospital = () => {
       setEmptyComment((prev) => !prev);
       return;
     } else if (targetHospital.current?.value !== undefined) {
+      setIsSearchOpen(true);
       setIsDetailOpen(false);
       setPlace(targetHospital.current?.value);
       router.push({
@@ -397,7 +387,6 @@ const SearchHospital = () => {
   };
 
   const onClickWriteButton = () => {
-    console.log(placeId);
     setCreateModalOpen(true);
   };
 
@@ -415,7 +404,8 @@ const SearchHospital = () => {
   const queryClient = useQueryClient();
   // 게시글 삭제
   const { mutate: deleteMutate } = useMutation(
-    (id) => axios.delete(`${REVIEW_SERVER}posts/${id}`).then((res) => res.data),
+    (id: string) =>
+      axios.delete(`${REVIEW_SERVER}posts/${id}`).then((res) => res.data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["getrecentlyReview"]);
@@ -423,8 +413,9 @@ const SearchHospital = () => {
     },
   );
 
-  const handleDelete = async (id: any) => {
-    deleteMutate(id);
+  const handleDelete = async () => {
+    await deleteMutate(deleteTargetId);
+    setOpenDeleteReivewModal((prev: any) => !prev);
   };
 
   // console.log("targetHospitalData", targetHospitalData);
@@ -433,7 +424,7 @@ const SearchHospital = () => {
   const totalReview = recentlyReview?.data.filter(
     (item: any) => item.hospitalId === placeId,
   ).length;
-  console.log("totalReview", totalReview);
+  // console.log("totalReview", totalReview);
 
   // // 유저별 방문수
   // const personTotalReview = recentlyReview?.data.filter(
@@ -457,17 +448,7 @@ const SearchHospital = () => {
           postRating={postRating}
         />
       )}
-      {/* {showConfirmModal && (
-        <ConfirmModal
-          message="정말 삭제하시겠습니까?"
-          onCancel={() => {
-            setShowConfirmModal(false);
-          }}
-          onConfirm={() => {
-            setShowConfirmModal(false);
-          }}
-        />
-      )} */}
+
       <MapContainer>
         <Map // 로드뷰를 표시할 Container
           center={{
@@ -475,8 +456,8 @@ const SearchHospital = () => {
             lng: 126.9786567,
           }}
           style={{
-            width: "100%",
-            height: `calc(100vh - 80px)`,
+            width: "1200px",
+            height: "100vh",
             position: "fixed",
             bottom: 0,
           }}
@@ -484,76 +465,125 @@ const SearchHospital = () => {
           onCreate={setMap}
         >
           {/* <MapTypeControl position={kakao.maps.ControlPosition?.TOPRIGHT} /> */}
+          <SearchForm onSubmit={onSubmit}>
+            <button type="button">
+              <FormLogo
+                onClick={() => router.push("/")}
+                backgroundImage="https://user-images.githubusercontent.com/88391843/224016702-e3591270-1b05-4d05-8bf0-ebe5a68aab54.png"
+              />
+            </button>
+            <Input />
+          </SearchForm>
           <BoardContainer>
-            <DashBoard>
-              <SearchForm onSubmit={onSubmit}>
-                <Input />
-              </SearchForm>
-              {hospitalList.length > 0
-                ? // 1번째 대시보드
-                  hospitalList.map((hospital: IHospital, index: number) => {
-                    return (
-                      <HospitalItem
-                        key={hospital.id}
-                        onClick={() => onClick(hospital)}
-                        style={{
-                          backgroundColor:
-                            index % 2 === 0 ? "#FAFAFA" : "#FFFFFF",
-                        }}
-                      >
-                        <HospotalInfo>
-                          <div>
-                            <HospitalNumber>{`${String.fromCharCode(
-                              65 + index,
-                            )}`}</HospitalNumber>
-                            <HospitalName>{hospital.place_name}</HospitalName>
-                            <HospitalType>동물병원</HospitalType>
-                          </div>
-                          <CopyToClipboard
-                            text={`http://localhost:3000/searchHospital?hospitalName=${hospital.place_name}&placeId=${hospital.id}`}
-                          >
-                            <ShareButton>
-                              <RxShare2 size={16} />
-                            </ShareButton>
-                          </CopyToClipboard>
-                        </HospotalInfo>
-                        <ReviewRate>
-                          <div>★ {hospitalRate[index]}</div>
-                          <ReviewCount>
-                            <div>방문자 리뷰</div>
-                            <span>{hospitalReviewCount[index]}</span>
-                          </ReviewCount>
-                        </ReviewRate>
-                        <ReviewPhoto>
-                          <CurrentReviewContainer>
-                            {hospitalReview[index]?.map((review: any) => {
-                              return (
-                                <CurrentReview
-                                  key={review.id}
-                                  bgImage={review.photo}
-                                >
-                                  <CurrentReviewWriter>
-                                    <CurrentReviewUser
-                                      src={review.profileImage}
-                                    />
-                                    <CurrentReviewNickname>
-                                      {review.nickname}
-                                    </CurrentReviewNickname>
-                                  </CurrentReviewWriter>
-                                </CurrentReview>
-                              );
-                            })}
-                          </CurrentReviewContainer>
-                        </ReviewPhoto>
-                      </HospitalItem>
-                    );
-                  })
-                : "데이터가 없습니다."}
-            </DashBoard>
+            <HospitalListContainer>
+              {isSearchOpen && (
+                <DashBoard>
+                  <DashBoardHeader
+                    style={{
+                      width: "375px",
+                      top: "0",
+                    }}
+                    backgroundColor="#15B5BF"
+                  >
+                    <button onClick={() => router.push("/")}>
+                      <AiOutlineArrowLeft size={24} />
+                      <div>이전으로</div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDetailOpen(false);
+                        setIsSearchOpen((prev) => !prev);
+                      }}
+                    >
+                      <AiOutlineClose size={24} />
+                    </button>
+                  </DashBoardHeader>
+                  {hospitalList.length > 0 ? (
+                    // 1번째 대시보드
+                    hospitalList.map((hospital: IHospital, index: number) => {
+                      return (
+                        <HospitalItem
+                          key={hospital.id}
+                          onClick={() => onClick(hospital)}
+                          style={{
+                            backgroundColor:
+                              index % 2 === 0 ? "#FAFAFA" : "#FFFFFF",
+                          }}
+                        >
+                          <HospotalInfo>
+                            <div>
+                              <HospitalNumber>{`${String.fromCharCode(
+                                65 + index,
+                              )}`}</HospitalNumber>
+                              <HospitalName>
+                                {hospital?.place_name}
+                              </HospitalName>
+                              <HospitalType>동물병원</HospitalType>
+                            </div>
+                            <CopyToClipboard
+                              text={`${REVIEW_SITE}searchHospital/?hospitalName=${hospital.place_name}&placeId=${hospital.id}`}
+                            >
+                              <ShareButton>
+                                <RxShare2 size={16} />
+                              </ShareButton>
+                            </CopyToClipboard>
+                          </HospotalInfo>
+                          <ReviewRate>
+                            <div>★ {hospitalRate[index]}</div>
+                            <ReviewCount>
+                              <div>방문자 리뷰</div>
+                              <span>{hospitalReviewCount[index]}</span>
+                            </ReviewCount>
+                          </ReviewRate>
+                          <ReviewPhoto>
+                            <CurrentReviewContainer>
+                              {hospitalReview &&
+                                hospitalReview[index]?.map((review: any) => {
+                                  return (
+                                    <CurrentReview
+                                      key={review.id}
+                                      bgImage={review?.reviewImage}
+                                    >
+                                      <CurrentReviewWriter>
+                                        <CurrentReviewUser
+                                          src={review?.profileImage}
+                                        />
+                                        <CurrentReviewNickname>
+                                          {review?.nickname}
+                                        </CurrentReviewNickname>
+                                      </CurrentReviewWriter>
+                                    </CurrentReview>
+                                  );
+                                })}
+                            </CurrentReviewContainer>
+                          </ReviewPhoto>
+                        </HospitalItem>
+                      );
+                    })
+                  ) : (
+                    <NoData>검색 결과가 없습니다.</NoData>
+                  )}
+                </DashBoard>
+              )}
+            </HospitalListContainer>
             {isDetailOpen && (
               // 2번째 대시보드
               <DashBoard>
-                {/* <div>{targetHospitalData.place_name}</div> */}
+                <DashBoardHeader
+                  style={{
+                    width: "375px",
+                    top: "0",
+                  }}
+                  backgroundColor={"transparent"}
+                >
+                  <button onClick={() => setIsDetailOpen((prev) => !prev)}>
+                    <AiOutlineArrowLeft size={24} />
+                    <div>이전으로</div>
+                  </button>
+                  <button onClick={() => setIsDetailOpen((prev) => !prev)}>
+                    <AiOutlineClose size={24} />
+                  </button>
+                </DashBoardHeader>
                 <Roadview // 로드뷰를 표시할 Container
                   position={{
                     // 지도의 중심좌표
@@ -593,7 +623,7 @@ const SearchHospital = () => {
                       }}
                     >
                       <div style={{ opacity: "0.6" }}>
-                        {targetHospitalData.address_name}
+                        {targetHospitalData?.address_name}
                       </div>
                     </div>
                   </HospitalInfoTopWrap>
@@ -602,15 +632,6 @@ const SearchHospital = () => {
                   <div style={{ display: "flex" }}>
                     <div style={{ color: "#15B5BF", fontSize: "15px" }}>
                       영수증리뷰({totalReview})
-                    </div>
-                    <div
-                      style={{
-                        color: "lightgray",
-                        marginLeft: "10px",
-                        fontSize: "15px",
-                      }}
-                    >
-                      최신순
                     </div>
                   </div>
                   <WriteButton onClick={onClickWriteButton}>
@@ -621,7 +642,7 @@ const SearchHospital = () => {
                 {!isLoading &&
                   recentlyReview?.data
                     .filter(
-                      (target) => target.hospitalId === targetHospitalData.id,
+                      (target) => target?.hospitalId === targetHospitalData?.id,
                     )
                     .map((review) => {
                       return (
@@ -630,7 +651,7 @@ const SearchHospital = () => {
                             <ReviewBox>
                               <ReviewTopContainer>
                                 <ReviewProfileLeft>
-                                  <img
+                                  <Image
                                     src={
                                       review.profileImage
                                         ? review.profileImage
@@ -642,26 +663,28 @@ const SearchHospital = () => {
                                     style={{
                                       borderRadius: "50%",
                                     }}
-                                  ></img>
+                                  ></Image>
                                   <div style={{ marginLeft: "10px" }}>
-                                    {review.displayName}
+                                    {review?.displayName}
                                   </div>
                                 </ReviewProfileLeft>
                                 <ReviewProfileRight>
-                                  진료비 {review.totalCost}원
+                                  {Number(review.totalCost)?.toLocaleString(
+                                    "ko-KR",
+                                  )}
+                                  원
                                 </ReviewProfileRight>
                               </ReviewTopContainer>
                               <ReviewMiddleContainer>
-                                <img
-                                  src={review.downloadUrl}
+                                <Image
+                                  src={review?.downloadUrl}
                                   alt="게시글 이미지"
                                   width={339}
                                   height={200}
                                 />
-                                <div>{review.title}</div>
+                                <div>{review?.title}</div>
                                 <div
                                   style={{
-                                    // backgroundColor: "red",
                                     width: "339px",
                                     marginTop: "5px",
                                     fontSize: "13px",
@@ -707,8 +730,13 @@ const SearchHospital = () => {
                                       }
                                     })}
                                   </div>
-                                  <div style={{ marginRight: "15px" }}>
-                                    ⭐{review.rating}/5
+                                  <div
+                                    style={{
+                                      color: "#15b5bf",
+                                      marginRight: "15px",
+                                    }}
+                                  >
+                                    ★{review.rating}/5
                                   </div>
                                 </div>
                                 <div
@@ -721,7 +749,6 @@ const SearchHospital = () => {
                                   <div
                                     style={{
                                       display: "flex",
-                                      // backgroundColor: "red",
                                     }}
                                   >
                                     <div
@@ -730,7 +757,7 @@ const SearchHospital = () => {
                                         color: "gray",
                                       }}
                                     >
-                                      {review.date.slice(6, 8)}월{" "}
+                                      {review.date.slice(6, 8)}월
                                       {review.date.slice(10, 12)}일
                                     </div>
                                     <div
@@ -739,11 +766,9 @@ const SearchHospital = () => {
                                         color: "gray",
                                         marginLeft: "5px",
                                       }}
-                                    >
-                                      {/* • {personTotalReview}번째 방문 */}
-                                    </div>
+                                    ></div>
                                   </div>
-                                  {userUid === review.userId ? (
+                                  {userUid === review?.userId ? (
                                     <div style={{ display: "flex" }}>
                                       <div
                                         style={{
@@ -759,8 +784,10 @@ const SearchHospital = () => {
                                       <div
                                         style={{ cursor: "pointer" }}
                                         onClick={() => {
-                                          handleDelete(review.id);
-                                          // setShowConfirmModal(true);
+                                          setDeleteTargetId(review.id);
+                                          setOpenDeleteReivewModal(
+                                            (prev) => !prev,
+                                          );
                                         }}
                                       >
                                         <CiTrash size={18} />
@@ -772,9 +799,6 @@ const SearchHospital = () => {
                                 </div>
                               </ReviewBottomContainer>
                             </ReviewBox>
-                            {/* <WriteButton onClick={onClickWriteButton}>
-                              리뷰 참여하기
-                            </WriteButton> */}
                           </ReviewContainer>
                         </>
                       );
@@ -797,51 +821,115 @@ const SearchHospital = () => {
                 | undefined;
               position: { lat: any; lng: any };
             }) => (
-              <MapMarker
-                key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
-                position={marker.position}
-                onClick={() => setInfo(marker)}
-                image={{
-                  src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
-                  size: {
-                    width: 56,
-                    height: 56,
-                  }, // 마커이미지의 크기입니다
-                  options: {
-                    offset: {
-                      x: 27,
-                      y: 69,
-                    }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-                  },
-                }}
-              >
-                {info && info.content === marker.content && (
-                  <CustomOverlayMap
-                    position={{
-                      lat: marker.position.lat,
-                      lng: marker.position.lng,
-                    }}
-                    yAnchor={1}
-                  >
-                    <MarkerItem className="title">{marker.content}</MarkerItem>
-                  </CustomOverlayMap>
-                )}
-              </MapMarker>
+              <>
+                <CustomOverlayMap
+                  key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
+                  position={{
+                    lat: marker.position.lat,
+                    lng: marker.position.lng,
+                  }}
+                >
+                  <MarkerItem className="overlay">{marker.content}</MarkerItem>
+                </CustomOverlayMap>
+                <MapMarker // 마커를 생성합니다
+                  key={`${marker.position.lng},${marker.position.lat}=marker-${marker.content}`}
+                  position={{
+                    // 마커가 표시될 위치입니다
+                    lat: marker.position.lat,
+                    lng: marker.position.lng,
+                  }}
+                  image={{
+                    src: "https://user-images.githubusercontent.com/88391843/223596598-ab6d0473-fb00-4e1b-bd99-9effebe7ca1f.svg", // 마커이미지의 주소입니다
+                    size: {
+                      width: 64,
+                      height: 69,
+                    }, // 마커이미지의 크기입니다
+                    options: {
+                      offset: {
+                        x: 27,
+                        y: 69,
+                      }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+                    },
+                  }}
+                />
+              </>
             ),
           )}
           {/* 현재 접속 위치 표시 */}
           {!state.isLoading && (
             <MapMarker position={state.center}>
-              <div style={{ padding: "5px", color: "#000" }}>
+              <div style={{ textAlign: "center" }}>
                 {state.errMsg ? state.errMsg : "현재 위치입니다."}
               </div>
             </MapMarker>
           )}
         </Map>
       </MapContainer>
+      {!openDeleteReivewModal && (
+        <CustomModal
+          modalText1={"입력하신 리뷰를"}
+          modalText2={"삭제 하시겠습니까?"}
+        >
+          <ModalButton
+            onClick={() => setOpenDeleteReivewModal((prev: any) => !prev)}
+          >
+            취소
+          </ModalButton>
+          <ModalButton onClick={handleDelete}>삭제</ModalButton>
+        </CustomModal>
+      )}
     </>
   );
 };
+
+const NoData = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+`;
+
+const HospitalListContainer = styled.div`
+  margin-top: 100px;
+  padding-bottom: 20px;
+`;
+
+const FormLogo = styled.div<{ backgroundImage: string }>`
+  /* background-color: rebeccapurple; */
+  background-image: url(${(props) => props.backgroundImage});
+  width: 40px;
+  height: 40px;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+`;
+
+const DashBoardHeaderContainer = styled.header`
+  width: calc(min(1200px, 100vw));
+`;
+
+const DashBoardHeader = styled.div<{ backgroundColor: string }>`
+  height: 50px;
+  background-color: ${(props) => props.backgroundColor};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  position: fixed;
+  & > button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: white;
+  }
+  & > button:nth-of-type(1) {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+`;
 
 const MarkerItem = styled.div`
   border: 2px solid #15b5bf;
@@ -968,9 +1056,7 @@ const DashBoard = styled.div`
   background-color: white;
   box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid gray;
-  padding-top: 80px;
   overflow-y: scroll;
-  /* display: none; */
   overflow: auto;
   position: relative;
 `;
@@ -987,10 +1073,18 @@ const MapContainer = styled.div`
 `;
 
 const SearchForm = styled.form`
-  top: 0;
+  position: fixed;
+  top: 50px;
   z-index: 100;
+  width: 375px;
   padding: 8px;
   background-color: #15b5bf;
+  display: flex;
+  box-sizing: border-box;
+  > button {
+    background-color: transparent;
+    border: none;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -1061,8 +1155,11 @@ const ReviewProfileLeft = styled.div`
 `;
 
 const ReviewProfileRight = styled.div`
+  &::before {
+    content: "진료비 ";
+  }
   background-color: #15b5bf;
-  width: 105px;
+  width: 120px;
   border: 1px solid #15b5bf;
   border-radius: 5px;
   font-size: 12px;
@@ -1071,6 +1168,7 @@ const ReviewProfileRight = styled.div`
   align-items: center;
   color: #fff;
   justify-content: center;
+  gap: 4px;
 `;
 
 const HospitalInfoTop = styled.div`

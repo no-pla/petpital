@@ -45,7 +45,7 @@ const CounselPost = () => {
   const { CounselList: targetTime } = useGetCounselTarget(id);
   const { mutate: deleteCounsel } = useDeletCounsel();
 
-  console.log("메인 리렌더");
+  // console.log("메인 리렌더");
 
   const fetchInfiniteComment = async (targetTime: any) => {
     return await axios.get(

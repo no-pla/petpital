@@ -23,6 +23,11 @@ export const BackButton = styled.button`
   padding: 4px 8px;
   border: none;
   cursor: pointer;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-items: left;
+  margin-left: 20px;
 `;
 
 export const HeaderButton = styled.button`

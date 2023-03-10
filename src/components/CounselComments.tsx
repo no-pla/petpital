@@ -55,7 +55,7 @@ const CounselCommentFormContainer = ({ target }: any) => {
         createdAt: Date.now(),
         cocoment: [],
       };
-      console.log(newComment);
+      // console.log(newComment);
       await addNewComment(newComment);
     }
   };
@@ -192,7 +192,10 @@ const CounselCommentItem = ({ comment }: any) => {
                 {onSetting && (
                   <PostSettingButtons>
                     <PostSettingButton
-                      onClick={() => setIsEdit((prev) => !prev)}
+                      onClick={() => {
+                        setIsEdit((prev) => !prev);
+                        setOnSetting(false);
+                      }}
                     >
                       수정하기
                     </PostSettingButton>
@@ -388,7 +391,10 @@ const CounselCoCommentItem = ({ comment, coco }: any) => {
                   {onSetting && (
                     <PostSettingButtons>
                       <PostSettingButton
-                        onClick={() => setIsEdit((prev) => !prev)}
+                        onClick={() => {
+                          setIsEdit((prev) => !prev);
+                          setOnSetting(false);
+                        }}
                       >
                         수정
                       </PostSettingButton>
