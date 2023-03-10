@@ -11,7 +11,7 @@ interface IReview {
     selectedColors: string[];
     downloadUrl: string;
     hospitalId: string;
-    id: number;
+    id: string;
     userId: any;
     profileImage: string;
     displayName: string;

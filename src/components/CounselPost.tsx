@@ -106,7 +106,7 @@ const CounselPost = () => {
   const router = useRouter();
   const id = router.query.id;
   const { CounselList, isRefetching } = useGetCounselTarget(id);
-  console.log("infiniteComments", isRefetching);
+  // console.log("infiniteComments", isRefetching);
   // console.log("포스트 리렌더");
 
   // const addLike = (linkedUser: string[], counselData: any) => {

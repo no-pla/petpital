@@ -6,7 +6,6 @@ export const MainBannerContiner = ({ children, backgroundImg }: any) => {
 
 const MainBanner = styled.div<{ backgroundImg: string }>`
   padding-top: 100px;
-  padding-left: 60px;
   background-image: url(${(props) => props.backgroundImg});
   background-position: center;
   object-fit: cover;

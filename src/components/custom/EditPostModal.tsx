@@ -169,7 +169,7 @@ const EditPostModal = ({
     // console.log("response", response);
     await queryClient.invalidateQueries(["getrecentlyReview"]);
     localStorage.removeItem("Photo");
-    console.log("포스트완료");
+    // console.log("포스트완료");
     // await recentlyRefetch();
     setIsEdit(false);
 
@@ -219,7 +219,7 @@ const EditPostModal = ({
       const downloadUrl = await getDownloadURL(response.ref);
 
       if (downloadUrl) {
-        console.log("downloadUrl", downloadUrl);
+        // console.log("downloadUrl", downloadUrl);
         // setEditDownloadUrl(downloadUrl);
         handleEditSubmit(downloadUrl);
       }
@@ -429,7 +429,7 @@ const EditPostModal = ({
                     value={editSelectValue}
                     onChange={(selectedOptions) =>
                       setEditSelectValue(
-                        selectedOptions.map((option) => option.value),
+                        Array.isArray(selectedOptions) ? selectedOptions : [],
                       )
                     }
                     closeMenuOnSelect={false}

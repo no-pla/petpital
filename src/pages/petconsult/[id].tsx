@@ -12,6 +12,7 @@ import CounselPost from "../../components/CounselPost";
 import { authService } from "../../firebase/firebase";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { QuestionButton } from "./index";
+import { BsArrowLeftCircle } from "react-icons/bs";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -74,7 +75,7 @@ const PetconsultDetail = () => {
               })
             }
           >
-            &larr; 이전으로
+            <BsArrowLeftCircle /> 이전으로
           </BackButton>
           <QuestionButton onClick={goToNewQnAPage}>질문하기</QuestionButton>
         </CustomHeader>
@@ -125,8 +126,8 @@ export const CounselInfo = styled.div`
 `;
 
 const CounselContainer = styled.div`
-  @media screen and (max-width: 375px) {
-    margin-bottom: 120px;
+  @media screen and (min-width: 375px) {
+    margin-bottom: 60px;
   }
 `;
 

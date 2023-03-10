@@ -20,9 +20,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <Layout>
           <Component {...pageProps} />
-          {/* <PasswordFindModal /> */}
         </Layout>
-        <ReactQueryDevtools />
       </QueryClientProvider>
     </RecoilRoot>
   );

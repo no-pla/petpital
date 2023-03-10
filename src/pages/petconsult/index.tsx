@@ -162,11 +162,11 @@ export const CurrentReviewContent = styled.span``;
 export const QuestionButton = styled.button`
   color: white;
   position: fixed;
-  bottom: 100px;
-  width: 124px;
-  height: 124px;
+  bottom: 60px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  right: 15px;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,9 +176,9 @@ export const QuestionButton = styled.button`
   font-weight: 700;
   gap: 8px;
   cursor: pointer;
+  z-index: 1000;
 
   @media screen and (max-width: 1200px) {
-    /* margin-bottom: 120px; */
     /* right: 12%; */
     right: 40px;
   }
@@ -229,7 +229,6 @@ function Petconsult() {
 
   useEffect(() => {
     refetch();
-    console.log("qna 답변 리스트 리로드");
     // forEach를 사용하면 이전 작업이 끝나는 것을 기다리고 실행되지 않기 때문에 Promise.all을 사용해주어야 한다.
     const tempArray: string[] = [];
     if (petConsult) {

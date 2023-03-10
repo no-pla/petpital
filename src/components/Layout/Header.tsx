@@ -1,15 +1,29 @@
 import { authService } from "../../firebase/firebase";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CustomModal, { ModalButton } from "../custom/ErrorModal";
 import Image from "next/image";
 import { CiSearch } from "react-icons/ci";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function Header() {
   const [openModalLogout, setOpenModalLogout] = useState(false);
   const router = useRouter();
   const targetHospital = useRef<HTMLInputElement>(null);
+  const currentUser = useAuth();
+
+  function useAuth() {
+    const [currentUser, setCurrentUser] = useState<any>();
+    useEffect(() => {
+      const unsub = onAuthStateChanged(authService, (user) =>
+        setCurrentUser(user),
+      );
+      return unsub;
+    }, []);
+
+    return currentUser;
+  }
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -102,12 +116,10 @@ export default function Header() {
           />
           <HeaderItem
             onClick={() =>
-              authService.currentUser === null
-                ? router.push("/login")
-                : onLogOutClick()
+              currentUser === null ? router.push("/login") : onLogOutClick()
             }
           >
-            {authService.currentUser === null ? "로그인" : "로그아웃"}
+            {currentUser === null ? "로그인" : "로그아웃"}
           </HeaderItem>
         </HeaderItems>
       </HeaderContainer>

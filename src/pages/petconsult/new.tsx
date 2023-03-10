@@ -59,7 +59,6 @@ const NewPetsult = () => {
       await addCounsel(newCounsel);
 
       router.push(`/petconsult/${newCounsel.id}`);
-      console.log("이동");
     }
   };
 

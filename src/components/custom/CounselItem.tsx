@@ -204,4 +204,6 @@ const CurrentReviewNickname = styled.span`
   padding-right: 4px;
 `;
 
-const CurrentReviewContent = styled.span``;
+const CurrentReviewContent = styled.div`
+  padding-top: 4px;
+`;
