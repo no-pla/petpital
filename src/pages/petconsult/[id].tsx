@@ -1,7 +1,7 @@
 import { useDeletCounsel } from "../../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import {
   BackButton,
@@ -13,6 +13,7 @@ import { authService } from "../../firebase/firebase";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { QuestionButton } from "./index";
 import { BsArrowLeftCircle } from "react-icons/bs";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -48,8 +49,22 @@ const PetconsultDetail = () => {
   //   setTargetId(id);
   // };
 
+  const currentUser = useAuth();
+
+  function useAuth() {
+    const [currentUser, setCurrentUser] = useState<any>();
+    useEffect(() => {
+      const unsub = onAuthStateChanged(authService, (user) =>
+        setCurrentUser(user),
+      );
+      return unsub;
+    }, []);
+
+    return currentUser;
+  }
+
   const goToNewQnAPage = () => {
-    if (authService.currentUser !== null) {
+    if (currentUser !== null) {
       router.push("/petconsult/new");
     } else {
       setIsLogin(true);

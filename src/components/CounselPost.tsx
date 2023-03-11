@@ -6,7 +6,7 @@ import {
 } from "../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CounselComments from "./CounselComments";
 import CustomModal, { ModalButton } from "./custom/ErrorModal";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -26,6 +26,7 @@ export const UserProfile = ({ profileLink }: any) => {
         loading={"lazy"}
         sizes="(max-width: 768px) 64px,
         (max-width: 1200px) 64px"
+        style={{ objectFit: "cover" }}
       />
     </UserProfileImg>
   );
@@ -105,29 +106,10 @@ const CounselSettingButton = ({ counselData }: any) => {
 const CounselPost = () => {
   const router = useRouter();
   const id = router.query.id;
-  const { CounselList, isRefetching } = useGetCounselTarget(id);
-  // console.log("infiniteComments", isRefetching);
-  // console.log("포스트 리렌더");
-
-  // const addLike = (linkedUser: string[], counselData: any) => {
-  //   const newCounselData = {
-  //     ...counselData,
-  //     linkedUser: [...linkedUser, authService.currentUser?.uid],
-  //   };
-  //   editCounsel(newCounselData);
-  // };
-
-  // const removeLike = (linkedUser: string[], counselData: any) => {
-  //   const removeUser = linkedUser.filter(
-  //     (target) => target !== authService.currentUser?.uid,
-  //   );
-  //   const newCounselData = {
-  //     ...counselData,
-  //     linkedUser: [...removeUser],
-  //   };
-
-  //   editCounsel(newCounselData);
-  // };
+  const { CounselList, isRefetching, counselRefetch } = useGetCounselTarget(id);
+  useEffect(() => {
+    counselRefetch();
+  }, []);
 
   return (
     <>
@@ -158,7 +140,7 @@ const CounselPost = () => {
               </CounselSetting>
             </CounselHeader>
             {/* 좋아요 */}
-            <CounselText>{String(counselData.content)}</CounselText>
+            <CounselText>{String(counselData?.content)}</CounselText>
             {/* 댓글 */}
             <CounselComments target={counselData.id} />
           </Counsel>

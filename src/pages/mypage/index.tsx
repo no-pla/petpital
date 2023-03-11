@@ -68,7 +68,7 @@ const Mypage = () => {
             </CountPost>
             <CountPost>
               <span>남긴 리뷰 +</span>
-              <span>{recentlyReview?.data.length}</span>
+              <span>{recentlyReview?.length}</span>
             </CountPost>
           </UserWritten>
         </UserProfile>

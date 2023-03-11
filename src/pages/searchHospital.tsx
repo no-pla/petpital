@@ -118,9 +118,8 @@ const SearchHospital = () => {
   const [hospitalReview, setHospitalReview] = useState<any[]>([]);
   const [hospitalReviewCount, setHospitalReviewCount] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
-  const { recentlyReview, isLoading, recentlyRefetch } = useGetReviews(
-    `?_sort=date&_order=desc&hospitalId=${placeId}`,
-  );
+  const { recentlyReview, isLoading, recentlyRefetch, isrecentlyRefetch } =
+    useGetReviews(`?_sort=date&_order=desc&hospitalId=${placeId}`);
   const [openDeleteReivewModal, setOpenDeleteReivewModal] = useState(true);
   const [deleteTargetId, setDeleteTargetId] = useState("");
   const [state, setState] = useState({
@@ -134,6 +133,7 @@ const SearchHospital = () => {
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
   useEffect(() => {
+    recentlyRefetch();
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
       navigator.geolocation.getCurrentPosition(
@@ -298,27 +298,31 @@ const SearchHospital = () => {
       const tempRateArray: any[] | PromiseLike<any[]> = [];
       const tempCountArray: any[] = [];
 
-      await axios
-        .get(
-          `${REVIEW_SERVER}posts?_sort=date&_order=desc&hospitalId=${hospital}`,
-        )
-        .then((res) =>
-          res.data.map((data: any) => {
+      const res = await axios.get(
+        `${REVIEW_SERVER}posts?_sort=date&_order=desc&hospitalId=${hospital}`,
+      );
+
+      for (const review of res.data) {
+        await axios
+          .get(`${REVIEW_SERVER}users/${review.userId}`)
+          .then((res: any) => {
             tempCountArray.push({
-              nickname: data.displayName,
-              reviewImage: data.downloadUrl,
-              profileImage: data.profileImage,
-              id: data.id,
+              nickname: res.data?.nickname,
+              reviewImage: review.downloadUrl,
+              profileImage: res.data?.profileImage,
+              reviewId: review.id,
+              id: review.userId,
             });
-            tempRateArray.push(data.rating);
-          }),
-        );
+            tempRateArray.push(review.rating);
+          });
+      }
+
       return [tempRateArray, tempCountArray];
     });
 
     Promise.all(promiseCosts).then(async (results) => {
       const tempRate = results.map((item) => item[0]); // 첫 번째 배열들을 묶음
-      const tempReview = results.map((item) => item[1]); // 두 번째 배열들을 묶음
+      const tempReview: any = results.map((item) => item[1]); // 두 번째 배열들을 묶음
 
       const tempArray: (string | number)[] = [];
       const tempCount: (string | number)[] = [];
@@ -433,7 +437,7 @@ const SearchHospital = () => {
   // console.log("targetHospitalData", targetHospitalData);
 
   // 리뷰수
-  const totalReview = recentlyReview?.data.filter(
+  const totalReview = recentlyReview?.filter(
     (item: any) => item.hospitalId === placeId,
   ).length;
   // console.log("totalReview", totalReview);
@@ -553,7 +557,7 @@ const SearchHospital = () => {
                                 hospitalReview[index]?.map((review: any) => {
                                   return (
                                     <CurrentReview
-                                      key={review.id}
+                                      key={review.reviewId}
                                       bgImage={review?.reviewImage}
                                     >
                                       <CurrentReviewWriter>
@@ -652,169 +656,168 @@ const SearchHospital = () => {
                 </ReviewInfoWrap>
 
                 {!isLoading &&
-                  recentlyReview?.data
-                    .map((review) => {
-                      return (
-                        <>
-                          <ReviewContainer key={review.id}>
-                            <ReviewBox>
-                              <ReviewTopContainer>
-                                <ReviewProfileLeft>
-                                  <Image
-                                    src={
-                                      review.profileImage
-                                        ? review.profileImage
-                                        : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
-                                    }
-                                    alt="프로필 이미지"
-                                    width={40}
-                                    height={40}
-                                    style={{
-                                      borderRadius: "50%",
-                                      objectFit: "cover",
-                                    }}
-                                  ></Image>
-                                  <div style={{ marginLeft: "10px" }}>
-                                    {review?.displayName}
-                                  </div>
-                                </ReviewProfileLeft>
-                                <ReviewProfileRight>
-                                  {Number(review.totalCost)?.toLocaleString(
-                                    "ko-KR",
-                                  )}
-                                  원
-                                </ReviewProfileRight>
-                              </ReviewTopContainer>
-                              <ReviewMiddleContainer>
+                  recentlyReview?.map((review: any) => {
+                    return (
+                      <>
+                        <ReviewContainer key={review.id}>
+                          <ReviewBox>
+                            <ReviewTopContainer>
+                              <ReviewProfileLeft>
                                 <Image
-                                  src={review?.downloadUrl}
-                                  alt="게시글 이미지"
-                                  width={339}
-                                  height={200}
-                                  style={{ objectFit: "cover" }}
-                                />
-                                <div>{review?.title}</div>
+                                  src={
+                                    review.profileImage
+                                      ? review.profileImage
+                                      : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
+                                  }
+                                  alt="프로필 이미지"
+                                  width={40}
+                                  height={40}
+                                  style={{
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                  }}
+                                ></Image>
+                                <div style={{ marginLeft: "10px" }}>
+                                  {review?.displayName}
+                                </div>
+                              </ReviewProfileLeft>
+                              <ReviewProfileRight>
+                                {Number(review.totalCost)?.toLocaleString(
+                                  "ko-KR",
+                                )}
+                                원
+                              </ReviewProfileRight>
+                            </ReviewTopContainer>
+                            <ReviewMiddleContainer>
+                              <Image
+                                src={review?.downloadUrl}
+                                alt="게시글 이미지"
+                                width={339}
+                                height={200}
+                                style={{ objectFit: "cover" }}
+                              />
+                              <div>{review?.title}</div>
+                              <div
+                                style={{
+                                  width: "339px",
+                                  marginTop: "5px",
+                                  fontSize: "13px",
+                                  padding: "3px",
+                                  overflowY: "scroll",
+                                }}
+                              >
+                                {review.contents}
+                              </div>
+                            </ReviewMiddleContainer>
+                            <ReviewBottomContainer>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <div style={{ display: "flex" }}>
+                                  {review.selectedColors?.map((color: any) => {
+                                    if (color === "깨끗해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    } else if (color === "친절해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    } else if (color === "꼼꼼해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    } else if (color === "저렴해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    }
+                                  })}
+                                </div>
                                 <div
                                   style={{
-                                    width: "339px",
-                                    marginTop: "5px",
-                                    fontSize: "13px",
-                                    padding: "3px",
+                                    color: "#15b5bf",
+                                    marginRight: "15px",
                                   }}
                                 >
-                                  {review.contents}
+                                  ★{review.rating}/5
                                 </div>
-                              </ReviewMiddleContainer>
-                              <ReviewBottomContainer>
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  padding: "10px",
+                                }}
+                              >
                                 <div
                                   style={{
                                     display: "flex",
-                                    justifyContent: "space-between",
                                   }}
                                 >
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      color: "gray",
+                                    }}
+                                  >
+                                    {review.date.slice(6, 8)}월
+                                    {review.date.slice(10, 12)}일
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      color: "gray",
+                                      marginLeft: "5px",
+                                    }}
+                                  ></div>
+                                </div>
+                                {userUid === review?.userId ? (
                                   <div style={{ display: "flex" }}>
-                                    {review.selectedColors?.map((color) => {
-                                      if (color === "깨끗해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      } else if (color === "친절해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      } else if (color === "꼼꼼해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      } else if (color === "저렴해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      }
-                                    })}
-                                  </div>
-                                  <div
-                                    style={{
-                                      color: "#15b5bf",
-                                      marginRight: "15px",
-                                    }}
-                                  >
-                                    ★{review.rating}/5
-                                  </div>
-                                </div>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    padding: "10px",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                    }}
-                                  >
                                     <div
                                       style={{
-                                        fontSize: "13px",
-                                        color: "gray",
+                                        cursor: "pointer",
+                                        marginRight: "5px",
+                                      }}
+                                      onClick={() => {
+                                        onClickEditButton(review);
                                       }}
                                     >
-                                      {review.date.slice(6, 8)}월
-                                      {review.date.slice(10, 12)}일
+                                      <CiEdit size={18} />
                                     </div>
                                     <div
-                                      style={{
-                                        fontSize: "13px",
-                                        color: "gray",
-                                        marginLeft: "5px",
+                                      style={{ cursor: "pointer" }}
+                                      onClick={() => {
+                                        setDeleteTargetId(review.id);
+                                        setOpenDeleteReivewModal(
+                                          (prev) => !prev,
+                                        );
                                       }}
-                                    ></div>
-                                  </div>
-                                  {userUid === review?.userId ? (
-                                    <div style={{ display: "flex" }}>
-                                      <div
-                                        style={{
-                                          cursor: "pointer",
-                                          marginRight: "5px",
-                                        }}
-                                        onClick={() => {
-                                          onClickEditButton(review);
-                                        }}
-                                      >
-                                        <CiEdit size={18} />
-                                      </div>
-                                      <div
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => {
-                                          setDeleteTargetId(review.id);
-                                          setOpenDeleteReivewModal(
-                                            (prev) => !prev,
-                                          );
-                                        }}
-                                      >
-                                        <CiTrash size={18} />
-                                      </div>
+                                    >
+                                      <CiTrash size={18} />
                                     </div>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </ReviewBottomContainer>
-                            </ReviewBox>
-                          </ReviewContainer>
-                        </>
-                      );
-                    })
-                    .reverse()}
+                                  </div>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+                            </ReviewBottomContainer>
+                          </ReviewBox>
+                        </ReviewContainer>
+                      </>
+                    );
+                  })}
               </DashBoard>
             )}
           </BoardContainer>

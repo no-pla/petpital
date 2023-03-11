@@ -10,7 +10,15 @@ import styled from "@emotion/styled";
 import { useGetPetConsult } from "../hooks/usePetsult";
 import { useRouter } from "next/router";
 import { useGetMainHospital } from "../components/api/getMainHosiptal";
-import { useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactFragment,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import { HeaderTitle } from "../components/custom/CustomHeader";
 import axios from "axios";
 import { MainBannerContiner } from "../components/MainBanner";
@@ -233,46 +241,80 @@ function Home() {
       <Section>
         <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
         <CurrentReivewContainer>
-          {recentlyReview?.data?.map((review) => {
-            return (
-              <CurrentReview
-                onClick={() =>
-                  router.push({
-                    pathname: "/searchHospital",
-                    query: {
-                      hospitalName:
-                        review.hospitalName +
-                        " " +
-                        review?.hospitalAddress.split(" ")[0],
-                      placeId: review.hospitalId,
-                    },
-                  })
-                }
-                key={review.id}
-              >
-                <CurrentImageContainer>
-                  <CurrentReviewImage src={review?.downloadUrl} />
-                </CurrentImageContainer>
-                <CurrentReviewComment>
-                  <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
-                  <CurrentReviewPetpitalDesc>
-                    <CurrentReviewPetpitalName>
-                      {review?.hospitalName}
-                    </CurrentReviewPetpitalName>
-                    <CurrentReviewPetpitalAddress>
-                      {review?.hospitalAddress?.split(" ")[0] +
-                        " " +
-                        review?.hospitalAddress?.split(" ")[1]}
-                    </CurrentReviewPetpitalAddress>
-                  </CurrentReviewPetpitalDesc>
-                  <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
-                  <CurrentReviewCost>
-                    {Number(review?.totalCost).toLocaleString("ko-KR")}
-                  </CurrentReviewCost>
-                </CurrentReviewComment>
-              </CurrentReview>
-            );
-          })}
+          {recentlyReview?.map(
+            (review: {
+              hospitalName:
+                | string
+                | number
+                | boolean
+                | ReactElement<any, string | JSXElementConstructor<any>>
+                | ReactFragment
+                | null
+                | undefined;
+              hospitalAddress: string;
+              hospitalId: any;
+              id: Key | null | undefined;
+              downloadUrl: string | undefined;
+              title:
+                | string
+                | number
+                | boolean
+                | ReactElement<any, string | JSXElementConstructor<any>>
+                | ReactFragment
+                | ReactPortal
+                | null
+                | undefined;
+              contents:
+                | string
+                | number
+                | boolean
+                | ReactElement<any, string | JSXElementConstructor<any>>
+                | ReactFragment
+                | ReactPortal
+                | null
+                | undefined;
+              totalCost: any;
+            }) => {
+              return (
+                <CurrentReview
+                  onClick={() =>
+                    router.push({
+                      pathname: "/searchHospital",
+                      query: {
+                        hospitalName:
+                          review.hospitalName +
+                          " " +
+                          review?.hospitalAddress.split(" ")[0],
+                        placeId: review.hospitalId,
+                      },
+                    })
+                  }
+                  key={review.id}
+                >
+                  <CurrentImageContainer>
+                    <CurrentReviewImage src={review?.downloadUrl} />
+                  </CurrentImageContainer>
+                  <CurrentReviewComment>
+                    <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
+                    <CurrentReviewPetpitalDesc>
+                      <CurrentReviewPetpitalName>
+                        {review?.hospitalName}
+                      </CurrentReviewPetpitalName>
+                      <CurrentReviewPetpitalAddress>
+                        {review?.hospitalAddress?.split(" ")[0] +
+                          " " +
+                          review?.hospitalAddress?.split(" ")[1]}
+                      </CurrentReviewPetpitalAddress>
+                    </CurrentReviewPetpitalDesc>
+                    <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                    <CurrentReviewCost>
+                      {Number(review?.totalCost).toLocaleString("ko-KR")}
+                    </CurrentReviewCost>
+                  </CurrentReviewComment>
+                </CurrentReview>
+              );
+            },
+          )}
         </CurrentReivewContainer>
       </Section>
       <Section>

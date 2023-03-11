@@ -42,7 +42,7 @@ const Review = () => {
     <MyReivew>
       {isLoading
         ? "로딩중"
-        : recentlyReview?.data.map((review: any) => (
+        : recentlyReview?.map((review: any) => (
             <CurrentReview
               onClick={() =>
                 router.push({
