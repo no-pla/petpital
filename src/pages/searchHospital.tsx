@@ -35,6 +35,7 @@ import { RxShare2 } from "react-icons/rx";
 import Image from "next/image";
 import { AiOutlineArrowLeft, AiOutlineClose } from "react-icons/ai";
 import { authService } from "@/firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface IHospital {
   address_name: string;
@@ -51,9 +52,17 @@ interface IHospital {
   y: string;
 }
 
-/* 
-  3. 스카이뷰 지도 전환 컨트롤
-*/
+function useAuth() {
+  const [currentUser, setCurrentUser] = useState<any>();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(authService, (user) =>
+      setCurrentUser(user),
+    );
+    return unsub;
+  }, []);
+
+  return currentUser;
+}
 
 export function getServerSideProps({ query }: any) {
   // if query object was received, return it as a router prop:
@@ -81,6 +90,7 @@ declare const window: typeof globalThis & {
 
 const SearchHospital = () => {
   const router = useRouter();
+  const currentUser = useAuth();
   const {
     query: { target, hospitalName, placeId },
   } = router;
@@ -108,7 +118,9 @@ const SearchHospital = () => {
   const [hospitalReview, setHospitalReview] = useState<any[]>([]);
   const [hospitalReviewCount, setHospitalReviewCount] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
-  const { recentlyReview, isLoading, recentlyRefetch } = useGetReviews("");
+  const { recentlyReview, isLoading, isrecentlyRefetch } = useGetReviews(
+    `?_sort=date&_order=desc&hospitalId=${placeId}`,
+  );
   const [openDeleteReivewModal, setOpenDeleteReivewModal] = useState(true);
   const [deleteTargetId, setDeleteTargetId] = useState("");
   const [state, setState] = useState({
@@ -306,7 +318,7 @@ const SearchHospital = () => {
 
     Promise.all(promiseCosts).then(async (results) => {
       const tempRate = results.map((item) => item[0]); // 첫 번째 배열들을 묶음
-      const tempReview = results.map((item) => item[1]); // 두 번째 배열들을 묶음
+      const tempReview: any = results.map((item) => item[1]); // 두 번째 배열들을 묶음
 
       const tempArray: (string | number)[] = [];
       const tempCount: (string | number)[] = [];
@@ -359,12 +371,16 @@ const SearchHospital = () => {
       setIsSearchOpen(true);
       setIsDetailOpen(false);
       setPlace(targetHospital.current?.value);
-      router.push({
-        pathname: "/searchHospital",
-        query: {
-          target: targetHospital.current?.value,
+      router.push(
+        {
+          pathname: "/searchHospital",
+          query: {
+            target: targetHospital.current?.value,
+          },
         },
-      });
+        undefined,
+        { shallow: true },
+      );
     }
   };
   //
@@ -421,7 +437,7 @@ const SearchHospital = () => {
   // console.log("targetHospitalData", targetHospitalData);
 
   // 리뷰수
-  const totalReview = recentlyReview?.data.filter(
+  const totalReview = recentlyReview?.data?.filter(
     (item: any) => item.hospitalId === placeId,
   ).length;
   // console.log("totalReview", totalReview);
@@ -468,7 +484,7 @@ const SearchHospital = () => {
           <SearchForm onSubmit={onSubmit}>
             <button type="button">
               <FormLogo
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/", undefined, { shallow: true })}
                 backgroundImage="https://user-images.githubusercontent.com/88391843/224016702-e3591270-1b05-4d05-8bf0-ebe5a68aab54.png"
               />
             </button>
@@ -485,7 +501,11 @@ const SearchHospital = () => {
                     }}
                     backgroundColor="#15B5BF"
                   >
-                    <button onClick={() => router.push("/")}>
+                    <button
+                      onClick={() =>
+                        router.push("/", undefined, { shallow: true })
+                      }
+                    >
                       <AiOutlineArrowLeft size={24} />
                       <div>이전으로</div>
                     </button>
@@ -541,7 +561,7 @@ const SearchHospital = () => {
                                 hospitalReview[index]?.map((review: any) => {
                                   return (
                                     <CurrentReview
-                                      key={review.id}
+                                      key={review.reviewId}
                                       bgImage={review?.reviewImage}
                                     >
                                       <CurrentReviewWriter>
@@ -561,7 +581,7 @@ const SearchHospital = () => {
                       );
                     })
                   ) : (
-                    <NoData>검색 결과가 없습니다.</NoData>
+                    <NoData>로딩중</NoData>
                   )}
                 </DashBoard>
               )}
@@ -634,176 +654,179 @@ const SearchHospital = () => {
                       영수증리뷰({totalReview})
                     </div>
                   </div>
-                  <WriteButton onClick={onClickWriteButton}>
-                    리뷰 참여하기
+                  <WriteButton
+                    disabled={currentUser === null}
+                    onClick={onClickWriteButton}
+                  >
+                    {currentUser === null
+                      ? "로그인 후 참여해주세요"
+                      : "리뷰 참여하기"}
                   </WriteButton>
                 </ReviewInfoWrap>
 
                 {!isLoading &&
-                  recentlyReview?.data
-                    .filter(
-                      (target) => target?.hospitalId === targetHospitalData?.id,
-                    )
-                    .map((review) => {
-                      return (
-                        <>
-                          <ReviewContainer key={review.id}>
-                            <ReviewBox>
-                              <ReviewTopContainer>
-                                <ReviewProfileLeft>
-                                  <Image
-                                    src={
-                                      review.profileImage
-                                        ? review.profileImage
-                                        : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
-                                    }
-                                    alt="프로필 이미지"
-                                    width={40}
-                                    height={40}
-                                    style={{
-                                      borderRadius: "50%",
-                                    }}
-                                  ></Image>
-                                  <div style={{ marginLeft: "10px" }}>
-                                    {review?.displayName}
-                                  </div>
-                                </ReviewProfileLeft>
-                                <ReviewProfileRight>
-                                  {Number(review.totalCost)?.toLocaleString(
-                                    "ko-KR",
-                                  )}
-                                  원
-                                </ReviewProfileRight>
-                              </ReviewTopContainer>
-                              <ReviewMiddleContainer>
+                  recentlyReview?.data?.map((review: any) => {
+                    return (
+                      <>
+                        <ReviewContainer key={review.id}>
+                          <ReviewBox>
+                            <ReviewTopContainer>
+                              <ReviewProfileLeft>
                                 <Image
-                                  src={review?.downloadUrl}
-                                  alt="게시글 이미지"
-                                  width={339}
-                                  height={200}
-                                />
-                                <div>{review?.title}</div>
+                                  src={
+                                    review.profileImage
+                                      ? review.profileImage
+                                      : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
+                                  }
+                                  alt="프로필 이미지"
+                                  width={40}
+                                  height={40}
+                                  style={{
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                  }}
+                                ></Image>
+                                <div style={{ marginLeft: "10px" }}>
+                                  {review?.displayName}
+                                </div>
+                              </ReviewProfileLeft>
+                              <ReviewProfileRight>
+                                {Number(review.totalCost)?.toLocaleString(
+                                  "ko-KR",
+                                )}
+                                원
+                              </ReviewProfileRight>
+                            </ReviewTopContainer>
+                            <ReviewMiddleContainer>
+                              <Image
+                                src={review?.downloadUrl}
+                                alt="게시글 이미지"
+                                width={339}
+                                height={200}
+                                style={{ objectFit: "cover" }}
+                              />
+                              <div>{review?.title}</div>
+                              <div
+                                style={{
+                                  width: "339px",
+                                  marginTop: "5px",
+                                  fontSize: "13px",
+                                  padding: "3px",
+                                  overflowY: "scroll",
+                                }}
+                              >
+                                {review.contents}
+                              </div>
+                            </ReviewMiddleContainer>
+                            <ReviewBottomContainer>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <div style={{ display: "flex" }}>
+                                  {review.selectedColors?.map((color: any) => {
+                                    if (color === "깨끗해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    } else if (color === "친절해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    } else if (color === "꼼꼼해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    } else if (color === "저렴해요") {
+                                      return (
+                                        <ReviewTagFirst key={color}>
+                                          {color}
+                                        </ReviewTagFirst>
+                                      );
+                                    }
+                                  })}
+                                </div>
                                 <div
                                   style={{
-                                    width: "339px",
-                                    marginTop: "5px",
-                                    fontSize: "13px",
-                                    padding: "3px",
+                                    color: "#15b5bf",
+                                    marginRight: "15px",
                                   }}
                                 >
-                                  {review.contents}
+                                  ★{review.rating}/5
                                 </div>
-                              </ReviewMiddleContainer>
-                              <ReviewBottomContainer>
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  padding: "10px",
+                                }}
+                              >
                                 <div
                                   style={{
                                     display: "flex",
-                                    justifyContent: "space-between",
                                   }}
                                 >
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      color: "gray",
+                                    }}
+                                  >
+                                    {review.date.slice(6, 8)}월
+                                    {review.date.slice(10, 12)}일
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      color: "gray",
+                                      marginLeft: "5px",
+                                    }}
+                                  ></div>
+                                </div>
+                                {userUid === review?.userId ? (
                                   <div style={{ display: "flex" }}>
-                                    {review.selectedColors?.map((color) => {
-                                      if (color === "깨끗해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      } else if (color === "친절해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      } else if (color === "꼼꼼해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      } else if (color === "저렴해요") {
-                                        return (
-                                          <ReviewTagFirst key={color}>
-                                            {color}
-                                          </ReviewTagFirst>
-                                        );
-                                      }
-                                    })}
-                                  </div>
-                                  <div
-                                    style={{
-                                      color: "#15b5bf",
-                                      marginRight: "15px",
-                                    }}
-                                  >
-                                    ★{review.rating}/5
-                                  </div>
-                                </div>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    padding: "10px",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                    }}
-                                  >
                                     <div
                                       style={{
-                                        fontSize: "13px",
-                                        color: "gray",
+                                        cursor: "pointer",
+                                        marginRight: "5px",
+                                      }}
+                                      onClick={() => {
+                                        onClickEditButton(review);
                                       }}
                                     >
-                                      {review.date.slice(6, 8)}월
-                                      {review.date.slice(10, 12)}일
+                                      <CiEdit size={18} />
                                     </div>
                                     <div
-                                      style={{
-                                        fontSize: "13px",
-                                        color: "gray",
-                                        marginLeft: "5px",
+                                      style={{ cursor: "pointer" }}
+                                      onClick={() => {
+                                        setDeleteTargetId(review.id);
+                                        setOpenDeleteReivewModal(
+                                          (prev) => !prev,
+                                        );
                                       }}
-                                    ></div>
-                                  </div>
-                                  {userUid === review?.userId ? (
-                                    <div style={{ display: "flex" }}>
-                                      <div
-                                        style={{
-                                          cursor: "pointer",
-                                          marginRight: "5px",
-                                        }}
-                                        onClick={() => {
-                                          onClickEditButton(review);
-                                        }}
-                                      >
-                                        <CiEdit size={18} />
-                                      </div>
-                                      <div
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => {
-                                          setDeleteTargetId(review.id);
-                                          setOpenDeleteReivewModal(
-                                            (prev) => !prev,
-                                          );
-                                        }}
-                                      >
-                                        <CiTrash size={18} />
-                                      </div>
+                                    >
+                                      <CiTrash size={18} />
                                     </div>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </ReviewBottomContainer>
-                            </ReviewBox>
-                          </ReviewContainer>
-                        </>
-                      );
-                    })
-                    .reverse()}
+                                  </div>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+                            </ReviewBottomContainer>
+                          </ReviewBox>
+                        </ReviewContainer>
+                      </>
+                    );
+                  })}
               </DashBoard>
             )}
           </BoardContainer>
@@ -1081,6 +1104,7 @@ const SearchForm = styled.form`
   background-color: #15b5bf;
   display: flex;
   box-sizing: border-box;
+  border: none;
   > button {
     background-color: transparent;
     border: none;
@@ -1186,6 +1210,7 @@ const WriteButton = styled.button`
   left: 628px;
   border: none;
   border-radius: 20px;
+  font-size: 12px;
   color: white;
 `;
 

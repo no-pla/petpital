@@ -1,7 +1,7 @@
 import { useDeletCounsel } from "../../hooks/usePetsult";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomModal, { ModalButton } from "../../components/custom/ErrorModal";
 import {
   BackButton,
@@ -13,6 +13,7 @@ import { authService } from "../../firebase/firebase";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { QuestionButton } from "./index";
 import { BsArrowLeftCircle } from "react-icons/bs";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -48,9 +49,23 @@ const PetconsultDetail = () => {
   //   setTargetId(id);
   // };
 
+  const currentUser = useAuth();
+
+  function useAuth() {
+    const [currentUser, setCurrentUser] = useState<any>();
+    useEffect(() => {
+      const unsub = onAuthStateChanged(authService, (user) =>
+        setCurrentUser(user),
+      );
+      return unsub;
+    }, []);
+
+    return currentUser;
+  }
+
   const goToNewQnAPage = () => {
-    if (authService.currentUser !== null) {
-      router.push("/petconsult/new");
+    if (currentUser !== null) {
+      router.push("/petconsult/new", undefined, { shallow: true });
     } else {
       setIsLogin(true);
     }
@@ -58,7 +73,7 @@ const PetconsultDetail = () => {
 
   const deleteCounselPost = async () => {
     if (id === targetId) {
-      router.push("/petconsult");
+      router.push("/petconsult", undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
     await deleteCounsel(targetId);
@@ -70,9 +85,11 @@ const PetconsultDetail = () => {
         <CustomHeader>
           <BackButton
             onClick={() =>
-              router.push("/petconsult").then(() => {
-                router.reload();
-              })
+              router
+                .push("/petconsult", undefined, { shallow: true })
+                .then(() => {
+                  router.reload();
+                })
             }
           >
             <BsArrowLeftCircle /> 이전으로
@@ -98,7 +115,9 @@ const PetconsultDetail = () => {
           modalText2={"질문을 남겨보세요!"}
         >
           <ModalButton onClick={() => setIsLogin(false)}>취소</ModalButton>
-          <ModalButton onClick={() => router.push("/signup")}>
+          <ModalButton
+            onClick={() => router.push("/signup", undefined, { shallow: true })}
+          >
             회원가입 하기
           </ModalButton>
         </CustomModal>

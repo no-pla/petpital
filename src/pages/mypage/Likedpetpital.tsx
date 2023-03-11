@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import {
   useAddCounsel,
@@ -10,10 +10,24 @@ import axios from "axios";
 import { authService } from "../../firebase/firebase";
 import { useRouter } from "next/router";
 import { CounselItem } from "@/components/custom/CounselItem";
+import { onAuthStateChanged } from "firebase/auth";
+
+function useAuth() {
+  const [currentUser, setCurrentUser] = useState<any>();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(authService, (user) =>
+      setCurrentUser(user),
+    );
+    return unsub;
+  }, []);
+
+  return currentUser;
+}
 
 const Likedpetpital = () => {
+  const currentUser = useAuth();
   const { isLoadingPetConsult, petConsult } = useGetPetConsult({
-    limit: "",
+    limit: `&uid=${currentUser?.uid}`,
   });
   const router = useRouter();
 
@@ -21,16 +35,18 @@ const Likedpetpital = () => {
 
   return (
     <MyCounsel>
-      <WriteNewCounsel onClick={() => router.push("/petconsult/new")}>
+      <WriteNewCounsel
+        onClick={() =>
+          router.push("/petconsult/new", undefined, { shallow: true })
+        }
+      >
         궁금한 점 물어보러 가기
       </WriteNewCounsel>
 
       {!isLoadingPetConsult &&
-        petConsult?.data
-          .filter((counsel) => myId === counsel.uid)
-          .map((counsel, index) => (
-            <CounselItem key={counsel.id} counsel={counsel} index={index} />
-          ))}
+        petConsult?.data?.map((counsel, index) => (
+          <CounselItem key={counsel.id} counsel={counsel} index={index} />
+        ))}
     </MyCounsel>
   );
 };

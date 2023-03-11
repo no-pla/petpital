@@ -6,11 +6,12 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 // 상담 게시글 불러오기
 
-export const useGetPetConsultComment = () => {
-  const { data, refetch } = useQuery(["getComments"], () => {
-    return axios.get(`${REVIEW_SERVER}qnaReview?_sort=createdAt&_order=desc`);
+export const useGetPetConsultComment = (target: string) => {
+  const { data, refetch } = useQuery(["getComments", target], async () => {
+    return await axios.get(
+      `${REVIEW_SERVER}qnaReview?_sort=createdAt&_order=desc&counselId=${target}`,
+    );
   });
-
   return { data, refetch };
 };
 

@@ -58,7 +58,7 @@ const NewPetsult = () => {
       };
       await addCounsel(newCounsel);
 
-      router.push(`/petconsult/${newCounsel.id}`);
+      router.push(`/petconsult/${newCounsel.id}`, undefined, { shallow: true });
     }
   };
 
@@ -75,7 +75,7 @@ const NewPetsult = () => {
 
   const backToCounselPage = () => {
     if (newCounselRef.current?.value === "") {
-      router.push("/petconsult");
+      router.push("/petconsult", undefined, { shallow: true });
     } else {
       setBackPage((prev) => !prev);
     }
@@ -98,7 +98,11 @@ const NewPetsult = () => {
           modalText1={"질문하고 다양한"}
           modalText2={"의견을 받아보세요!"}
         >
-          <ModalButton onClick={() => router.push("/petconsult")}>
+          <ModalButton
+            onClick={() =>
+              router.push("/petconsult", undefined, { shallow: true })
+            }
+          >
             해결했어요!
           </ModalButton>
           <ModalButton onClick={() => setBackPage((prev) => !prev)}>
@@ -117,7 +121,11 @@ const NewPetsult = () => {
         </CustomModal>
       )}
       <CustomHeader>
-        <BackButton onClick={() => router.push("/petconsult")}>
+        <BackButton
+          onClick={() =>
+            router.push("/petconsult", undefined, { shallow: true })
+          }
+        >
           &larr; 이전으로
         </BackButton>
         <HeaderButton onClick={backToCounselPage}>취소하기</HeaderButton>

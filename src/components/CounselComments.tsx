@@ -116,7 +116,7 @@ const CounselCommentFormContainer = ({ target }: any) => {
 };
 
 const CounselCommentList = ({ target }: any) => {
-  const { data: commentList } = useGetPetConsultComment();
+  const { data: commentList } = useGetPetConsultComment(target);
 
   return (
     <CounselCommentListContainer>
@@ -266,7 +266,7 @@ const CounselCommentItem = ({ comment }: any) => {
 const CounselCoComment = ({ comment }: any) => {
   return (
     <CounselCoCommentListContainer>
-      {comment.cocoment.length > 0 &&
+      {comment.cocoment?.length > 0 &&
         comment.cocoment.map((coco: any) => {
           return (
             <CounselCoCommentItem

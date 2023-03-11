@@ -12,6 +12,8 @@ const nextConfig = {
       "user-images.githubusercontent.com",
       "media.istockphoto.com",
       "lh3.googleusercontent.com",
+      "map0.daumcdn.net",
+      "map2.daumcdn.net",
     ],
   },
 };

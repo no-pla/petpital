@@ -11,7 +11,7 @@ export const CounselItem = ({ counsel, index, page }: any) => {
   const { data: petConsult, isLoading } = useQuery(
     ["pagnationCounsel", page],
     () => {
-      console.log("pagnationCounsel");
+      // console.log("pagnationCounsel");
       return axios.get(
         `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&limit=10&_page=${page}`,
       );
@@ -43,7 +43,7 @@ export const CounselItem = ({ counsel, index, page }: any) => {
   }, [page, petConsult]);
 
   const onClick = (id: string) => {
-    router.push(`petconsult/${id}`);
+    router.push(`petconsult/${id}`, undefined, { shallow: true });
   };
 
   return (

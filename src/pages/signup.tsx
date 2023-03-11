@@ -208,7 +208,7 @@ const Join = () => {
             height={8}
             width={16}
             onClick={() => {
-              router.push("/");
+              router.push("/", undefined, { shallow: true });
             }}
           >
             확인
