@@ -113,14 +113,14 @@ const CounselPost = () => {
 
   return (
     <>
-      {CounselList?.map((counselData: any) => {
+      {CounselList?.data?.map((counselData: any) => {
         return (
           <Counsel key={counselData.id}>
             <CounselHeader>
               <CounselInfo>
                 <UserProfile profileLink={counselData.profileImg} />
                 <UserInfo>
-                  <div>{counselData.nickname}</div>
+                  <div>{counselData?.nickname}</div>
                   <div>
                     {new Date(counselData.createdAt).toLocaleDateString(
                       "ko-Kr",
@@ -130,7 +130,7 @@ const CounselPost = () => {
               </CounselInfo>
               <CounselSetting>
                 <CopyToClipboard
-                  text={`${REVIEW_SITE}searchHospital/${counselData.id}`}
+                  text={`${REVIEW_SITE}petconsult/${counselData.id}`}
                 >
                   <ShareButton>
                     <RxShare2 size={16} />
@@ -153,6 +153,7 @@ const CounselPost = () => {
 const ShareButton = styled.button`
   background-color: transparent;
   border: none;
+  cursor: pointer;
 `;
 
 const PostSettingButton = styled.button`

@@ -118,8 +118,9 @@ const SearchHospital = () => {
   const [hospitalReview, setHospitalReview] = useState<any[]>([]);
   const [hospitalReviewCount, setHospitalReviewCount] = useState<any[]>([]);
   const targetHospital = useRef<HTMLInputElement>(null);
-  const { recentlyReview, isLoading, recentlyRefetch, isrecentlyRefetch } =
-    useGetReviews(`?_sort=date&_order=desc&hospitalId=${placeId}`);
+  const { recentlyReview, isLoading, isrecentlyRefetch } = useGetReviews(
+    `?_sort=date&_order=desc&hospitalId=${placeId}`,
+  );
   const [openDeleteReivewModal, setOpenDeleteReivewModal] = useState(true);
   const [deleteTargetId, setDeleteTargetId] = useState("");
   const [state, setState] = useState({
@@ -133,7 +134,6 @@ const SearchHospital = () => {
   const setNewSearch = useSetRecoilState(mainPetpitalList); //최근 검색된 데이터
 
   useEffect(() => {
-    recentlyRefetch();
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
       navigator.geolocation.getCurrentPosition(
@@ -298,25 +298,21 @@ const SearchHospital = () => {
       const tempRateArray: any[] | PromiseLike<any[]> = [];
       const tempCountArray: any[] = [];
 
-      const res = await axios.get(
-        `${REVIEW_SERVER}posts?_sort=date&_order=desc&hospitalId=${hospital}`,
-      );
-
-      for (const review of res.data) {
-        await axios
-          .get(`${REVIEW_SERVER}users/${review.userId}`)
-          .then((res: any) => {
+      await axios
+        .get(
+          `${REVIEW_SERVER}posts?_sort=date&_order=desc&hospitalId=${hospital}`,
+        )
+        .then((res) =>
+          res.data.map((data: any) => {
             tempCountArray.push({
-              nickname: res.data?.nickname,
-              reviewImage: review.downloadUrl,
-              profileImage: res.data?.profileImage,
-              reviewId: review.id,
-              id: review.userId,
+              nickname: data.displayName,
+              reviewImage: data.downloadUrl,
+              profileImage: data.profileImage,
+              id: data.id,
             });
-            tempRateArray.push(review.rating);
-          });
-      }
-
+            tempRateArray.push(data.rating);
+          }),
+        );
       return [tempRateArray, tempCountArray];
     });
 
@@ -437,7 +433,7 @@ const SearchHospital = () => {
   // console.log("targetHospitalData", targetHospitalData);
 
   // 리뷰수
-  const totalReview = recentlyReview?.filter(
+  const totalReview = recentlyReview?.data?.filter(
     (item: any) => item.hospitalId === placeId,
   ).length;
   // console.log("totalReview", totalReview);
@@ -650,13 +646,19 @@ const SearchHospital = () => {
                       영수증리뷰({totalReview})
                     </div>
                   </div>
-                  <WriteButton onClick={onClickWriteButton}>
-                    리뷰 참여하기
+                  <WriteButton
+                    disabled={currentUser === null}
+                    onClick={onClickWriteButton}
+                  >
+                    {currentUser === null
+                      ? "로그인 후 참여해주세요"
+                      : "리뷰 참여하기"}
                   </WriteButton>
                 </ReviewInfoWrap>
 
                 {!isLoading &&
-                  recentlyReview?.map((review: any) => {
+                  recentlyReview?.data?.map((review: any) => {
+                    console.log(currentUser);
                     return (
                       <>
                         <ReviewContainer key={review.id}>
@@ -1201,6 +1203,7 @@ const WriteButton = styled.button`
   left: 628px;
   border: none;
   border-radius: 20px;
+  font-size: 12px;
   color: white;
 `;
 

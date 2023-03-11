@@ -241,7 +241,7 @@ function Home() {
       <Section>
         <SectionTitle>내가 한번 가봤다냥! 🐈</SectionTitle>
         <CurrentReivewContainer>
-          {recentlyReview?.map(
+          {recentlyReview?.data?.map(
             (review: {
               hospitalName:
                 | string
@@ -346,6 +346,8 @@ function Home() {
   );
 }
 
+export default Home;
+
 // 배너
 const MainBanner = styled.div`
   padding-top: 50px;
@@ -374,7 +376,6 @@ const ReviewBanner = styled.div<{
   }
 `;
 
-export default Home;
 // 최근 검색 병원
 const BestPetpitalContainer = styled.div`
   display: grid;

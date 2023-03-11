@@ -40,7 +40,7 @@ const Likedpetpital = () => {
       </WriteNewCounsel>
 
       {!isLoadingPetConsult &&
-        petConsult?.data.map((counsel, index) => (
+        petConsult?.data?.map((counsel, index) => (
           <CounselItem key={counsel.id} counsel={counsel} index={index} />
         ))}
     </MyCounsel>

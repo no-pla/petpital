@@ -64,11 +64,11 @@ const Mypage = () => {
           <UserWritten>
             <CountPost>
               <span>남긴 질문 +</span>
-              <span>{petConsult?.data.length}</span>
+              <span>{petConsult?.data?.length}</span>
             </CountPost>
             <CountPost>
               <span>남긴 리뷰 +</span>
-              <span>{recentlyReview?.length}</span>
+              <span>{recentlyReview?.data?.length}</span>
             </CountPost>
           </UserWritten>
         </UserProfile>
