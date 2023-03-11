@@ -27,10 +27,25 @@ export const useGetReviews = (limit: string) => {
     isLoading,
     data: recentlyReview,
     refetch: recentlyRefetch,
-  } = useQuery<IReview>(["getrecentlyReview", limit], async () => {
-    const res = await axios.get(`${REVIEW_SERVER}posts${limit}`);
-    return res;
+    isRefetching: isrecentlyRefetch,
+  } = useQuery<any>(["getrecentlyReview", limit], async () => {
+    // const tempArray: any = [];
+    return await axios.get(`${REVIEW_SERVER}posts${limit}`);
+
+    // for (const review of res.data) {
+    //   const userData = await axios.get(
+    //     `${REVIEW_SERVER}users/${review.userId}`,
+    //   );
+
+    //   const tempReview = {
+    //     ...review,
+    //     displayName: userData.data.nickname,
+    //     profileImage: userData.data.profileImage,
+    //   };
+    //   tempArray.push(tempReview);
+    // }
+    // return tempArray;
   });
 
-  return { recentlyReview, isLoading, recentlyRefetch };
+  return { recentlyReview, isLoading, recentlyRefetch, isrecentlyRefetch };
 };

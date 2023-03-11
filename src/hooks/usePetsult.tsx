@@ -29,12 +29,12 @@ export const useGetPetConsult = ({ limit }: any) => {
   return { isLoadingPetConsult, petConsult };
 };
 
-const addCounsel = (newCounsult: any) => {
-  return axios.post(`${REVIEW_SERVER}qna`, newCounsult);
+const addCounsel = async (newCounsult: any) => {
+  return await axios.post(`${REVIEW_SERVER}qna`, newCounsult);
 };
 
 export const useAddCounsel = () => {
-  console.log("작성 완료");
+  // console.log("작성 완료");
   return useMutation(addCounsel);
 };
 
@@ -55,19 +55,27 @@ export const useGetCounselTarget = (id: any) => {
     },
   );
 
-  const { data: CounselList, isRefetching } = useQuery(
-    ["infiniteCounsel", targetTime],
-    async () =>
-      await axios.get(
-        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
-      ),
-    {
-      // enabled: !!targetTime,
-      select: (data) => data?.data,
-    },
-  );
+  const {
+    data: CounselList,
+    isRefetching,
+    refetch: counselRefetch,
+  } = useQuery(["infiniteCounsel", targetTime], async () => {
+    // const tempArray: any = [];
+    return await axios.get(
+      `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc&createdAt_lte=${targetTime}`,
+    );
+    //   for (const qna of res.data) {
+    //     const userData: any = await axios.get(`${REVIEW_SERVER}users/${qna.uid}`);
+    //     tempArray.push({
+    //       ...qna,
+    //       nickname: userData?.data?.nickname,
+    //       profileImg: userData?.data?.profileImage,
+    //     });
+    //   }
+    //   return tempArray;
+  });
 
-  return { CounselList, isRefetching };
+  return { CounselList, isRefetching, counselRefetch };
 };
 
 // 상담 게시글 수정

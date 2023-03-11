@@ -42,7 +42,7 @@ const Review = () => {
     <MyReivew>
       {isLoading
         ? "로딩중"
-        : recentlyReview?.data.map((review: any) => (
+        : recentlyReview?.data?.map((review: any) => (
             <CurrentReview
               onClick={() =>
                 router.push({
@@ -73,7 +73,7 @@ const Review = () => {
                       review?.hospitalAddress?.split(" ")[1]}
                   </CurrentReviewPetpitalAddress>
                 </CurrentReviewPetpitalDesc>
-                <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                <CurrentReviewDesc>{review?.contents}</CurrentReviewDesc>
                 <CurrentReviewCost>
                   {Number(review?.totalCost).toLocaleString("ko-KR")}
                 </CurrentReviewCost>

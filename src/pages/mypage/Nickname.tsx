@@ -22,6 +22,7 @@ const Nickname = () => {
   const [error, setError] = useState(false);
   const [url, setUrl] = useState();
   const currentUser = useAuth();
+  const [onSubmitting, setOnSubmitting] = useState(false);
   const auth = getAuth();
 
   function useAuth() {
@@ -60,8 +61,9 @@ const Nickname = () => {
   const ChangeProfile = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (onSubmitting === true) return;
     if (!auth.currentUser) return;
-
+    setOnSubmitting(true);
     // 변경할 이미지를 올리면 데이터 url로 로컬 스토리지에 임시 저장이 되는데
     // 그 값 가져와서 firestore에 업로드
     let newPhoto = localStorage.getItem("newProfilePhoto");
@@ -148,7 +150,12 @@ const Nickname = () => {
               {newNickname.length} / <NicknameLengthMax>20</NicknameLengthMax>
             </NicknameLength>
           </div>
-          <SubmitButton>저장하기</SubmitButton>
+          <SubmitButton
+            style={{ opacity: onSubmitting === true ? "0.7" : "1" }}
+            disabled={onSubmitting}
+          >
+            저장하기
+          </SubmitButton>
         </ChageNickNameForm>
       </ChangeProfileContainer>
       {error && (
