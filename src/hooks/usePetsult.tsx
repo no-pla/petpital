@@ -17,16 +17,19 @@ interface INewPetsult {
 // 메인 화면에서 Q&A 가져옴
 
 export const useGetPetConsult = ({ limit }: any) => {
-  const { data: petConsult, isLoading: isLoadingPetConsult } =
-    useQuery<INewPetsult>({
-      queryKey: ["getCounsel", limit],
-      queryFn: () => {
-        return axios.get(
-          `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc${limit}`,
-        );
-      },
-    });
-  return { isLoadingPetConsult, petConsult };
+  const {
+    data: petConsult,
+    isLoading: isLoadingPetConsult,
+    refetch: mainCounselRefetch,
+  } = useQuery<INewPetsult>({
+    queryKey: ["getCounsel", limit],
+    queryFn: () => {
+      return axios.get(
+        `${REVIEW_SERVER}qna?_sort=createdAt&_order=desc${limit}`,
+      );
+    },
+  });
+  return { isLoadingPetConsult, petConsult, mainCounselRefetch };
 };
 
 const addCounsel = async (newCounsult: any) => {

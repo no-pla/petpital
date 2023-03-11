@@ -28,10 +28,14 @@ export default function Header() {
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (targetHospital.current?.value !== "") {
-      router.push({
-        pathname: "/searchHospital",
-        query: { target: targetHospital.current?.value + " 동물병원" },
-      });
+      router.push(
+        {
+          pathname: "/searchHospital",
+          query: { target: targetHospital.current?.value + " 동물병원" },
+        },
+        undefined,
+        { shallow: true },
+      );
       return;
     }
   };
@@ -59,7 +63,7 @@ export default function Header() {
   const onLogOutClick = () => {
     authService.signOut();
     setOpenModalLogout(true);
-    router.push("/");
+    router.push("/", undefined, { shallow: true });
   };
 
   const onLogOutClose = () => {
@@ -77,7 +81,7 @@ export default function Header() {
         <HeaderItems>
           <HeaderLogo
             src="https://user-images.githubusercontent.com/88391843/220821556-46417499-4c61-47b8-b5a3-e0ffc41f1df1.png"
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/", undefined, { shallow: true })}
           />
           <Image
             width={14}
@@ -88,10 +92,18 @@ export default function Header() {
               marginLeft: -30,
             }}
           />
-          <HeaderItem onClick={() => router.push("/searchHospital")}>
+          <HeaderItem
+            onClick={() =>
+              router.push("/searchHospital", undefined, { shallow: true })
+            }
+          >
             병원리스트
           </HeaderItem>
-          <HeaderItem onClick={() => router.push("/petconsult")}>
+          <HeaderItem
+            onClick={() =>
+              router.push("/petconsult", undefined, { shallow: true })
+            }
+          >
             질문 광장
           </HeaderItem>
           <HeaderForm onSubmit={onSubmit}>
@@ -101,8 +113,8 @@ export default function Header() {
           <Image
             onClick={() =>
               authService.currentUser === null
-                ? router.push("/login")
-                : router.push("/mypage")
+                ? router.push("/login", undefined, { shallow: true })
+                : router.push("/mypage", undefined, { shallow: true })
             }
             src="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FFrame%20127.png?alt=media&token=ed8ea88e-6762-4f9c-be20-e8ed53624fe1"
             width={24}
@@ -116,7 +128,9 @@ export default function Header() {
           />
           <HeaderItem
             onClick={() =>
-              currentUser === null ? router.push("/login") : onLogOutClick()
+              currentUser === null
+                ? router.push("/login", undefined, { shallow: true })
+                : onLogOutClick()
             }
           >
             {currentUser === null ? "로그인" : "로그아웃"}

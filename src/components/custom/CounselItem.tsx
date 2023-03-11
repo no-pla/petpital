@@ -43,7 +43,7 @@ export const CounselItem = ({ counsel, index, page }: any) => {
   }, [page, petConsult]);
 
   const onClick = (id: string) => {
-    router.push(`petconsult/${id}`);
+    router.push(`petconsult/${id}`, undefined, { shallow: true });
   };
 
   return (

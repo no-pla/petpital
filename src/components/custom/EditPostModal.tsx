@@ -129,6 +129,7 @@ const EditPostModal = ({
 
   // DB에 저장
   const handleEditSubmit = async (downloadUrl: string) => {
+    console.log(editRatings);
     if (editTitle.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
 
@@ -210,7 +211,8 @@ const EditPostModal = ({
     try {
       const newPhoto = localStorage.getItem("Photo");
       if (!newPhoto) {
-        alert("사진을 업로드 해주세요");
+        // alert("사진을 업로드 해주세요");
+        setOpenModalPhoto(true);
         return;
       }
       const imgRef = ref(storageService, `${Date.now()}`);

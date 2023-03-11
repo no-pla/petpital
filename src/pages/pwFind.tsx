@@ -99,7 +99,7 @@ const Login = () => {
                     alert(
                       "이메일을 확인하여 비밀번호를 재설정해주시기 바랍니다.",
                     );
-                    router.push("login");
+                    router.push("login", undefined, { shallow: true });
                   }}
                 >
                   전송
@@ -111,7 +111,7 @@ const Login = () => {
           <BottomButtonWrap>
             <Singup
               onClick={() => {
-                router.push("signup");
+                router.push("signup", undefined, { shallow: true });
               }}
             >
               회원가입
@@ -141,7 +141,9 @@ const Login = () => {
               <PetpitalTitle>동물병원 찐 리뷰는</PetpitalTitle>
               <PetpitalSubTitle>펫피털에서!</PetpitalSubTitle>
               <BottomButtonContainer>
-                <MainCustomButton onClick={() => router.push("/")}>
+                <MainCustomButton
+                  onClick={() => router.push("/", undefined, { shallow: true })}
+                >
                   펫피털 구경해보기
                 </MainCustomButton>
               </BottomButtonContainer>

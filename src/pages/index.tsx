@@ -33,14 +33,19 @@ function Home() {
   const { recentlyReview, isLoading: isLoadingReviews } = useGetReviews(
     "?_sort=date&_order=desc&_limit=6",
   );
-  const { isLoadingPetConsult, petConsult } = useGetPetConsult({
-    limit: "&_limit=3",
-  });
+  const { isLoadingPetConsult, petConsult, mainCounselRefetch } =
+    useGetPetConsult({
+      limit: "&_limit=3",
+    });
 
   const [page, setPage] = useState(1);
   const [hospitaListImage, setHospitalImageList] = useState<any>([]);
   const [arverageCost, setAverageCost] = useState<any>();
   const { data: mainPetpial, refetch } = useGetMainHospital(page);
+
+  useEffect(() => {
+    mainCounselRefetch();
+  }, []);
 
   useEffect(() => {
     // 메인 사진을 불러오기 위해 배열에 병원 이름을 저장합니다.
@@ -129,6 +134,8 @@ function Home() {
     setPage((prev) => prev + 1);
   };
 
+  // console.log(petConsult);
+
   return (
     <>
       <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=80384910-8ef9-456e-8e2f-cb548d67e263">
@@ -143,7 +150,11 @@ function Home() {
             <br />
             리뷰도 확인해보세요
           </PetpitalSubTitle>
-          <MainCustomButton onClick={() => router.push("/searchHospital")}>
+          <MainCustomButton
+            onClick={() =>
+              router.push("/searchHospital", undefined, { shallow: true })
+            }
+          >
             병원검색 하러가기
             <BsArrowRightCircle
               size={16}
@@ -176,17 +187,21 @@ function Home() {
               <BestPetpitalItem
                 key={petpital.id}
                 onClick={() =>
-                  router.push({
-                    pathname: "/searchHospital",
-                    // 동일 이름 병원이 많아서 병원 이름 + 주소로 수정
-                    query: {
-                      hospitalName:
-                        petpital.place_name +
-                        " " +
-                        petpital.road_address_name.split(" ")[0],
-                      placeId: petpital.id,
+                  router.push(
+                    {
+                      pathname: "/searchHospital",
+                      // 동일 이름 병원이 많아서 병원 이름 + 주소로 수정
+                      query: {
+                        hospitalName:
+                          petpital.place_name +
+                          " " +
+                          petpital.road_address_name.split(" ")[0],
+                        placeId: petpital.id,
+                      },
                     },
-                  })
+                    undefined,
+                    { shallow: true },
+                  )
                 }
               >
                 <BestPetpitalImage
@@ -227,8 +242,8 @@ function Home() {
         <SubCustomButton
           onClick={() =>
             authService.currentUser === null
-              ? router.push("/login")
-              : router.push("/searchHospital")
+              ? router.push("/login", undefined, { shallow: true })
+              : router.push("/searchHospital", undefined, { shallow: true })
           }
         >
           리뷰 남기러가기
@@ -278,16 +293,20 @@ function Home() {
               return (
                 <CurrentReview
                   onClick={() =>
-                    router.push({
-                      pathname: "/searchHospital",
-                      query: {
-                        hospitalName:
-                          review.hospitalName +
-                          " " +
-                          review?.hospitalAddress.split(" ")[0],
-                        placeId: review.hospitalId,
+                    router.push(
+                      {
+                        pathname: "/searchHospital",
+                        query: {
+                          hospitalName:
+                            review.hospitalName +
+                            " " +
+                            review?.hospitalAddress.split(" ")[0],
+                          placeId: review.hospitalId,
+                        },
                       },
-                    })
+                      undefined,
+                      { shallow: true },
+                    )
                   }
                   key={review.id}
                 >
@@ -324,22 +343,25 @@ function Home() {
             <HeaderButton
               onClick={() =>
                 authService.currentUser === null
-                  ? router.push("/login")
-                  : router.push("/petconsult/new")
+                  ? router.push("/login", undefined, { shallow: true })
+                  : router.push("/petconsult/new", undefined, { shallow: true })
               }
             >
               질문하기
             </HeaderButton>
-            <HeaderButton onClick={() => router.push("/petconsult")}>
+            <HeaderButton
+              onClick={() =>
+                router.push("/petconsult", undefined, { shallow: true })
+              }
+            >
               전체보기
             </HeaderButton>
           </div>
         </HeaderContainer>
         <CounselList>
-          {!isLoadingPetConsult &&
-            petConsult?.data?.map((counsel, index) => (
-              <CounselItem key={counsel.id} counsel={counsel} index={index} />
-            ))}
+          {petConsult?.data?.map((counsel, index) => (
+            <CounselItem key={counsel.id} counsel={counsel} index={index} />
+          ))}
         </CounselList>
       </Section>
     </>

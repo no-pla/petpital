@@ -248,13 +248,13 @@ function Petconsult() {
     });
   }, [page]);
 
-  const onClick = (id: string) => {
-    router.push(`petconsult/${id}`);
-  };
+  // const onClick = (id: string) => {
+  //   router.push(`petconsult/${id}`);
+  // };
 
   const goToNewQnAPage = () => {
     if (authService.currentUser !== null) {
-      router.push("/petconsult/new");
+      router.push("/petconsult/new", undefined, { shallow: true });
     } else {
       setIsLogin(true);
       return;
@@ -268,7 +268,9 @@ function Petconsult() {
           modalText2={"질문을 남겨보세요!"}
         >
           <ModalButton onClick={() => setIsLogin(false)}>취소</ModalButton>
-          <ModalButton onClick={() => router.push("/signup")}>
+          <ModalButton
+            onClick={() => router.push("/signup", undefined, { shallow: true })}
+          >
             회원가입 하기
           </ModalButton>
         </CustomModal>

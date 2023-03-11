@@ -57,7 +57,7 @@ const CounselPost = () => {
     fetchInfiniteComment(targetTime),
   );
   const onOpenInput = (targetId: string) => {
-    router.push(`/petconsult/edit/${targetId}`);
+    router.push(`/petconsult/edit/${targetId}`, undefined, { shallow: true });
   };
 
   const onDelete = (id: any) => {
@@ -68,7 +68,7 @@ const CounselPost = () => {
   const deleteCounselPost = () => {
     deleteCounsel(targetId);
     if (id === targetId) {
-      router.push(`/petconsult`);
+      router.push(`/petconsult`, undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
   };
