@@ -1,5 +1,5 @@
 import { useGetReviews } from "../../hooks/useGetReviews";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { authService } from "../../firebase/firebase";
 import { useRouter } from "next/router";
@@ -15,60 +15,71 @@ import {
   CurrentReviewPetpitalName,
   CurrentReviewTitle,
 } from "..";
+import { onAuthStateChanged } from "firebase/auth";
+import { REVIEW_SITE } from "@/share/server";
+
+function useAuth() {
+  const [currentUser, setCurrentUser] = useState<any>();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(authService, (user) =>
+      setCurrentUser(user),
+    );
+    return unsub;
+  }, []);
+
+  return currentUser;
+}
 
 const Review = () => {
+  const currentUser = useAuth();
   const { recentlyReview, isLoading } = useGetReviews(
-    "?_sort=date&_order=desc",
+    `?_sort=date&_order=desc&userId=${currentUser?.uid}`,
   );
 
   const router = useRouter();
-
-  const myId = authService.currentUser?.uid;
 
   return (
     <MyReivew>
       {isLoading
         ? "로딩중"
-        : recentlyReview?.data
-            .filter((review) => myId === review.userId)
-            .map((review: any) => (
-              <CurrentReview
-                onClick={() =>
-                  router.push({
-                    pathname: "/searchHospital",
-                    query: {
-                      hospitalName:
-                        review.hospitalName +
-                        " " +
-                        review?.hospitalAddress.split(" ")[0],
-                      placeId: review.hospitalId,
-                    },
-                  })
-                }
-                key={review.id}
-              >
-                <CurrentImageContainer>
-                  <CurrentReviewImage src={review?.downloadUrl} />
-                </CurrentImageContainer>
-                <CurrentReviewComment>
-                  <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
-                  <CurrentReviewPetpitalDesc>
-                    <CurrentReviewPetpitalName>
-                      {review?.hospitalName}
-                    </CurrentReviewPetpitalName>
-                    <CurrentReviewPetpitalAddress>
-                      {review?.hospitalAddress?.split(" ")[0] +
-                        " " +
-                        review?.hospitalAddress?.split(" ")[1]}
-                    </CurrentReviewPetpitalAddress>
-                  </CurrentReviewPetpitalDesc>
-                  <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
-                  <CurrentReviewCost>
-                    {Number(review?.totalCost).toLocaleString("ko-KR")}
-                  </CurrentReviewCost>
-                </CurrentReviewComment>
-              </CurrentReview>
-            ))}
+        : recentlyReview?.data.map((review: any) => (
+            <CurrentReview
+              onClick={() =>
+                router.push({
+                  pathname: `${REVIEW_SITE}searchHospital`,
+                  query: {
+                    hospitalName:
+                      review.hospitalName +
+                      " " +
+                      review?.hospitalAddress.split(" ")[0],
+                    placeId: review.hospitalId,
+                  },
+                })
+              }
+              key={review.id}
+            >
+              <CurrentImageContainer>
+                <CurrentReviewImage src={review?.downloadUrl} />
+              </CurrentImageContainer>
+              <CurrentReviewComment>
+                <CurrentReviewTitle>{review?.title}</CurrentReviewTitle>
+                <CurrentReviewPetpitalDesc>
+                  <CurrentReviewPetpitalName>
+                    {review?.hospitalName}
+                  </CurrentReviewPetpitalName>
+                  <CurrentReviewPetpitalAddress>
+                    {review?.hospitalAddress?.split(" ")[0] +
+                      " " +
+                      review?.hospitalAddress?.split(" ")[1]}
+                  </CurrentReviewPetpitalAddress>
+                </CurrentReviewPetpitalDesc>
+                <CurrentReviewDesc>{review.contents}</CurrentReviewDesc>
+                <CurrentReviewCost>
+                  {Number(review?.totalCost).toLocaleString("ko-KR")}
+                </CurrentReviewCost>
+              </CurrentReviewComment>
+            </CurrentReview>
+          ))}
     </MyReivew>
   );
 };
