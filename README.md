@@ -13,8 +13,6 @@
 ## Screenshots
 
 ### 전체적인 기능
-
-// 움짤 넣기
 ![2023-03-12_22-04-42_AdobeExpress](https://user-images.githubusercontent.com/115146172/224547138-43949865-672c-40d9-b1d7-4f91b767c73d.gif)
 
 
@@ -24,14 +22,13 @@
 ### 서치맵 페이지
 ![screencapture-petpital-vercel-app-searchHospital-2023-03-12-17_43_37](https://user-images.githubusercontent.com/88391843/224533965-47e1714c-d630-46c3-8d09-0f050b76ccbe.png)
 
-
-
 ### Q&A페이지
 ![screencapture-petpital-vercel-app-petconsult-7KRR5H5vaodRCoRqhFNxev-2023-03-12-17_42_37](https://user-images.githubusercontent.com/88391843/224533936-138a9eca-5525-43bb-9ceb-b68d2ef6ce4e.png)
 
 
 ### 마이페이지
-![screencapture-petpital-vercel-app-mypage-2023-03-12-17_45_05](https://user-images.githubusercontent.com/88391843/224534042-c2e94e1c-3d24-47e0-b395-be2442cbe38f.png)
+![screencapture-petpital-vercel-app-mypage-2023-03-12-22_16_36](https://user-images.githubusercontent.com/88391843/224547290-89d47de7-8df9-4565-b692-372f518eb7c3.png)
+
 
 ## Tech Stack
 
