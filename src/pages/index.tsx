@@ -499,6 +499,7 @@ export const CurrentReviewImage = styled.img`
 export const CurrentReviewComment = styled.div`
   padding: 15px 8px;
   position: relative;
+  width: 100%;
 `;
 
 export const CurrentReviewTitle = styled.div`

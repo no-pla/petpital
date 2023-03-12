@@ -8,6 +8,7 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -109,6 +110,9 @@ const Nickname = () => {
 
   return (
     <>
+      <Head>
+        <title>펫피탈 | 프로필 변경</title>
+      </Head>
       <ChangeProfileContainer>
         <ChangeProfileHeader>
           <BackButton

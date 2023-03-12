@@ -263,7 +263,7 @@ function Petconsult() {
   return (
     <>
       <Head>
-        <title>펫피탈 | 질문 광장</title>
+        <title>펫피탈 | 질문 광장 리스트</title>
       </Head>
       {isLogin && (
         <CustomModal

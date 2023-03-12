@@ -202,6 +202,10 @@ const CurrentReview = styled.div`
 const CurrentReviewNickname = styled.span`
   font-weight: 600;
   padding-right: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
 const CurrentReviewContent = styled.div`
