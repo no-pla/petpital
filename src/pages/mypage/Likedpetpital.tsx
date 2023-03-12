@@ -33,7 +33,11 @@ const Likedpetpital = () => {
 
   return (
     <MyCounsel>
-      <WriteNewCounsel onClick={() => router.push("/petconsult/new")}>
+      <WriteNewCounsel
+        onClick={() =>
+          router.push("/petconsult/new", undefined, { shallow: true })
+        }
+      >
         궁금한 점 물어보러 가기
       </WriteNewCounsel>
       <CounselList>

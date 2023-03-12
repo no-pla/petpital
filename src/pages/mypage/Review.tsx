@@ -45,16 +45,20 @@ const Review = () => {
         : recentlyReview?.data?.map((review: any) => (
             <CurrentReview
               onClick={() =>
-                router.push({
-                  pathname: `${REVIEW_SITE}searchHospital`,
-                  query: {
-                    hospitalName:
-                      review.hospitalName +
-                      " " +
-                      review?.hospitalAddress.split(" ")[0],
-                    placeId: review.hospitalId,
+                router.push(
+                  {
+                    pathname: `${REVIEW_SITE}searchHospital`,
+                    query: {
+                      hospitalName:
+                        review.hospitalName +
+                        " " +
+                        review?.hospitalAddress.split(" ")[0],
+                      placeId: review.hospitalId,
+                    },
                   },
-                })
+                  undefined,
+                  { shallow: true },
+                )
               }
               key={review.id}
             >

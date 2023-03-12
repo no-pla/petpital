@@ -372,12 +372,16 @@ const SearchHospital = () => {
       setIsSearchOpen(true);
       setIsDetailOpen(false);
       setPlace(targetHospital.current?.value);
-      router.push({
-        pathname: "/searchHospital",
-        query: {
-          target: targetHospital.current?.value,
+      router.push(
+        {
+          pathname: "/searchHospital",
+          query: {
+            target: targetHospital.current?.value,
+          },
         },
-      });
+        undefined,
+        { shallow: true },
+      );
     }
   };
   //
@@ -484,7 +488,7 @@ const SearchHospital = () => {
           <SearchForm onSubmit={onSubmit}>
             <button type="button">
               <FormLogo
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/", undefined, { shallow: true })}
                 backgroundImage="https://user-images.githubusercontent.com/88391843/224016702-e3591270-1b05-4d05-8bf0-ebe5a68aab54.png"
               />
             </button>
@@ -501,7 +505,11 @@ const SearchHospital = () => {
                     }}
                     backgroundColor="#15B5BF"
                   >
-                    <button onClick={() => router.push("/")}>
+                    <button
+                      onClick={() =>
+                        router.push("/", undefined, { shallow: true })
+                      }
+                    >
                       <AiOutlineArrowLeft size={24} />
                       <div>이전으로</div>
                     </button>
@@ -662,7 +670,6 @@ const SearchHospital = () => {
 
                 {!isLoading &&
                   recentlyReview?.data?.map((review: any) => {
-                    console.log(currentUser);
                     return (
                       <>
                         <ReviewContainer key={review.id}>

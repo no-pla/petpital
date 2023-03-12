@@ -66,7 +66,7 @@ const PetconsultDetail = () => {
 
   const goToNewQnAPage = () => {
     if (currentUser !== null) {
-      router.push("/petconsult/new");
+      router.push("/petconsult/new", undefined, { shallow: true });
     } else {
       setIsLogin(true);
     }
@@ -74,7 +74,7 @@ const PetconsultDetail = () => {
 
   const deleteCounselPost = async () => {
     if (id === targetId) {
-      router.push("/petconsult");
+      router.push("/petconsult", undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
     await deleteCounsel(targetId);
@@ -89,9 +89,11 @@ const PetconsultDetail = () => {
         <CustomHeader>
           <BackButton
             onClick={() =>
-              router.push("/petconsult").then(() => {
-                router.reload();
-              })
+              router
+                .push("/petconsult", undefined, { shallow: true })
+                .then(() => {
+                  router.reload();
+                })
             }
           >
             <BsArrowLeftCircle /> 이전으로
@@ -117,7 +119,9 @@ const PetconsultDetail = () => {
           modalText2={"질문을 남겨보세요!"}
         >
           <ModalButton onClick={() => setIsLogin(false)}>취소</ModalButton>
-          <ModalButton onClick={() => router.push("/signup")}>
+          <ModalButton
+            onClick={() => router.push("/signup", undefined, { shallow: true })}
+          >
             회원가입 하기
           </ModalButton>
         </CustomModal>

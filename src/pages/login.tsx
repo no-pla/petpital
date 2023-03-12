@@ -52,7 +52,7 @@ const Login = () => {
         // -- useruid 전역상태관리 --
         setUidState(authService.currentUser?.uid);
 
-        router.push("/");
+        router.push("/", undefined, { shallow: true });
       })
       .catch((err) => {
         if (err.message.includes("user-not-found")) {
@@ -68,13 +68,13 @@ const Login = () => {
     let provider = new FacebookAuthProvider();
     await signInWithPopup(authService, provider);
     setUidState(authService.currentUser?.uid);
-    router.push("/");
+    router.push("/", undefined, { shallow: true });
   };
   const onGoogleSignIn = async () => {
     let provider = new GoogleAuthProvider();
     await signInWithPopup(authService, provider);
     setUidState(authService.currentUser?.uid);
-    router.push("/");
+    router.push("/", undefined, { shallow: true });
   };
 
   // 로그아웃할때 setUidState(null); 와 setHospitalState(null) 추가해야됨
@@ -185,14 +185,14 @@ const Login = () => {
           <BottomButtonWrap>
             <Singup
               onClick={() => {
-                router.push("signup");
+                router.push("signup", undefined, { shallow: true });
               }}
             >
               회원가입
             </Singup>
             <Singup
               onClick={() => {
-                router.push("pwFind");
+                router.push("pwFind", undefined, { shallow: true });
               }}
             >
               비밀번호 찾기
@@ -215,7 +215,9 @@ const Login = () => {
               <PetpitalTitle>동물병원 찐 리뷰는</PetpitalTitle>
               <PetpitalSubTitle>펫피털에서!</PetpitalSubTitle>
               <BottomButtonContainer>
-                <MainCustomButton onClick={() => router.push("/")}>
+                <MainCustomButton
+                  onClick={() => router.push("/", undefined, { shallow: true })}
+                >
                   펫피털 구경해보기
                 </MainCustomButton>
               </BottomButtonContainer>

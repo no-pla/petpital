@@ -56,7 +56,7 @@ const CounselSettingButton = ({ counselData }: any) => {
   };
 
   const onOpenInput = (targetId: string) => {
-    router.push(`/petconsult/edit/${targetId}`);
+    router.push(`/petconsult/edit/${targetId}`, undefined, { shallow: true });
   };
 
   const deleteCounselPost = async () => {
@@ -64,7 +64,7 @@ const CounselSettingButton = ({ counselData }: any) => {
     await deleteCounsel(targetId);
 
     if (id === targetId) {
-      await router.push(`/petconsult`);
+      await router.push(`/petconsult`, undefined, { shallow: true });
     }
     setOpenModal((prev: any) => !prev);
   };

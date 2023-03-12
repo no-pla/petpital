@@ -103,9 +103,9 @@ const CreatePostModal = ({ setCreateModalOpen }: CreatePostModalProps) => {
 
   // DB에 저장
   const handleSubmit = async (downloadUrl: any) => {
+    console.log(starRating);
     if (title.replace(/ /g, "") === "") {
       setOpenModalTitle(true);
-
       return;
     } else if (contents.replace(/ /g, "") === "") {
       setOpenModalContents(true);
@@ -195,7 +195,6 @@ const CreatePostModal = ({ setCreateModalOpen }: CreatePostModalProps) => {
       } else if (downloadUrl === undefined) {
         // 새로운 사진이 없으면 리턴
         setOpenModalPhoto((prev) => !prev);
-        // alert("사진을 업로드 해주세요");
         return;
       }
     } catch (error) {
@@ -490,7 +489,7 @@ const ImageBox = styled.label`
 const PostImage = styled.img`
   border: 1px solid lightgray;
   /* border-radius: 100%; */
-  object-fit: fill;
+  object-fit: cover;
 `;
 
 const InputWrap = styled.div`

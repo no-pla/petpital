@@ -55,13 +55,13 @@ const EditCounsel = () => {
       return;
     } else {
       editCounsel({ ...data?.data, content: newCounselRef.current?.value });
-      router.push(`/petconsult/${id}`);
+      router.push(`/petconsult/${id}`, undefined, { shallow: true });
     }
   };
 
   const backToCounselPage = () => {
     if (newCounselRef.current?.value === "") {
-      router.push(`/petconsult/${id}`);
+      router.push(`/petconsult/${id}`, undefined, { shallow: true });
     } else {
       setBackPage((prev) => !prev);
     }
@@ -104,7 +104,11 @@ const EditCounsel = () => {
       )}
       {backPage && (
         <CustomModal modalText1={"정말로 수정을"} modalText2={"취소할까요?"}>
-          <ModalButton onClick={() => router.push("/petconsult")}>
+          <ModalButton
+            onClick={() =>
+              router.push("/petconsult", undefined, { shallow: true })
+            }
+          >
             취소할게요!
           </ModalButton>
           <ModalButton onClick={() => setBackPage((prev) => !prev)}>
@@ -113,7 +117,11 @@ const EditCounsel = () => {
         </CustomModal>
       )}
       <CustomHeader>
-        <BackButton onClick={() => router.push("/petconsult")}>
+        <BackButton
+          onClick={() =>
+            router.push("/petconsult", undefined, { shallow: true })
+          }
+        >
           &larr; 이전으로
         </BackButton>
         <HeaderButton onClick={backToCounselPage}>취소하기</HeaderButton>

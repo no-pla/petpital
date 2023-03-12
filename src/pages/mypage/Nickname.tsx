@@ -92,7 +92,7 @@ const Nickname = () => {
     })
       .then(async () => {
         setNewNickname("");
-        router.push("/mypage");
+        router.push("/mypage", undefined, { shallow: true });
 
         await axios.patch(
           `${REVIEW_SERVER}users/${currentUser.uid}`,
@@ -115,7 +115,7 @@ const Nickname = () => {
             style={{
               marginLeft: "40px",
             }}
-            onClick={() => router.push("/mypage")}
+            onClick={() => router.push("/mypage", undefined, { shallow: true })}
           >
             <BsArrowLeftCircle style={{ marginLeft: "20px" }} color="black" />
             <span>이전으로</span>
