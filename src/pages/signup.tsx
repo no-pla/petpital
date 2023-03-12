@@ -172,56 +172,58 @@ const Join = () => {
                 )
               )}
             </InputWrap>
-          <ButtonWrap>
-            <SignupButton type="submit">회원가입</SignupButton>
-          </ButtonWrap>
-        </FormWrap>
-      </ModalWrap>
-      {joinAready && (
-        <AuthModal>
-          <AuthTitle>이미 가입된 이메일입니다.</AuthTitle>
-          <p>이미 가입된 이메일입니다. 로그인 해주세요.</p>
-          <CustomButton
-            bgColor="#444444"
-            height={8}
-            width={16}
-            onClick={() => setJoinAready(false)}
-          >
-            되돌아가기
-          </CustomButton>
-        </AuthModal>
-      )}
-      {joinFail && (
-        <AuthModal>
-          <AuthTitle>가입할 수 없습니다.</AuthTitle>
-          <p>이메일 또는 비밀번호를 확인해 주세요.</p>
-          <CustomButton
-            bgColor="#444444"
-            height={8}
-            width={16}
-            onClick={() => setJoinFail(false)}
-          >
-            되돌아가기
-          </CustomButton>
-        </AuthModal>
-      )}
-      {joinComplete && (
-        <AuthModal>
-          <AuthTitle>가입성공</AuthTitle>
-          <p>회원가입이 완료되었습니다.</p>
-          <CustomButton
-            bgColor="#15b5bf"
-            height={8}
-            width={16}
-            onClick={() => {
-              router.push("/", undefined, { shallow: true });
-            }}
-          >
-            확인
-          </CustomButton>
-        </AuthModal>
-      )}
-    </ModalBackground>
+
+            <ButtonWrap>
+              <SignupButton type="submit">회원가입</SignupButton>
+            </ButtonWrap>
+          </FormWrap>
+        </ModalWrap>
+        {joinAready && (
+          <AuthModal>
+            <AuthTitle>이미 가입된 이메일입니다.</AuthTitle>
+            <p>이미 가입된 이메일입니다. 로그인 해주세요.</p>
+            <CustomButton
+              bgColor="#444444"
+              height={8}
+              width={16}
+              onClick={() => setJoinAready(false)}
+            >
+              되돌아가기
+            </CustomButton>
+          </AuthModal>
+        )}
+        {joinFail && (
+          <AuthModal>
+            <AuthTitle>가입할 수 없습니다.</AuthTitle>
+            <p>이메일 또는 비밀번호를 확인해 주세요.</p>
+            <CustomButton
+              bgColor="#444444"
+              height={8}
+              width={16}
+              onClick={() => setJoinFail(false)}
+            >
+              되돌아가기
+            </CustomButton>
+          </AuthModal>
+        )}
+        {joinComplete && (
+          <AuthModal>
+            <AuthTitle>가입성공</AuthTitle>
+            <p>회원가입이 완료되었습니다.</p>
+            <CustomButton
+              bgColor="#15b5bf"
+              height={8}
+              width={16}
+              onClick={() => {
+                router.push("/");
+              }}
+            >
+              확인
+            </CustomButton>
+          </AuthModal>
+        )}
+      </ModalBackground>
+    </>
   );
 };
 
