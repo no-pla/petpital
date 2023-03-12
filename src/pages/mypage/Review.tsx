@@ -93,12 +93,20 @@ export default Review;
 // 리뷰 스타일
 
 const MyReivew = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 440px;
-  margin: 0 auto;
-  margin-top: 20px;
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  justify-content: center;
+  justify-items: stretch;
+  @media screen and (max-width: 880px) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 12px;
+
+    margin-top: 20px;
+  }
 `;
 
 const ReviewCoMyReivewntainer = styled.div`
