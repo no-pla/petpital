@@ -14,6 +14,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { QuestionButton } from "./index";
 import { BsArrowLeftCircle } from "react-icons/bs";
 import { onAuthStateChanged } from "firebase/auth";
+import Head from "next/head";
 
 interface INewPetsult {
   filter(arg0: (log: any) => void): INewPetsult;
@@ -81,6 +82,9 @@ const PetconsultDetail = () => {
 
   return (
     <>
+      <Head>
+        <title>펫피탈 | 질문 광장</title>
+      </Head>
       <CounselContainer>
         <CustomHeader>
           <BackButton

@@ -5,6 +5,7 @@ import { RecoilRoot } from "recoil";
 import { ReactQueryDevtools } from "react-query/devtools";
 import "../styles/globals.css";
 import PasswordFindModal from "../components/custom/PasswordFindModal";
+import Head from "next/head";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,12 +17,17 @@ const queryClient = new QueryClient({
 });
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </QueryClientProvider>
-    </RecoilRoot>
+    <>
+      <Head>
+        <link rel="shortcut icon" href="/petpital.ico" />
+      </Head>
+      <RecoilRoot>
+        <QueryClientProvider client={queryClient}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </QueryClientProvider>
+      </RecoilRoot>
+    </>
   );
 }

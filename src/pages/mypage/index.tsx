@@ -4,6 +4,7 @@ import { useGetReviews } from "@/hooks/useGetReviews";
 import { useGetPetConsult } from "@/hooks/usePetsult";
 import styled from "@emotion/styled";
 import { onAuthStateChanged } from "firebase/auth";
+import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -42,62 +43,67 @@ const Mypage = () => {
   };
 
   return (
-    <MyPageContainer>
-      <HeaderContainer>
-        <MyPageHeader>
-          <BackButton
-            onClick={() => router.push("/", undefined, { shallow: true })}
-          >
-            <BsArrowLeftCircle color="white" />
-            <span>이전으로</span>
-          </BackButton>
-          <div>마이페이지</div>
-        </MyPageHeader>
-        <UserProfile>
-          <ImageContainer>
-            <UserProfileImage src={currentUser?.photoURL} />
-            <SettingButton onClick={onProfileChangeClick}>
-              <AiOutlineSetting size={20} color="#15b5bf" />
-            </SettingButton>
-          </ImageContainer>
-          <UserNickName>{authService.currentUser?.displayName}</UserNickName>
-          <UserWritten>
-            <CountPost>
-              <span>남긴 질문 +</span>
-              <span>{petConsult?.data?.length}</span>
-            </CountPost>
-            <CountPost>
-              <span>남긴 리뷰 +</span>
-              <span>{recentlyReview?.data?.length}</span>
-            </CountPost>
-          </UserWritten>
-        </UserProfile>
-        <ToggleButtonContainer>
-          <ToggleButton
-            style={{
-              borderBottom:
-                selected === "hospital" ? "4px solid #FFFFFF" : "none",
-            }}
-            onClick={() => setSelected("hospital")}
-          >
-            남긴 질문
-          </ToggleButton>
-          <ToggleButton
-            style={{
-              borderBottom:
-                selected === "review" ? "4px solid #FFFFFF" : "none",
-            }}
-            onClick={() => setSelected("review")}
-          >
-            리뷰
-          </ToggleButton>
-        </ToggleButtonContainer>
-      </HeaderContainer>
-      <SectionContainer>
-        {selected === "hospital" && <Likedpetpital />}
-        {selected === "review" && <Review />}
-      </SectionContainer>
-    </MyPageContainer>
+    <>
+      <Head>
+        <title>펫피탈 | 마이페이지</title>
+      </Head>
+      <MyPageContainer>
+        <HeaderContainer>
+          <MyPageHeader>
+            <BackButton
+              onClick={() => router.push("/", undefined, { shallow: true })}
+            >
+              <BsArrowLeftCircle color="white" />
+              <span>이전으로</span>
+            </BackButton>
+            <div>마이페이지</div>
+          </MyPageHeader>
+          <UserProfile>
+            <ImageContainer>
+              <UserProfileImage src={currentUser?.photoURL} />
+              <SettingButton onClick={onProfileChangeClick}>
+                <AiOutlineSetting size={20} color="#15b5bf" />
+              </SettingButton>
+            </ImageContainer>
+            <UserNickName>{authService.currentUser?.displayName}</UserNickName>
+            <UserWritten>
+              <CountPost>
+                <span>남긴 질문 +</span>
+                <span>{petConsult?.data?.length}</span>
+              </CountPost>
+              <CountPost>
+                <span>남긴 리뷰 +</span>
+                <span>{recentlyReview?.data?.length}</span>
+              </CountPost>
+            </UserWritten>
+          </UserProfile>
+          <ToggleButtonContainer>
+            <ToggleButton
+              style={{
+                borderBottom:
+                  selected === "hospital" ? "4px solid #FFFFFF" : "none",
+              }}
+              onClick={() => setSelected("hospital")}
+            >
+              남긴 질문
+            </ToggleButton>
+            <ToggleButton
+              style={{
+                borderBottom:
+                  selected === "review" ? "4px solid #FFFFFF" : "none",
+              }}
+              onClick={() => setSelected("review")}
+            >
+              리뷰
+            </ToggleButton>
+          </ToggleButtonContainer>
+        </HeaderContainer>
+        <SectionContainer>
+          {selected === "hospital" && <Likedpetpital />}
+          {selected === "review" && <Review />}
+        </SectionContainer>
+      </MyPageContainer>
+    </>
   );
 };
 

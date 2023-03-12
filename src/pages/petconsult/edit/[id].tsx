@@ -17,6 +17,7 @@ import {
 import { SubBanner } from "../../../components/SubBanner";
 import { REVIEW_SERVER } from "../../../share/server";
 import { UserProfile } from "../../../components/CounselPost";
+import Head from "next/head";
 
 const EditCounsel = () => {
   const router = useRouter();
@@ -78,6 +79,9 @@ const EditCounsel = () => {
 
   return (
     <>
+      <Head>
+        <title>펫피탈 | 질문 수정</title>
+      </Head>
       {tooLongComment && (
         <CustomModal
           modalText1={"글이 너무 깁니다."}
