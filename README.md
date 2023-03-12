@@ -15,12 +15,15 @@
 ### 전체적인 기능
 
 // 움짤 넣기
+![2023-03-12_22-04-42_AdobeExpress](https://user-images.githubusercontent.com/115146172/224547138-43949865-672c-40d9-b1d7-4f91b767c73d.gif)
+
 
 ### 메인페이지
 ![screencapture-petpital-vercel-app-2023-03-12-17_40_44](https://user-images.githubusercontent.com/88391843/224533845-c7d3c4f4-e510-4d36-8e81-7e7662b3bdd1.png)
 
 ### 서치맵 페이지
 ![screencapture-petpital-vercel-app-searchHospital-2023-03-12-17_43_37](https://user-images.githubusercontent.com/88391843/224533965-47e1714c-d630-46c3-8d09-0f050b76ccbe.png)
+
 
 
 ### Q&A페이지
