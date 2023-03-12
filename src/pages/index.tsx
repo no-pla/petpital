@@ -487,6 +487,7 @@ export const CurrentReviewTitle = styled.div`
 export const CurrentReviewPetpitalDesc = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0 15px;
   margin: 9px 0;
 `;
