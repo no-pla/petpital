@@ -31,8 +31,6 @@ const Likedpetpital = () => {
   });
   const router = useRouter();
 
-  const myId = authService.currentUser?.uid;
-
   return (
     <MyCounsel>
       <WriteNewCounsel
@@ -42,11 +40,12 @@ const Likedpetpital = () => {
       >
         궁금한 점 물어보러 가기
       </WriteNewCounsel>
-
-      {!isLoadingPetConsult &&
-        petConsult?.data?.map((counsel, index) => (
-          <CounselItem key={counsel.id} counsel={counsel} index={index} />
-        ))}
+      <CounselList>
+        {!isLoadingPetConsult &&
+          petConsult?.data?.map((counsel, index) => (
+            <CounselItem key={counsel.id} counsel={counsel} index={index} />
+          ))}
+      </CounselList>
     </MyCounsel>
   );
 };
@@ -62,7 +61,7 @@ const MyCounsel = styled.div`
   margin-bottom: 60px;
   min-height: 100vh;
   gap: 12px;
-  width: 440px;
+  /* width: 440px; */
   margin: 0 auto;
 `;
 
@@ -81,11 +80,22 @@ const WriteNewCounsel = styled.button`
 `;
 
 const CounselList = styled.div`
-  display: flex;
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 60px;
+  /* justify-items: stretch; */
+  justify-items: center;
+
+  @media screen and (max-width: 880px) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 12px;
+
+    margin-top: 20px;
+  }
 `;
 
 const Counsel = styled.div`

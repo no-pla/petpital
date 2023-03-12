@@ -131,7 +131,6 @@ const ToggleButton = styled.button`
   font-weight: 500;
   padding: 8px 8px 16px;
   cursor: pointer;
-  width: 76px;
 `;
 
 const CountPost = styled.div`
