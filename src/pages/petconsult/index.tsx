@@ -262,6 +262,9 @@ function Petconsult() {
   };
   return (
     <>
+      <Head>
+        <title>펫피탈 | 질문 광장</title>
+      </Head>
       {isLogin && (
         <CustomModal
           modalText1={"회원가입 후"}
