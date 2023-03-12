@@ -36,6 +36,7 @@ import Image from "next/image";
 import { AiOutlineArrowLeft, AiOutlineClose } from "react-icons/ai";
 import { authService } from "@/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import Head from "next/head";
 
 interface IHospital {
   address_name: string;
@@ -446,6 +447,9 @@ const SearchHospital = () => {
 
   return (
     <>
+      <Head>
+        <title>펫피탈 | 병원 검색</title>
+      </Head>
       {createModalOpen && (
         <CreatePostModal setCreateModalOpen={setCreateModalOpen} />
       )}

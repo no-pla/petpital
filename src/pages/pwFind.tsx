@@ -19,6 +19,7 @@ import app_logo from "../../public/app_logo.png";
 import loginBottomImg from "../../public/loginBottomImg.png";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { LoginBottomImg } from "../components/LoginBottomImg";
+import Head from "next/head";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -39,6 +40,9 @@ const Login = () => {
 
   return (
     <>
+      <Head>
+        <title>펫피탈 | 비밀번호 찾기</title>
+      </Head>
       <ModalBackground>
         <Container>
           <Image

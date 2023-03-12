@@ -25,6 +25,7 @@ import {
   PetpitalSubTitle,
   PetpitalTitle,
 } from "./pwFind";
+import Head from "next/head";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -87,6 +88,9 @@ const Login = () => {
   };
   return (
     <>
+      <Head>
+        <title>펫피탈 | 로그인</title>
+      </Head>
       <ModalBackground>
         {/* {openModal && (
           <PasswordFindModal>

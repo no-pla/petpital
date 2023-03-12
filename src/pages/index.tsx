@@ -26,6 +26,7 @@ import { authService } from "../firebase/firebase";
 import { REVIEW_SERVER } from "../share/server";
 import { BsArrowRightCircle } from "react-icons/bs";
 import { CounselItem } from "../components/custom/CounselItem";
+import Head from "next/head";
 
 function Home() {
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -131,6 +132,9 @@ function Home() {
 
   return (
     <>
+      <Head>
+        <title>펫피탈</title>
+      </Head>
       <MainBannerContiner backgroundImg="https://firebasestorage.googleapis.com/v0/b/gabojago-ab30b.appspot.com/o/asset%2FRectangle%201.png?alt=media&token=80384910-8ef9-456e-8e2f-cb548d67e263">
         <MainBanner>
           <PetpitalTitle>
