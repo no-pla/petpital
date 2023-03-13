@@ -77,7 +77,9 @@ Server: Firebase
 
 - 송지현 [리더] [@no-pla](https://www.github.com/no-pla)
 - 이재성 [부리더] [@ambition0103](https://www.github.com/ambition0103)
-- 박재현 [@vgb30xk](https://www.github.com/vgb30xk)
+- 박재현 깃허브: [@vgb30xk](https://www.github.com/vgb30xk) 
+        이메일: vgb30xk@naver.com
+        티스토리: https://vgb30xk.tistory.com/
 - 이태언 [@lte94](https://www.github.com/lte94)
 - 김재열 [디자이너] [@charlie7590](https://notefolio.net/charlie7590)
 
