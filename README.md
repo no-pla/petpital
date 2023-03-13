@@ -32,7 +32,7 @@
 
 ## Tech Stack
 
-Client: Next, React, Recoil, Typescript, Javascript
+Client: Next, React, Recoil, Typescript
 
 Server: Firebase
 
